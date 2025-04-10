@@ -17,6 +17,16 @@ public class TimeManager : MonoBehaviour
 
     private void Start() => NewGameTime();
 
+    //天气相关
+    private bool dayChanged = false;
+
+    public int GetMonth() => gameMonth;
+    public int GetDay() => gameDay;
+    public Season GetSeason() => gameSeason;
+    public bool GetisInTerm() => isInTerm;
+    public bool GetdayChanged() => dayChanged;
+
+
     private void SkipToNextMonth()
     {
         HandleMonthIncrement(); // 直接进入下个月
@@ -117,7 +127,14 @@ public class TimeManager : MonoBehaviour
 
     private void HandleDayIncrement()
     {
+        //天气相关
+        dayChanged = true; // 标记新的一天开始
+
         gameDay++;
+
+        //天气相关
+        Debug.Log($"日期变化！当前天数：{gameDay}"); // 添加调试日志
+        EventHandler.CallOnDayChangedEvent();
         gameWeekDay = gameWeekDay % 7 + 1; // 更新星期
 
         if (isInTerm) gameWeekCount++; // 学期内周数累计

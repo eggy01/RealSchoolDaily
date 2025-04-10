@@ -17,12 +17,12 @@ public class ItemFader : MonoBehaviour
     public void FadeIn()//逐渐恢复颜色
     {
         Color targetColor = new Color(1, 1, 1, 1);
-        spriteRenderer.DOColor(targetColor, Settings.fadeDuration);
+        spriteRenderer.DOColor(targetColor, Settings.itemfadeDuration);
     }
 
     public void FadeOut()//逐渐半透明
     {
         Color targetColor = new Color(1, 1, 1, Settings.fadeAlpha);
-        spriteRenderer.DOColor(targetColor, Settings.fadeDuration);
+        spriteRenderer.DOColor(targetColor, Settings.itemfadeDuration);
     }
 }

@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - BoundsConfiner
   layers:
   - Default
   - TransparentFX
@@ -67,6 +68,9 @@ TagManager:
     locked: 0
   - name: collsion
     uniqueID: 1514823885
+    locked: 0
+  - name: dialogue
+    uniqueID: 2981762631
     locked: 0
   - name: Weather
     uniqueID: 1542581497
