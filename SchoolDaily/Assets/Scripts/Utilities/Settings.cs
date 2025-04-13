@@ -18,7 +18,7 @@ public class Settings
 
     public const float fadeDuration = 0.5f;//场景切换
     public const float blackoutDuration = 0.5f;//场景切换时黑屏停留时间
-
-
-
+    public const float checkInterval = 5f;//npc对话定期检测
+    public static readonly Color DialogueInactiveColor = new Color(0.3f, 0.3f, 0.3f); // 对话图片未激活颜色（灰色）
 }
+

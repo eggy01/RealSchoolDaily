@@ -118,7 +118,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u5BF9\u8BDD\u6846_1"
+      name: option1
       rect:
         serializedVersion: 2
         x: 347
@@ -139,7 +139,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u5BF9\u8BDD\u6846_2"
+      name: option2
       rect:
         serializedVersion: 2
         x: 369
@@ -212,9 +212,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
+      option1: 270867591
+      option2: 240064302
       "\u5BF9\u8BDD\u6846_0": 1847506493
-      "\u5BF9\u8BDD\u6846_1": 270867591
-      "\u5BF9\u8BDD\u6846_2": 240064302
       "\u5BF9\u8BDD\u6846_\u53F3": 1726415826
       "\u5BF9\u8BDD\u6846_\u5DE6": -1484688435
   mipmapLimitGroupName: 

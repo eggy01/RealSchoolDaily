@@ -15,6 +15,20 @@ namespace SchoolD.Dialogue
         public bool isDone;//该条对话是否结束
         public int index;//对话序号
         public int no;//对话顺序
+
+        public List<string> option;//选项列表
+
+        public string emotion;//表情
+        public bool final;//是否为最后一条
+        public string nextDialogue;//紧接下一条剧情名字
+
+        public string extra;//旁白或者动画等额外信息
+
+        // 构造函数
+        public DialoguePiece()
+        {
+            option = new List<string>(); // 初始化选项列表
+        }
     }
 }
 
