@@ -5,10 +5,10 @@ using UnityEngine;
 public class player : MonoBehaviour
 {
     public GameObject myBag;
-    public float speed = 3;//移动速度，3m/s
+    public float speed = 3;
     private Animator anim;
-
     private bool inputDisable;
+    private bool isPaused;
 
     private void OnEnable()
     {
@@ -47,44 +47,51 @@ public class player : MonoBehaviour
         anim = GetComponent<Animator>();
     }
 
-
     void Update()
     {
-        if (inputDisable == false)
+        if (!isPaused) // 只在非暂停状态下处理输入
         {
-            float x = Input.GetAxisRaw("Horizontal");
-            float y = Input.GetAxisRaw("Vertical");
-            Vector2 direction = new Vector2(x, y);
-
-            if (direction.magnitude > 0)
-            {
-                anim.SetBool("isWalking", true);
-                
-                if (x != 0) // 如果有水平输入
-                {
-                    anim.SetFloat("horizontal", x);
-                    anim.SetFloat("vertical", 0); // 清除垂直动画参数
-                }
-                else // 仅垂直输入
-                {
-                    anim.SetFloat("horizontal", 0); // 清除水平动画参数
-                    anim.SetFloat("vertical", y);
-                }
-            }
-            else
-            {
-                anim.SetBool("isWalking", false);
-            }
-
-            transform.Translate(direction * speed * Time.deltaTime);
+            HandleMovement();
         }
         OpenMybag();
     }
 
-    void OpenMybag(){
-        if(Input.GetKeyDown(KeyCode.B))
+    void HandleMovement()
+    {
+        if (inputDisable) return;
+
+        float x = Input.GetAxisRaw("Horizontal");
+        float y = Input.GetAxisRaw("Vertical");
+        Vector2 direction = new Vector2(x, y);
+
+        UpdateAnimation(direction);
+        transform.Translate(direction * speed * Time.deltaTime);
+    }
+
+    void UpdateAnimation(Vector2 direction)
+    {
+        bool isWalking = direction.magnitude > 0;
+        anim.SetBool("isWalking", isWalking);
+
+        if (isWalking)
         {
-            myBag.SetActive(!myBag.activeInHierarchy);
+            anim.SetFloat("horizontal", direction.x);
+            anim.SetFloat("vertical", direction.y);
         }
+    }
+
+    void OpenMybag()
+    {
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            TogglePause();
+        }
+    }
+
+    public void TogglePause()
+    {
+        isPaused = !isPaused;
+        myBag.SetActive(isPaused); // 确保状态同步
+        Time.timeScale = isPaused ? 0 : 1;
     }
 }
