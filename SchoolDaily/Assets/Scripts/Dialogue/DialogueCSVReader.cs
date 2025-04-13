@@ -63,14 +63,13 @@ public class DialogueCSVReader : MonoBehaviour
             // 解析角色名字
             piece.name = fields[1].Trim();
 
-            // 在头像匹配部分添加调试信息：
             if (spriteDict.TryGetValue(piece.name, out Sprite sprite))
             {
                 piece.faceImage = sprite;
             }
             else if (piece.name == "???")
             {
-                piece.faceImage = spriteDict["默认"];
+                piece.faceImage = spriteDict["默认2"];
             }
             // 设置对话内容
             piece.dialogueText = fields[3].Trim();
@@ -78,22 +77,40 @@ public class DialogueCSVReader : MonoBehaviour
             // 设置位置（默认npc在左，主角在右）
             piece.onLeft = !fields[1].Trim().Contains("主角");
 
-            // 解析表情和暂停标记（如果有）
-            if (fields.Length > 4)
+            // 解析选项
+            if (fields[1].Trim().Contains("主角") && fields.Length > 5 && !fields[4].Equals(string.Empty))
             {
-                string extraData = fields[4].Trim();
-                // 如果包含"（"则可能有表情说明
-                if (extraData.Contains("（"))
-                {
-                    // 可以在这里处理表情标记，如"困惑"、"尴尬"等
-                }
+                piece.option.Clear(); // 清空现有选项
 
-                // 内心独白或需要暂停的对话
-                if (extraData.Contains("内心独白") || extraData.Contains("..."))
+                if (!fields[4].Contains("|")) // 单选项
                 {
-                    piece.hasToPause = true;
+                    piece.option.Add(fields[4].Trim());
+                }
+                else // 多选项
+                {
+                    string[] options = fields[4].Split('|');
+                    foreach (string opt in options)
+                    {
+                        piece.option.Add(opt.Trim());
+                    }
                 }
             }
+
+            // 解析表情
+            if (fields.Length > 6 && !fields[5].Equals(string.Empty))
+            {
+                piece.emotion = fields[5].Trim();
+            }
+
+            //检测是否有下一条紧接着的对话
+            if (fields.Length > 8 && !fields[7].Equals(string.Empty))
+            {
+                piece.nextDialogue = fields[7];
+            }
+
+            //解析额外信息，如动画。
+
+
 
             dialoguePieces.Add(piece);
         }

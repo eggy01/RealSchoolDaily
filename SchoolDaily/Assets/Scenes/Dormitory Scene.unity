@@ -4139,7 +4139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1272825644
 Transform:
   m_ObjectHideFlags: 0
@@ -4149,7 +4149,7 @@ Transform:
   m_GameObject: {fileID: 1272825643}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -11.23, y: -5.16, z: 0}
+  m_LocalPosition: {x: -11, y: -5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5649,7 +5649,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   dialogueList: []
-  csvFile: {fileID: 4900000, guid: 8bf924313e406eb4caefc19fb5b18706, type: 3}
+  csvFile: {fileID: 4900000, guid: f67e858574655144c9c02680bc1a73ba, type: 3}
   storyId: 1
 --- !u!61 &1791768460
 BoxCollider2D:

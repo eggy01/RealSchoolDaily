@@ -69,9 +69,16 @@ public class EventHandler
         ShowDialogueEvent?.Invoke(piece);
     }
 
-    public static event System.Action NextDialogueEvent;
+    // public static event System.Action NextDialogueEvent;
+    // public static void TriggerNextDialogue()
+    // {
+    //     NextDialogueEvent?.Invoke();
+    // }
+
+    public static event Action OnNextDialogueEvent;
+
     public static void TriggerNextDialogue()
     {
-        NextDialogueEvent?.Invoke();
+        OnNextDialogueEvent?.Invoke();
     }
 }

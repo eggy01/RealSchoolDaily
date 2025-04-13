@@ -17,25 +17,14 @@ namespace SchoolD.Dialogue
         public TextAsset csvFile;
 
         public int storyId;//剧情序号
+
+
         private void Awake()
         {
-            // 加载CSV数据
-            // if (csvFiles.Length > 0)
-            // {
-            //     for (int i = 0; i < csvFiles.Length; i++)
-            //     {
-            //         if (!StoryProgressManager.Instance.IsStoryCompleted(int.Parse(csvFiles[i].name)))
-            //         {
-            //             storyId = i;
-            //             dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[storyId]);
-            //             break;
-            //         }
-            //     }
-            // }
-
             dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFile);
             FillDialogueStack();
         }
+
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.CompareTag("Player"))
@@ -49,17 +38,6 @@ namespace SchoolD.Dialogue
                     Destroy(gameObject);//如果过了销毁该触发器
                 }
 
-            }
-        }
-        void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.E) && !istalking)
-            {
-                StartCoroutine(DialogueRoutine());
-            }
-            else if (Input.GetKeyDown(KeyCode.Space) && istalking)
-            {
-                EventHandler.TriggerNextDialogue();
             }
         }
         private void FillDialogueStack()
@@ -94,6 +72,9 @@ namespace SchoolD.Dialogue
             EventHandler.CallShowDialogueEvent(null);
             FillDialogueStack();
             istalking = false;
+
+            StoryProgressManager.Instance.MarkStoryAsCompleted(int.Parse(csvFile.name));//标记该剧情已过
+
             OnFinishEvent?.Invoke();
         }
 
