@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class player : MonoBehaviour
 {
-
+    public GameObject myBag;
     public float speed = 3;//移动速度，3m/s
     private Animator anim;
 
@@ -50,29 +50,41 @@ public class player : MonoBehaviour
 
     void Update()
     {
-        if (inputDisable == false)//玩家不能移动
+        if (inputDisable == false)
         {
-            float x = Input.GetAxisRaw("Horizontal");//得到左右按键
-                                                     //getaxisraw 只会返回1/0/-1；
+            float x = Input.GetAxisRaw("Horizontal");
             float y = Input.GetAxisRaw("Vertical");
             Vector2 direction = new Vector2(x, y);
 
             if (direction.magnitude > 0)
             {
                 anim.SetBool("isWalking", true);
-                anim.SetFloat("horizontal", x);
-                anim.SetFloat("vertical", y);
+                
+                if (x != 0) // 如果有水平输入
+                {
+                    anim.SetFloat("horizontal", x);
+                    anim.SetFloat("vertical", 0); // 清除垂直动画参数
+                }
+                else // 仅垂直输入
+                {
+                    anim.SetFloat("horizontal", 0); // 清除水平动画参数
+                    anim.SetFloat("vertical", y);
+                }
             }
             else
             {
                 anim.SetBool("isWalking", false);
             }
 
-
             transform.Translate(direction * speed * Time.deltaTime);
-            //transform 用于控制和访问该对象在三维空间中的位置、旋转和缩放。
         }
-
+        OpenMybag();
     }
 
+    void OpenMybag(){
+        if(Input.GetKeyDown(KeyCode.B))
+        {
+            myBag.SetActive(!myBag.activeInHierarchy);
+        }
+    }
 }
