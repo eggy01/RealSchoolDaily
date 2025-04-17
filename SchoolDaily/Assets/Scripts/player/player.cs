@@ -54,6 +54,7 @@ public class player : MonoBehaviour
             HandleMovement();
         }
         OpenMybag();
+        Store();
     }
 
     void HandleMovement()
@@ -80,6 +81,15 @@ public class player : MonoBehaviour
         }
     }
 
+    private void Store()
+    {
+        // 当玩家在范围内且按下E键时
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            ShopUI.Instance.ShowShop();
+            Debug.Log("T");
+        }
+    }
     void OpenMybag()
     {
         if (Input.GetKeyDown(KeyCode.B))
