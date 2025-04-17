@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Settings
 {
+    public static string playerName = "李明娟";//玩家名字
+
     public const float itemfadeDuration = 0.25f;
     public const float fadeAlpha = 0.5f;
 

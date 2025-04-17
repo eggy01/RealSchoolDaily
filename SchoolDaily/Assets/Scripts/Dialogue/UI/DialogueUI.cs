@@ -26,6 +26,8 @@ public class DialogueUI : MonoBehaviour
     public Button optionButtonPrefab; // 选项按钮预制体
 
     private int selectedOptionIndex = -1; // 记录玩家选择的选项索引
+
+    public Animator optionMove;
     private void Awake()
     {
         dialogueText.text = "";
@@ -80,21 +82,15 @@ public class DialogueUI : MonoBehaviour
             dialogueText.gameObject.SetActive(false);
             continueButton.gameObject.SetActive(false);
 
+
+
             // 旁白模式：只显示 dialogueBoxTop 和 dialogueText
             if (piece.name.Equals("旁白"))
             {
-                dialogueBoxTop.SetActive(true);
+                dialogueBoxBottom.SetActive(true);
                 dialogueText.gameObject.SetActive(true);
-                dialogueText.text = piece.dialogueText; // 直接显示完整文本（不逐字动画）
 
-                // 等待点击继续
-                while (!Input.GetMouseButtonDown(0)) // 假设点击鼠标左键继续
-                {
-                    yield return null;
-                }
-
-                piece.isDone = true;
-                yield break; // 结束协程
+                yield return StartCoroutine(AnimateText(piece.dialogueText, 1f)); // 逐字动画
             }
             // 非旁白模式：正常显示对话
             else
@@ -117,8 +113,15 @@ public class DialogueUI : MonoBehaviour
                         emotionSprite = npcExpressionOffset.Instance.LoadEmotionSprite(piece.emotion, piece.name);
                     }
 
-                    if (piece.name.Equals("主角"))
+                    if (piece.name.Equals(Settings.playerName))//主角
                     {
+                        if (!piece.isfinalNotFirst)
+                        {
+                            faceLeft.sprite = null;
+                            emotionLeftImage.sprite = null;
+                            nameLeft.text = "";
+
+                        }
                         nameRight.text = piece.name;
                         if (emotionSprite != null)
                         {
@@ -131,6 +134,7 @@ public class DialogueUI : MonoBehaviour
                     {
                         nameLeft.text = piece.name;
                         faceLeft.sprite = piece.faceImage;
+
                         if (!faceLeft.sprite.name.Equals("默认2"))
                             faceLeft.SetNativeSize();
 
@@ -141,12 +145,18 @@ public class DialogueUI : MonoBehaviour
                         }
                     }
 
+                    if (faceLeft.sprite == null)
+                    {
+                        faceLeft.gameObject.SetActive(false);
+                        emotionLeftImage.gameObject.SetActive(false);
+                    }
+
                     // 设置对话框样式（左右对话）
                     if (piece.onLeft)
                     {
                         dialogueBoxTop.GetComponent<Image>().sprite = leftDialogSprite;
                         dialogueBoxBottom.GetComponent<Image>().sprite = rightDialogSprite;
-                        SetImageColor(true, new Color(0.3f, 0.3f, 0.3f)); // 左边亮
+                        SetImageColor(true, Settings.DialogueInactiveColor); // 左边亮
                     }
                     else
                     {
@@ -170,15 +180,23 @@ public class DialogueUI : MonoBehaviour
                         optionButton.onClick.AddListener(() => OnOptionSelected(currentOptionIndex));
                         optionButtons.Add(optionButton);
                     }
+                    optionMove.SetBool("existoption", true);
+                    optionMove.SetBool("selected", false);
 
                     while (selectedOptionIndex == -1)
                     {
                         yield return null;
                     }
-
-                    foreach (Button button in optionButtons)
+                    if (selectedOptionIndex != -1)
                     {
-                        Destroy(button.gameObject);
+                        optionMove.SetBool("selected", true);
+                        optionMove.SetBool("existoption", false);
+                        yield return new WaitForSeconds(0.5f);
+                        foreach (Button button in optionButtons)
+                        {
+
+                            Destroy(button.gameObject);
+                        }
                     }
 
                     ProcessOption(selectedOptionIndex, piece.option);
@@ -189,9 +207,21 @@ public class DialogueUI : MonoBehaviour
                     yield return StartCoroutine(AnimateText(piece.dialogueText, 1f)); // 逐字动画
                 }
             }
-            if (piece.nextDialogue != null && !piece.nextDialogue.Equals(string.Empty))//有紧接着的下一段剧情
-            {
 
+
+            // 动态加载下一剧情文件
+            if (!string.IsNullOrEmpty(piece.nextDialogueCSVFileName))
+            {
+                yield return BlackScreenManager.Instance.PlayTransition(Settings.fadeDuration, Settings.blackoutDuration, false);
+
+                // 动态加载CSV
+                TextAsset nextCSV = DialogueCSVReader.LoadCSVFromResources(piece.nextDialogueCSVFileName);
+                if (nextCSV != null)
+                {
+                    var newDialogueList = DialogueCSVReader.Instance.LoadDialogueData(nextCSV);
+                    EventHandler.CallStartNewDialogueEvent(newDialogueList, piece.nextDialogueCSVFileName);
+                }
+                yield break;
             }
 
             piece.isDone = true;
@@ -208,6 +238,12 @@ public class DialogueUI : MonoBehaviour
             faceRight.gameObject.SetActive(false);
             dialogueText.gameObject.SetActive(false);
             continueButton.gameObject.SetActive(false);
+
+            faceLeft.sprite = null;
+            emotionLeftImage.sprite = null;
+            nameLeft.text = "";
+
+
             currentPiece = null;
         }
     }
@@ -257,11 +293,10 @@ public class DialogueUI : MonoBehaviour
     // 处理选项结果
     private void ProcessOption(int optionIndex, List<string> options)
     {
-        Debug.Log("玩家选择了选项：" + optionIndex);
+        // Debug.Log("玩家选择了选项：" + optionIndex);
         dialogueText.text = options[optionIndex];
+
         dialogueText.gameObject.SetActive(true);
-
-
     }
     private void SetImageColor(bool isLeft, Color color)
     {
@@ -276,9 +311,11 @@ public class DialogueUI : MonoBehaviour
         {
             faceRight.color = new Color(1f, 1f, 1f);
             emotionRightImage.color = new Color(1f, 1f, 1f);
-            faceRight.color = color;
-            emotionRightImage.color = color;
+            faceLeft.color = color;
+            emotionLeftImage.color = color;
         }
 
     }
+
+
 }
