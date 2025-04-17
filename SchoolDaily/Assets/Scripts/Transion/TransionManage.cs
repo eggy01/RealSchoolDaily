@@ -26,8 +26,8 @@ namespace SchoolD.Transition
 
         private void OnTransitionEvent(String sceneToGo, Vector3 positionToGo)
         {
-            Debug.Log("目标场景：" + sceneToGo);
-            Debug.Log(SceneManager.GetActiveScene().name);
+            // Debug.Log("目标场景：" + sceneToGo);
+            // Debug.Log(SceneManager.GetActiveScene().name);
             if (!isfade)
                 StartCoroutine(Transition(sceneToGo, positionToGo));
         }
@@ -47,6 +47,9 @@ namespace SchoolD.Transition
         /// <param name="targetPosition">目标位置</param>
         private IEnumerator Transition(String sceneName, Vector3 targetPosition)
         {
+            Canvas parentCanvas = fadeCanvaGroup.GetComponentInParent<Canvas>();
+            parentCanvas.sortingOrder = 100;
+
             EventHandler.CallBeforeSceneUnLoadEvent();
 
             yield return Fade(1);
@@ -61,13 +64,14 @@ namespace SchoolD.Transition
             yield return new WaitForSeconds(Settings.blackoutDuration); //黑屏停留时间
 
             yield return Fade(0);
+            parentCanvas.sortingOrder = 0;
 
             EventHandler.CallAfterScenLoadEvent();
 
         }
         private IEnumerator LoadSceneSetActive(String sceneName, bool orign = false)//第二个参数为默认不是初始场景
         {
-            Debug.Log("加载1：" + sceneName);
+            // Debug.Log("加载1：" + sceneName);
             yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);//异步加载，叠加场景
             Scene newScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
             //Debug.Log(newScene.name);
@@ -103,9 +107,6 @@ namespace SchoolD.Transition
             isfade = false;
 
             fadeCanvaGroup.blocksRaycasts = false;
-
-
-
         }
 
     }

@@ -18,12 +18,16 @@ namespace SchoolD.Dialogue
         public GameObject canTalkUI; // 可对话图标
 
         private bool istalking; // 记录是否正在说话
+
+        private bool playerInRange; // 跟踪玩家是否在范围内
         public TextAsset[] csvFiles; // 剧情文件
 
         public List<DialoguePiece> dialogueList = new List<DialoguePiece>(); // 存储每一句对话的list
-        private Stack<DialoguePiece> dialogueStack;
+        private Stack<DialoguePiece> dialogueStack = new Stack<DialoguePiece>();
 
-        private int SortID;//剧情文件的名字
+        private string CurrentcsvFileName;//当前剧情文件的名字
+
+        bool hasActiveDialogue = false;//是否存在激活剧情
 
         private void Awake()
         {
@@ -53,17 +57,24 @@ namespace SchoolD.Dialogue
         }
         private void CheckAvailableDialogue()
         {
+            // 如果已经加载过剧情文件，则不再加载
+            if (hasActiveDialogue)
+            {
+                return;
+            }
             // 加载CSV数据
             if (csvFiles.Length > 0)
             {
-                bool hasActiveDialogue = false;
+                Debug.Log(StoryProgressManager1.Instance.IsStoryCompleted("Beginner_02"));
+                Debug.Log(StoryProgressManager1.Instance.CanUnlockStory("Beginner_03"));
                 for (int i = 0; i < csvFiles.Length; i++)
                 {
-                    if (!StoryProgressManager.Instance.IsStoryCompleted(int.Parse(csvFiles[i].name))) // 再结合玩家获得的属性
+                    //!StoryProgressManager.Instance.IsStoryCompleted(int.Parse(csvFiles[i].name))
+                    if (StoryProgressManager1.Instance.CanUnlockStory(csvFiles[i].name) && !StoryProgressManager1.Instance.IsStoryCompleted(csvFiles[i].name)) // 再结合玩家获得的属性
                     {
                         dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[i]);
                         hasActiveDialogue = true;
-                        SortID = int.Parse((csvFiles[i].name));
+                        CurrentcsvFileName = csvFiles[i].name;
                         Debug.Log("当前加载的文件名：" + csvFiles[i].name);
                         break;
                     }
@@ -81,38 +92,53 @@ namespace SchoolD.Dialogue
                 }
             }
         }
-
-        private void OnTriggerStay2D(Collider2D other)
+        private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.CompareTag("Player"))
             {
-                if (Input.GetKeyDown(KeyCode.E))
-                    Debug.Log("按下e");
-                if (canTalk && Input.GetKeyDown(KeyCode.E) && !istalking)
+                playerInRange = true;
+            }
+        }
+
+        private void OnTriggerExit2D(Collider2D other)
+        {
+            if (other.CompareTag("Player"))
+            {
+                playerInRange = false;
+            }
+        }
+
+        private void Update()
+        {
+            if (!playerInRange) return;
+
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                if (canTalk && !istalking)
                 {
                     StartCoroutine(DialogueRoutine());
                 }
-                else if (istalking && Input.GetKeyDown(KeyCode.Space))
-                {
-                    EventHandler.TriggerNextDialogue();
-                }
+            }
+
+            if (istalking && Input.GetKeyDown(KeyCode.Space))
+            {
+                EventHandler.TriggerNextDialogue();
             }
         }
 
         private void FillDialogueStack()
         {
-            dialogueStack = new Stack<DialoguePiece>();
-            foreach (var piece in dialogueList)
+            dialogueStack.Clear();
+            for (int i = dialogueList.Count - 1; i > -1; i--)
             {
-                piece.isDone = false;
-                dialogueStack.Push(piece);
+                dialogueList[i].isDone = false;
+                dialogueStack.Push(dialogueList[i]);
             }
         }
 
         private IEnumerator DialogueRoutine()
         {
             istalking = true;
-            Debug.Log("对话协程启动，剩余对话数: " + dialogueStack.Count);
 
             while (dialogueStack.Count > 0)
             {
@@ -131,12 +157,14 @@ namespace SchoolD.Dialogue
 
             // 对话结束
             EventHandler.CallShowDialogueEvent(null);
-            FillDialogueStack();
+
             istalking = false;
             dialogueList.Clear();
 
-            StoryProgressManager.Instance.MarkStoryAsCompleted(SortID);//标记该剧情已过
+            StoryProgressManager1.Instance.MarkStoryAsCompleted(CurrentcsvFileName);//标记该剧情已过
             canTalkUI.SetActive(false);
+
+            hasActiveDialogue = false; // 重置标记，以便下次可以重新加载剧情文件
 
 
             OnFinishEvent?.Invoke();

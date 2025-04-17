@@ -60,8 +60,14 @@ public class DialogueCSVReader : MonoBehaviour
                 Debug.LogWarning($"无法解析索引: {fields[0]}");
             }
 
-            // 解析角色名字
+            //解析角色名字
+            if (fields[1].Contains("(=pn)") || fields[1].Contains("主角"))
+                fields[1] = fields[1].Replace("(=pn)", Settings.playerName);
+            if (fields[1].Contains("主角"))
+                fields[1] = fields[1].Replace("主角", Settings.playerName);
+
             piece.name = fields[1].Trim();
+
 
             if (spriteDict.TryGetValue(piece.name, out Sprite sprite))
             {
@@ -72,28 +78,37 @@ public class DialogueCSVReader : MonoBehaviour
                 piece.faceImage = spriteDict["默认2"];
             }
             // 设置对话内容
+            if (fields[3].Contains("(=pn)"))
+                fields[3] = fields[3].Replace("(=pn)", Settings.playerName);
             piece.dialogueText = fields[3].Trim();
 
             // 设置位置（默认npc在左，主角在右）
-            piece.onLeft = !fields[1].Trim().Contains("主角");
+            piece.onLeft = !fields[1].Trim().Contains(Settings.playerName);
 
             // 解析选项
-            if (fields[1].Trim().Contains("主角") && fields.Length > 5 && !fields[4].Equals(string.Empty))
+            if (fields[1].Trim().Contains(Settings.playerName) && fields.Length > 5 && !fields[4].Equals(string.Empty))
             {
                 piece.option.Clear(); // 清空现有选项
 
                 if (!fields[4].Contains("|")) // 单选项
                 {
+                    if (fields[4].Contains("(=pn)"))
+                        fields[4] = fields[4].Replace("(=pn)", Settings.playerName);
+
                     piece.option.Add(fields[4].Trim());
                 }
                 else // 多选项
                 {
                     string[] options = fields[4].Split('|');
-                    foreach (string opt in options)
+                    for (int i = 0; i < options.Length; i++)
                     {
-                        piece.option.Add(opt.Trim());
+                        if (options[i].Contains("(=pn)"))
+                            options[i] = options[i].Replace("(=pn)", Settings.playerName);
+                        piece.option.Add(options[i].Trim());
                     }
                 }
+                // 打印选项内容
+                Debug.Log(string.Join(", ", piece.option));
             }
 
             // 解析表情
@@ -105,10 +120,23 @@ public class DialogueCSVReader : MonoBehaviour
             //检测是否有下一条紧接着的对话
             if (fields.Length > 8 && !fields[7].Equals(string.Empty))
             {
-                piece.nextDialogue = fields[7];
+                piece.nextDialogueCSVFileName = fields[7];
             }
 
             //解析额外信息，如动画。
+            if (fields.Length > 9 && !fields[8].Equals(string.Empty))
+            {
+                if (fields[9].Contains("first"))//该条为第一条
+                    piece.isfinalNotFirst = false;
+                if (fields[9].Contains("final"))//该条为最后一条
+                    piece.isfinalNotFirst = true;
+            }
+
+            //激活剧情
+            if (fields.Length > 10 && !fields[9].Equals(string.Empty))
+            {
+                StoryProgressManager1.Instance.AddNewStory(fields[9], csvFile.name);
+            }
 
 
 
@@ -147,5 +175,14 @@ public class DialogueCSVReader : MonoBehaviour
         fields.Add(lastField);
 
         return fields.ToArray();
+    }
+
+    public static TextAsset LoadCSVFromResources(string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName)) return null;
+
+        TextAsset csv = Resources.Load<TextAsset>($"DialogueCSV/{fileName}");
+        if (csv == null) Debug.LogError($"CSV文件加载失败: {fileName}");
+        return csv;
     }
 }
