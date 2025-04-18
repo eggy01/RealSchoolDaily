@@ -26,8 +26,6 @@ namespace SchoolD.Transition
 
         private void OnTransitionEvent(String sceneToGo, Vector3 positionToGo)
         {
-            // Debug.Log("目标场景：" + sceneToGo);
-            // Debug.Log(SceneManager.GetActiveScene().name);
             if (!isfade)
                 StartCoroutine(Transition(sceneToGo, positionToGo));
         }
@@ -55,7 +53,6 @@ namespace SchoolD.Transition
             yield return Fade(1);
 
             yield return SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
-            Debug.Log("加载：" + sceneName);
 
             yield return LoadSceneSetActive(sceneName);
 
