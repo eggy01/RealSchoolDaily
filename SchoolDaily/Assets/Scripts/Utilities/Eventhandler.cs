@@ -81,4 +81,11 @@ public class EventHandler
     public static void CallStartNewDialogueEvent(List<DialoguePiece> stack, string newDialogueFileName)
         => OnStartNewDialogueEvent?.Invoke(stack, newDialogueFileName);
 
+
+    // public static event Action<bool, float> OnScreenFadeEvent;
+
+    // public static void TriggerScreenFadeEvent(bool isFadeIn, float duration)
+    // {
+    //     OnScreenFadeEvent?.Invoke(isFadeIn, duration);
+    // }
 }

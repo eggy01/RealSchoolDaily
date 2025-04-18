@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class player : MonoBehaviour
 {
+    public static player Instance;
     public GameObject myBag;
+    public GameObject store;
     public float speed = 3;
     private Animator anim;
     private bool inputDisable;
@@ -44,6 +47,15 @@ public class player : MonoBehaviour
 
     private void Awake()
     {
+        // 单例模式
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
+        // 初始化其他组件
         anim = GetComponent<Animator>();
     }
 
@@ -54,7 +66,6 @@ public class player : MonoBehaviour
             HandleMovement();
         }
         OpenMybag();
-        Store();
     }
 
     void HandleMovement()
@@ -81,27 +92,31 @@ public class player : MonoBehaviour
         }
     }
 
-    private void Store()
+    public void TogglePause()
     {
-        // 当玩家在范围内且按下E键时
-        if (Input.GetKeyDown(KeyCode.T))
+        bool newState = !myBag.activeSelf;
+
+        // 关闭商店
+        if (newState && store.activeSelf)
         {
-            ShopUI.Instance.ShowShop();
-            Debug.Log("T");
+            ShopUI.Instance.CloseShop();
         }
+
+        myBag.SetActive(newState);
+
+        // 更新暂停状态
+        bool shouldPause = myBag.activeSelf || store.activeSelf;
+        PauseManager.Instance.SetPauseState(shouldPause);
+
+        // 更新玩家暂停状态
+        isPaused = shouldPause;
     }
+
     void OpenMybag()
     {
         if (Input.GetKeyDown(KeyCode.B))
         {
             TogglePause();
         }
-    }
-
-    public void TogglePause()
-    {
-        isPaused = !isPaused;
-        myBag.SetActive(isPaused); // 确保状态同步
-        Time.timeScale = isPaused ? 0 : 1;
     }
 }

@@ -23,19 +23,6 @@ public class InventoryManager : MonoBehaviour
     void Start()
     {
         itemDatabase = CSVLoader.LoadItemData("ItemsData");
-
-        if (itemDatabase.Count > 0)
-        {
-            Debug.Log("所有商品的 ShopTypes");
-            foreach (var item in itemDatabase)
-            {
-                Debug.Log($"{item.ID}，商品: {item.Name}, ShopTypes: {string.Join(", ", item.ShopTypes)}");
-            }
-        }
-        else
-        {
-            Debug.Log("未找到商品数据");
-        }
     }
 
     public ItemData GetItemByID(string id)

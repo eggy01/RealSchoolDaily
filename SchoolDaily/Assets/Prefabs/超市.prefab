@@ -193,13 +193,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3197809811433509361}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -112.2, y: 90.1, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.78, y: 0.6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6027266628325331518}
   - {fileID: 7147335327661567886}
+  - {fileID: 9153754807470894243}
+  - {fileID: 6128994158727653139}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &9152887250527293245
@@ -319,7 +321,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1302360457
-  m_SortingLayer: 8
+  m_SortingLayer: 9
   m_SortingOrder: 0
   m_Sprite: {fileID: -558936251, guid: abb502e5bfca09b4895e9dc3c4a1fd17, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -344,8 +346,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0feb14d989cedb04a8b5cc6a2864dbb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-<<<<<<< Updated upstream
-=======
 --- !u!1 &7515661909832432511
 GameObject:
   m_ObjectHideFlags: 0
@@ -443,7 +443,6 @@ GameObject:
   - component: {fileID: 4984625772961581682}
   - component: {fileID: 1862330480769261944}
   - component: {fileID: 3078742496911707778}
-  - component: {fileID: 1825485636017774557}
   m_Layer: 0
   m_Name: npc2
   m_TagString: Untagged
@@ -599,18 +598,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 4.56118, y: 3.7697678}
   m_EdgeRadius: 0
---- !u!114 &1825485636017774557
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8062581578373801782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0feb14d989cedb04a8b5cc6a2864dbb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8248035767353569905
 GameObject:
   m_ObjectHideFlags: 0
@@ -621,7 +608,6 @@ GameObject:
   m_Component:
   - component: {fileID: 9153754807470894243}
   - component: {fileID: 7576956410079634970}
-  - component: {fileID: 3316091223220350735}
   m_Layer: 0
   m_Name: "\u5C0F\u8D85\u5E02\u5899\u76AE"
   m_TagString: Untagged
@@ -696,16 +682,3 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &3316091223220350735
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8248035767353569905}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0feb14d989cedb04a8b5cc6a2864dbb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
->>>>>>> Stashed changes
