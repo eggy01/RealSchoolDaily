@@ -133,10 +133,10 @@ public class PackageLocalData
             return;
         }
 
-        Debug.Log($"背包中的物品数量:{items.Count}");
-        // foreach (PackageLocalItem item in items)
-        // {
-        //     Debug.Log(item.ToString());
-        // }
+        Debug.Log("背包中的物品：");
+        foreach (PackageLocalItem item in items)
+        {
+            Debug.Log(item.ToString());
+        }
     }
 }

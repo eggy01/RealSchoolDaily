@@ -60,6 +60,7 @@ public class GoldManager : MonoBehaviour
     {
         if (amount <= 0 || CurrentGold < amount) return false;
         CurrentGold -= amount;
+        Debug.Log(CurrentGold);
         return true;
     }
 

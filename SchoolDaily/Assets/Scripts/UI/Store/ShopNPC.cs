@@ -12,16 +12,9 @@ public class ShopNPC : MonoBehaviour
     {
         // 当玩家在范围内且按下E键时
         if (isInRange && Input.GetKeyDown(KeyCode.E))
-    {
-        if (ShopUI.Instance.shopPanel.activeSelf)
-        {
-            ShopUI.Instance.CloseShop();
-        }
-        else
         {
             ShopUI.Instance.ShowShop(shopType);
         }
-    }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
