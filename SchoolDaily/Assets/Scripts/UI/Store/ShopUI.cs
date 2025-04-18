@@ -25,6 +25,7 @@ public class ShopUI : MonoBehaviour
     #region Public Variables
     [Header("UI组件")]
     public GameObject shopPanel;
+    public GameObject bag;
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI goldText;
     public TextMeshProUGUI totalCostText;
@@ -39,6 +40,7 @@ public class ShopUI : MonoBehaviour
     public Color normalColor = Color.white;
     public Color insufficientColor = Color.red;
     public Sprite defaultIcon;
+    private bool isPaused;
 
     [Header("长按设置")]
     public float initialDelay = 0.5f;
@@ -61,10 +63,27 @@ public class ShopUI : MonoBehaviour
     //打开商店 在ShopNPC中调用，传入shopType
     public void ShowShop(string shopType = "超市")
     {
+        // 关闭背包
+        if (player.Instance.myBag.activeSelf)
+        {
+            player.Instance.TogglePause();
+        }
+
         titleText.text = shopType;
         shopPanel.SetActive(true);
+        PauseManager.Instance.SetPauseState(true);
         RefreshShopItems();
         UpdateUI();
+    }
+
+    public void CloseShop()
+    {
+        shopPanel.SetActive(false);
+        // 检查是否还有其他界面打开
+        if (!player.Instance.myBag.activeSelf)
+        {
+            PauseManager.Instance.SetPauseState(false);
+        }
     }
 
     //刷新商店列表
@@ -269,13 +288,7 @@ public class ShopUI : MonoBehaviour
         trigger.triggers.Add(entry);
     }
 
-    public void CloseShop()
-    {
-        shopPanel.SetActive(false);
-        _currentSelectedItem = null;
-        _currentQuantity = 0;
-        EndHolding();
-    }
+
     #endregion
 
     #region 购买逻辑
