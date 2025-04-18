@@ -13,6 +13,7 @@ public class PackageLocalItem
     {
         return string.Format("[ID]:{0} [Num]:{1} [IsNew]:{2}", ID, Num, IsNew);
     }
+
 }
 
 [System.Serializable]

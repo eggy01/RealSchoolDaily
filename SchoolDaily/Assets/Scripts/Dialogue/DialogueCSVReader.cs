@@ -77,6 +77,10 @@ public class DialogueCSVReader : MonoBehaviour
             {
                 piece.faceImage = spriteDict["默认2"];
             }
+            else if (piece.name == "负责分发图书的学生")
+            {
+                piece.faceImage = spriteDict["女学生"];
+            }
 
             // 设置对话内容
             {

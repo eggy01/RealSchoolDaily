@@ -60,6 +60,9 @@ TagManager:
   - name: buliding
     uniqueID: 3847914341
     locked: 0
+  - name: mask
+    uniqueID: 1949899401
+    locked: 0
   - name: player
     uniqueID: 4260578939
     locked: 0
