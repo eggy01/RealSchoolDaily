@@ -77,17 +77,10 @@ public class DialogueCSVReader : MonoBehaviour
             {
                 piece.faceImage = spriteDict["默认2"];
             }
-            else if (piece.name == "负责分发图书的学生")
-            {
-                piece.faceImage = spriteDict["女学生"];
-            }
-
             // 设置对话内容
-            {
-                if (fields[3].Contains("(=pn)"))
-                    fields[3] = fields[3].Replace("(=pn)", Settings.playerName);
-                piece.dialogueText = fields[3].Trim();
-            }
+            if (fields[3].Contains("(=pn)"))
+                fields[3] = fields[3].Replace("(=pn)", Settings.playerName);
+            piece.dialogueText = fields[3].Trim();
 
             // 设置位置（默认npc在左，主角在右）
             piece.onLeft = !fields[1].Trim().Contains(Settings.playerName);
@@ -114,6 +107,8 @@ public class DialogueCSVReader : MonoBehaviour
                         piece.option.Add(options[i].Trim());
                     }
                 }
+                // 打印选项内容
+                Debug.Log(string.Join(", ", piece.option));
             }
 
             // 解析表情
@@ -122,13 +117,28 @@ public class DialogueCSVReader : MonoBehaviour
                 piece.emotion = fields[5].Trim();
             }
 
+<<<<<<< Updated upstream
+=======
             // 解析操作，如，黑屏等
             if (fields.Length > 7 && !fields[6].Equals(string.Empty))
             {
                 if (fields[6].Contains("动画:黑屏"))
                     piece.extra = 1;
+<<<<<<< Updated upstream
+                if (fields[6].Contains("移动:"))
+                {
+                    if (fields[6].Contains("宿舍外"))
+                        piece.moveToPosition = "Life Scene";
+                }
+=======
+                if (fields[6].Contains("移动"))
+                    if (fields[6].Trim().Equals("宿舍外"))
+                        piece.MoveToPosition = "Life Scene";
+
+>>>>>>> Stashed changes
             }
 
+>>>>>>> Stashed changes
             //检测是否有下一条紧接着的对话
             if (fields.Length > 8 && !fields[7].Equals(string.Empty))
             {
@@ -139,20 +149,18 @@ public class DialogueCSVReader : MonoBehaviour
             if (fields.Length > 9 && !fields[8].Equals(string.Empty))
             {
                 if (fields[9].Contains("first"))//该条为第一条
-                    piece.isfinalNotFirst = false;
+                    piece.isfinalNotFirst = 0;
                 if (fields[9].Contains("final"))//该条为最后一条
-                    piece.isfinalNotFirst = true;
+                    piece.isfinalNotFirst = 1;
             }
+
             //激活剧情
             if (fields.Length > 10 && !fields[9].Equals(string.Empty))
             {
-                StoryProgressManager.Instance.AddNewStory(fields[9], csvFile.name);
+                StoryProgressManager1.Instance.AddNewStory(fields[9], csvFile.name);
             }
-            //任务
-            if (fields.Length > 11 && !fields[10].Equals(string.Empty))
-            {
-                piece.taskPID = fields[10];
-            }
+
+
 
             dialoguePieces.Add(piece);
         }

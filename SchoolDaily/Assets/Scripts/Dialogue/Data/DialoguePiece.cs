@@ -19,16 +19,26 @@ namespace SchoolD.Dialogue
         public List<string> option;//选项列表
 
         public string emotion;//表情
-        public bool isfinalNotFirst;//为最后一条
+        public int isfinalNotFirst = -1;//为最后一条
+        //-1为正常，0为第一条，1为最后一条
         public string nextDialogueCSVFileName;//紧接下一条剧情文件名字
 
-        public int extra;//动画等额外信息
-        //1为动画：黑屏
+        public string extra;//旁白或者动画等额外信息
 
         public string activeDialogue;//激活剧情
 
+<<<<<<< Updated upstream
+=======
         public string taskPID;//任务
 
+<<<<<<< Updated upstream
+        public string moveToPosition;
+
+>>>>>>> Stashed changes
+=======
+        public string MoveToPosition;
+
+>>>>>>> Stashed changes
         // 构造函数
         public DialoguePiece()
         {
