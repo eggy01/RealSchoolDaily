@@ -1,43 +1,32 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class DragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+[RequireComponent(typeof(ScrollRect))]
+public class ForceScrollWheel : MonoBehaviour
 {
-    private ScrollRect parentScrollRect;
+    public float scrollSensitivity = 1f; // 滚轮灵敏度
+    private ScrollRect scrollRect;
 
-    private void Start()
+    void Start()
     {
-        parentScrollRect = GetComponentInParent<ScrollRect>();
+        scrollRect = GetComponent<ScrollRect>();
     }
 
-    public void OnBeginDrag(PointerEventData eventData)
+    void Update()
     {
-        if (parentScrollRect != null)
+        // 检测鼠标滚轮输入
+        float wheelInput = Input.GetAxis("Mouse ScrollWheel");
+        
+        if (wheelInput != 0 && scrollRect.vertical) // 如果是垂直滚动
         {
-            parentScrollRect.OnBeginDrag(eventData);
+            // 直接调整滚动位置
+            scrollRect.verticalNormalizedPosition += wheelInput * scrollSensitivity;
+            scrollRect.verticalNormalizedPosition = Mathf.Clamp(scrollRect.verticalNormalizedPosition, 0f, 1f);
         }
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (parentScrollRect != null)
+        else if (wheelInput != 0 && scrollRect.horizontal) // 如果是水平滚动
         {
-            parentScrollRect.OnDrag(eventData);
+            scrollRect.horizontalNormalizedPosition += wheelInput * scrollSensitivity;
+            scrollRect.horizontalNormalizedPosition = Mathf.Clamp(scrollRect.horizontalNormalizedPosition, 0f, 1f);
         }
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (parentScrollRect != null)
-        {
-            parentScrollRect.OnEndDrag(eventData);
-        }
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        // 触发点击事件
-        Debug.Log("Clicked: " + gameObject.name);
     }
 }
