@@ -25,7 +25,6 @@ public class ShopUI : MonoBehaviour
     #region Public Variables
     [Header("UI组件")]
     public GameObject shopPanel;
-    public GameObject bag;
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI goldText;
     public TextMeshProUGUI totalCostText;
