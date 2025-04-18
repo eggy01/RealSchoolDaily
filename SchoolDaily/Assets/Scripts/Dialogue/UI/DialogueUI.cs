@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SchoolD.Dialogue;
 using TMPro;
 using UnityEngine;
+using UnityEngine.iOS;
 using UnityEngine.UI;
 
 public class DialogueUI : MonoBehaviour
@@ -28,6 +29,15 @@ public class DialogueUI : MonoBehaviour
     private int selectedOptionIndex = -1; // 记录玩家选择的选项索引
 
     public Animator optionMove;
+<<<<<<< Updated upstream
+=======
+
+    public GameObject taskPanel; // 存放任务提示的面板
+    public Animator LeftoptionMove;
+    private bool isblack = false;
+    private string moveToPosition;
+
+>>>>>>> Stashed changes
     private void Awake()
     {
         dialogueText.text = "";
@@ -115,12 +125,11 @@ public class DialogueUI : MonoBehaviour
 
                     if (piece.name.Equals(Settings.playerName))//主角
                     {
-                        if (!piece.isfinalNotFirst)
+                        if (piece.isfinalNotFirst == 0)//当主角第一个说话时
                         {
                             faceLeft.sprite = null;
                             emotionLeftImage.sprite = null;
                             nameLeft.text = "";
-
                         }
                         nameRight.text = piece.name;
                         if (emotionSprite != null)
@@ -208,7 +217,6 @@ public class DialogueUI : MonoBehaviour
                 }
             }
 
-
             // 动态加载下一剧情文件
             if (!string.IsNullOrEmpty(piece.nextDialogueCSVFileName))
             {
@@ -224,11 +232,17 @@ public class DialogueUI : MonoBehaviour
                 yield break;
             }
 
+            if (!string.IsNullOrEmpty(piece.moveToPosition))
+            {
+                moveToPosition = piece.moveToPosition;
+            }
+
             piece.isDone = true;
             continueButton.gameObject.SetActive(piece.hasToPause && piece.isDone);
         }
         else
         {
+<<<<<<< Updated upstream
             // 隐藏所有UI（无对话时）
             dialogueBoxTop.SetActive(false);
             dialogueBoxBottom.SetActive(false);
@@ -245,6 +259,12 @@ public class DialogueUI : MonoBehaviour
 
 
             currentPiece = null;
+=======
+            SetAllFalse();
+            if (!string.IsNullOrEmpty(moveToPosition))
+                EventHandler.CallTransitionEvent(moveToPosition, SceneToInitalPosition.Instance.GetInitialPosition(moveToPosition));
+            moveToPosition = "";
+>>>>>>> Stashed changes
         }
     }
 

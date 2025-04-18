@@ -117,6 +117,21 @@ public class DialogueCSVReader : MonoBehaviour
                 piece.emotion = fields[5].Trim();
             }
 
+<<<<<<< Updated upstream
+=======
+            // 解析操作，如，黑屏等
+            if (fields.Length > 7 && !fields[6].Equals(string.Empty))
+            {
+                if (fields[6].Contains("动画:黑屏"))
+                    piece.extra = 1;
+                if (fields[6].Contains("移动:"))
+                {
+                    if (fields[6].Contains("宿舍外"))
+                        piece.moveToPosition = "Life Scene";
+                }
+            }
+
+>>>>>>> Stashed changes
             //检测是否有下一条紧接着的对话
             if (fields.Length > 8 && !fields[7].Equals(string.Empty))
             {
@@ -127,9 +142,9 @@ public class DialogueCSVReader : MonoBehaviour
             if (fields.Length > 9 && !fields[8].Equals(string.Empty))
             {
                 if (fields[9].Contains("first"))//该条为第一条
-                    piece.isfinalNotFirst = false;
+                    piece.isfinalNotFirst = 0;
                 if (fields[9].Contains("final"))//该条为最后一条
-                    piece.isfinalNotFirst = true;
+                    piece.isfinalNotFirst = 1;
             }
 
             //激活剧情

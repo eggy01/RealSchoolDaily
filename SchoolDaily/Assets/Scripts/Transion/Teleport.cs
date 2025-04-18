@@ -13,9 +13,7 @@ namespace SchoolD.Transition
         {
             if (other.CompareTag("Player"))
             {
-                Debug.Log("目标场景：" + sceneToGo);
                 EventHandler.CallTransitionEvent(sceneToGo, positionToGo);
-
             }
         }
     }
