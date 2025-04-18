@@ -31,7 +31,12 @@ namespace SchoolD.Dialogue
 =======
         public string taskPID;//任务
 
+<<<<<<< Updated upstream
         public string moveToPosition;
+
+>>>>>>> Stashed changes
+=======
+        public string MoveToPosition;
 
 >>>>>>> Stashed changes
         // 构造函数

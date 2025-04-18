@@ -124,11 +124,18 @@ public class DialogueCSVReader : MonoBehaviour
             {
                 if (fields[6].Contains("动画:黑屏"))
                     piece.extra = 1;
+<<<<<<< Updated upstream
                 if (fields[6].Contains("移动:"))
                 {
                     if (fields[6].Contains("宿舍外"))
                         piece.moveToPosition = "Life Scene";
                 }
+=======
+                if (fields[6].Contains("移动"))
+                    if (fields[6].Trim().Equals("宿舍外"))
+                        piece.MoveToPosition = "Life Scene";
+
+>>>>>>> Stashed changes
             }
 
 >>>>>>> Stashed changes

@@ -37,6 +37,11 @@ public class DialogueUI : MonoBehaviour
     private bool isblack = false;
     private string moveToPosition;
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+    private string MoveToPosition;
+
 >>>>>>> Stashed changes
     private void Awake()
     {
@@ -232,10 +237,16 @@ public class DialogueUI : MonoBehaviour
                 yield break;
             }
 
+<<<<<<< Updated upstream
             if (!string.IsNullOrEmpty(piece.moveToPosition))
             {
                 moveToPosition = piece.moveToPosition;
             }
+=======
+            //场景切换，人物移动
+            if (!string.IsNullOrEmpty(piece.MoveToPosition))
+                MoveToPosition = piece.MoveToPosition;
+>>>>>>> Stashed changes
 
             piece.isDone = true;
             continueButton.gameObject.SetActive(piece.hasToPause && piece.isDone);
@@ -261,9 +272,15 @@ public class DialogueUI : MonoBehaviour
             currentPiece = null;
 =======
             SetAllFalse();
+<<<<<<< Updated upstream
             if (!string.IsNullOrEmpty(moveToPosition))
                 EventHandler.CallTransitionEvent(moveToPosition, SceneToInitalPosition.Instance.GetInitialPosition(moveToPosition));
             moveToPosition = "";
+>>>>>>> Stashed changes
+=======
+
+            if (!string.IsNullOrEmpty(MoveToPosition)) //场景切换，人物移动
+                EventHandler.CallTransitionEvent(MoveToPosition, SceneToInitialPosition.Instance.GetInitialPosition(MoveToPosition));
 >>>>>>> Stashed changes
         }
     }

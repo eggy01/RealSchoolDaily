@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UIElements;
 
 
 namespace SchoolD.Dialogue
@@ -19,7 +20,7 @@ namespace SchoolD.Dialogue
 
         private bool istalking; // 记录是否正在说话
 
-        private bool playerInRange; // 跟踪玩家是否在范围内
+        public bool playerInRange; // 跟踪玩家是否在范围内
         public TextAsset[] csvFiles; // 剧情文件
 
         public List<DialoguePiece> dialogueList = new List<DialoguePiece>(); // 存储每一句对话的list
@@ -27,7 +28,7 @@ namespace SchoolD.Dialogue
 
         private string CurrentcsvFileName;//当前剧情文件的名字
 
-        bool hasActiveDialogue = false;//是否存在激活剧情
+        public bool hasActiveDialogue = false;//是否存在激活剧情
 
         private void Awake()
         {
@@ -37,6 +38,8 @@ namespace SchoolD.Dialogue
 
         private void Start()
         {
+            if (csvFiles.Length < 1)
+                Debug.LogError("必须有一个默认对话文件");
             // 初始化后立即检测一次
             CheckAvailableDialogue();
 
@@ -65,17 +68,22 @@ namespace SchoolD.Dialogue
             // 加载CSV数据
             if (csvFiles.Length > 0)
             {
+<<<<<<< Updated upstream
                 Debug.Log(StoryProgressManager1.Instance.IsStoryCompleted("Beginner_02"));
                 Debug.Log(StoryProgressManager1.Instance.CanUnlockStory("Beginner_03"));
                 for (int i = 0; i < csvFiles.Length; i++)
                 {
                     //!StoryProgressManager.Instance.IsStoryCompleted(int.Parse(csvFiles[i].name))
                     if (StoryProgressManager1.Instance.CanUnlockStory(csvFiles[i].name) && !StoryProgressManager1.Instance.IsStoryCompleted(csvFiles[i].name)) // 再结合玩家获得的属性
+=======
+                for (int i = 0; i < csvFiles.Length; i++)
+                {
+                    if (StoryProgressManager.Instance.CanUnlockStory(csvFiles[i].name) && !StoryProgressManager.Instance.IsStoryCompleted(csvFiles[i].name)) // 再结合玩家获得的属性
+>>>>>>> Stashed changes
                     {
                         dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[i]);
                         hasActiveDialogue = true;
                         CurrentcsvFileName = csvFiles[i].name;
-                        Debug.Log("当前加载的文件名：" + csvFiles[i].name);
                         break;
                     }
                 }
@@ -126,16 +134,6 @@ namespace SchoolD.Dialogue
             }
         }
 
-        private void FillDialogueStack()
-        {
-            dialogueStack.Clear();
-            for (int i = dialogueList.Count - 1; i > -1; i--)
-            {
-                dialogueList[i].isDone = false;
-                dialogueStack.Push(dialogueList[i]);
-            }
-        }
-
         private IEnumerator DialogueRoutine()
         {
             istalking = true;
@@ -169,5 +167,43 @@ namespace SchoolD.Dialogue
 
             OnFinishEvent?.Invoke();
         }
+
+        private void OnMouseOver()
+        {
+            if (Input.GetMouseButtonDown(1)) // 1表示右键
+            {
+                if (playerInRange && !hasActiveDialogue)
+                {
+                    TriggerDefaultDialogue();
+                }
+            }
+        }
+
+        private void TriggerDefaultDialogue()
+        {
+            // 加载默认对话
+            dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[0]);
+            hasActiveDialogue = true;
+            CurrentcsvFileName = csvFiles[0].name;
+
+            FillDialogueStack();// 准备对话
+
+            // 如果不在对话中，则开始对话
+            if (!istalking)
+            {
+                StartCoroutine(DialogueRoutine());
+            }
+        }
+
+        private void FillDialogueStack()
+        {
+            dialogueStack.Clear();
+            for (int i = dialogueList.Count - 1; i > -1; i--)
+            {
+                dialogueList[i].isDone = false;
+                dialogueStack.Push(dialogueList[i]);
+            }
+        }
+
     }
 }
