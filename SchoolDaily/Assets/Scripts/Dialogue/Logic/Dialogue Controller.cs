@@ -68,18 +68,9 @@ namespace SchoolD.Dialogue
             // 加载CSV数据
             if (csvFiles.Length > 0)
             {
-<<<<<<< Updated upstream
-                Debug.Log(StoryProgressManager1.Instance.IsStoryCompleted("Beginner_02"));
-                Debug.Log(StoryProgressManager1.Instance.CanUnlockStory("Beginner_03"));
-                for (int i = 0; i < csvFiles.Length; i++)
-                {
-                    //!StoryProgressManager.Instance.IsStoryCompleted(int.Parse(csvFiles[i].name))
-                    if (StoryProgressManager1.Instance.CanUnlockStory(csvFiles[i].name) && !StoryProgressManager1.Instance.IsStoryCompleted(csvFiles[i].name)) // 再结合玩家获得的属性
-=======
                 for (int i = 0; i < csvFiles.Length; i++)
                 {
                     if (StoryProgressManager.Instance.CanUnlockStory(csvFiles[i].name) && !StoryProgressManager.Instance.IsStoryCompleted(csvFiles[i].name)) // 再结合玩家获得的属性
->>>>>>> Stashed changes
                     {
                         dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[i]);
                         hasActiveDialogue = true;
@@ -159,7 +150,7 @@ namespace SchoolD.Dialogue
             istalking = false;
             dialogueList.Clear();
 
-            StoryProgressManager1.Instance.MarkStoryAsCompleted(CurrentcsvFileName);//标记该剧情已过
+            StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);//标记该剧情已过
             canTalkUI.SetActive(false);
 
             hasActiveDialogue = false; // 重置标记，以便下次可以重新加载剧情文件

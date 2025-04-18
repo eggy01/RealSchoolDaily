@@ -29,20 +29,12 @@ public class DialogueUI : MonoBehaviour
     private int selectedOptionIndex = -1; // 记录玩家选择的选项索引
 
     public Animator optionMove;
-<<<<<<< Updated upstream
-=======
 
     public GameObject taskPanel; // 存放任务提示的面板
     public Animator LeftoptionMove;
-    private bool isblack = false;
-    private string moveToPosition;
 
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
     private string MoveToPosition;
 
->>>>>>> Stashed changes
     private void Awake()
     {
         dialogueText.text = "";
@@ -208,7 +200,6 @@ public class DialogueUI : MonoBehaviour
                         yield return new WaitForSeconds(0.5f);
                         foreach (Button button in optionButtons)
                         {
-
                             Destroy(button.gameObject);
                         }
                     }
@@ -237,52 +228,42 @@ public class DialogueUI : MonoBehaviour
                 yield break;
             }
 
-<<<<<<< Updated upstream
-            if (!string.IsNullOrEmpty(piece.moveToPosition))
-            {
-                moveToPosition = piece.moveToPosition;
-            }
-=======
             //场景切换，人物移动
             if (!string.IsNullOrEmpty(piece.MoveToPosition))
                 MoveToPosition = piece.MoveToPosition;
->>>>>>> Stashed changes
 
             piece.isDone = true;
             continueButton.gameObject.SetActive(piece.hasToPause && piece.isDone);
         }
         else
         {
-<<<<<<< Updated upstream
-            // 隐藏所有UI（无对话时）
-            dialogueBoxTop.SetActive(false);
-            dialogueBoxBottom.SetActive(false);
-            nameLeft.gameObject.SetActive(false);
-            nameRight.gameObject.SetActive(false);
-            faceLeft.gameObject.SetActive(false);
-            faceRight.gameObject.SetActive(false);
-            dialogueText.gameObject.SetActive(false);
-            continueButton.gameObject.SetActive(false);
-
-            faceLeft.sprite = null;
-            emotionLeftImage.sprite = null;
-            nameLeft.text = "";
-
-
-            currentPiece = null;
-=======
             SetAllFalse();
-<<<<<<< Updated upstream
-            if (!string.IsNullOrEmpty(moveToPosition))
-                EventHandler.CallTransitionEvent(moveToPosition, SceneToInitalPosition.Instance.GetInitialPosition(moveToPosition));
-            moveToPosition = "";
->>>>>>> Stashed changes
-=======
 
             if (!string.IsNullOrEmpty(MoveToPosition)) //场景切换，人物移动
+            {
                 EventHandler.CallTransitionEvent(MoveToPosition, SceneToInitialPosition.Instance.GetInitialPosition(MoveToPosition));
->>>>>>> Stashed changes
+                MoveToPosition = "";
+            }
+
         }
+    }
+    private void SetAllFalse()
+    {
+        // 隐藏所有UI（无对话时）
+        dialogueBoxTop.SetActive(false);
+        dialogueBoxBottom.SetActive(false);
+        nameLeft.gameObject.SetActive(false);
+        nameRight.gameObject.SetActive(false);
+        faceLeft.gameObject.SetActive(false);
+        faceRight.gameObject.SetActive(false);
+        dialogueText.gameObject.SetActive(false);
+        continueButton.gameObject.SetActive(false);
+
+        faceLeft.sprite = null;
+        emotionLeftImage.sprite = null;
+        nameLeft.text = "";
+
+        currentPiece = null;
     }
 
     IEnumerator AnimateText(string text, float duration)
