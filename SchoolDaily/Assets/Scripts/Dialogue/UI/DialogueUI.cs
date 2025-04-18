@@ -28,6 +28,10 @@ public class DialogueUI : MonoBehaviour
     private int selectedOptionIndex = -1; // 记录玩家选择的选项索引
 
     public Animator optionMove;
+
+    public GameObject taskPanel; // 存放任务提示的面板
+    public Animator LeftoptionMove;
+
     private void Awake()
     {
         dialogueText.text = "";
@@ -194,7 +198,6 @@ public class DialogueUI : MonoBehaviour
                         yield return new WaitForSeconds(0.5f);
                         foreach (Button button in optionButtons)
                         {
-
                             Destroy(button.gameObject);
                         }
                     }
@@ -206,13 +209,28 @@ public class DialogueUI : MonoBehaviour
                 {
                     yield return StartCoroutine(AnimateText(piece.dialogueText, 1f)); // 逐字动画
                 }
+
+                if (piece.taskPID != null && !piece.taskPID.Equals(string.Empty))
+                {
+                    LeftoptionMove.SetBool("haveNewTask", true);
+                    yield return new WaitForSeconds(1f);
+                    LeftoptionMove.SetBool("haveNewTask", false);
+                }
             }
 
 
             // 动态加载下一剧情文件
             if (!string.IsNullOrEmpty(piece.nextDialogueCSVFileName))
             {
-                yield return BlackScreenManager.Instance.PlayTransition(Settings.fadeDuration, Settings.blackoutDuration, false);
+                if (piece.extra == 1)//黑屏操作
+                {
+                    BlackScreenManager.Instance.TransionBlackScreenSortOrder(100);
+                    yield return BlackScreenManager.Instance.FadeIn(Settings.fadeDuration, false);
+                    yield return new WaitForSeconds(Settings.blackoutDuration);
+                    SetAllFalse();
+                    yield return BlackScreenManager.Instance.FadeOut(Settings.fadeDuration, false);
+                    BlackScreenManager.Instance.TransionBlackScreenSortOrder(0);
+                }
 
                 // 动态加载CSV
                 TextAsset nextCSV = DialogueCSVReader.LoadCSVFromResources(piece.nextDialogueCSVFileName);
@@ -229,23 +247,28 @@ public class DialogueUI : MonoBehaviour
         }
         else
         {
-            // 隐藏所有UI（无对话时）
-            dialogueBoxTop.SetActive(false);
-            dialogueBoxBottom.SetActive(false);
-            nameLeft.gameObject.SetActive(false);
-            nameRight.gameObject.SetActive(false);
-            faceLeft.gameObject.SetActive(false);
-            faceRight.gameObject.SetActive(false);
-            dialogueText.gameObject.SetActive(false);
-            continueButton.gameObject.SetActive(false);
-
-            faceLeft.sprite = null;
-            emotionLeftImage.sprite = null;
-            nameLeft.text = "";
-
-
-            currentPiece = null;
+            SetAllFalse();
         }
+    }
+
+    private void SetAllFalse()
+    {
+        // 隐藏所有UI（无对话时）
+        dialogueBoxTop.SetActive(false);
+        dialogueBoxBottom.SetActive(false);
+        nameLeft.gameObject.SetActive(false);
+        nameRight.gameObject.SetActive(false);
+        faceLeft.gameObject.SetActive(false);
+        faceRight.gameObject.SetActive(false);
+        dialogueText.gameObject.SetActive(false);
+        continueButton.gameObject.SetActive(false);
+
+        faceLeft.sprite = null;
+        emotionLeftImage.sprite = null;
+        nameLeft.text = "";
+
+
+        currentPiece = null;
     }
 
     IEnumerator AnimateText(string text, float duration)

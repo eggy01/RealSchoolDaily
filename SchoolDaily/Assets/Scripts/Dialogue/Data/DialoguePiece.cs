@@ -22,9 +22,12 @@ namespace SchoolD.Dialogue
         public bool isfinalNotFirst;//为最后一条
         public string nextDialogueCSVFileName;//紧接下一条剧情文件名字
 
-        public string extra;//旁白或者动画等额外信息
+        public int extra;//动画等额外信息
+        //1为动画：黑屏
 
         public string activeDialogue;//激活剧情
+
+        public string taskPID;//任务
 
         // 构造函数
         public DialoguePiece()

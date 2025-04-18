@@ -64,6 +64,7 @@ namespace SchoolD.Transition
             yield return new WaitForSeconds(Settings.blackoutDuration); //黑屏停留时间
 
             yield return Fade(0);
+
             parentCanvas.sortingOrder = 0;
 
             EventHandler.CallAfterScenLoadEvent();

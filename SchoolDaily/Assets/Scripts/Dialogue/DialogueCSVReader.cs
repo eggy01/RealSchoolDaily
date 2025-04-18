@@ -77,10 +77,13 @@ public class DialogueCSVReader : MonoBehaviour
             {
                 piece.faceImage = spriteDict["默认2"];
             }
+
             // 设置对话内容
-            if (fields[3].Contains("(=pn)"))
-                fields[3] = fields[3].Replace("(=pn)", Settings.playerName);
-            piece.dialogueText = fields[3].Trim();
+            {
+                if (fields[3].Contains("(=pn)"))
+                    fields[3] = fields[3].Replace("(=pn)", Settings.playerName);
+                piece.dialogueText = fields[3].Trim();
+            }
 
             // 设置位置（默认npc在左，主角在右）
             piece.onLeft = !fields[1].Trim().Contains(Settings.playerName);
@@ -107,14 +110,19 @@ public class DialogueCSVReader : MonoBehaviour
                         piece.option.Add(options[i].Trim());
                     }
                 }
-                // 打印选项内容
-                Debug.Log(string.Join(", ", piece.option));
             }
 
             // 解析表情
             if (fields.Length > 6 && !fields[5].Equals(string.Empty))
             {
                 piece.emotion = fields[5].Trim();
+            }
+
+            // 解析操作，如，黑屏等
+            if (fields.Length > 7 && !fields[6].Equals(string.Empty))
+            {
+                if (fields[6].Contains("动画:黑屏"))
+                    piece.extra = 1;
             }
 
             //检测是否有下一条紧接着的对话
@@ -131,14 +139,16 @@ public class DialogueCSVReader : MonoBehaviour
                 if (fields[9].Contains("final"))//该条为最后一条
                     piece.isfinalNotFirst = true;
             }
-
             //激活剧情
             if (fields.Length > 10 && !fields[9].Equals(string.Empty))
             {
-                StoryProgressManager1.Instance.AddNewStory(fields[9], csvFile.name);
+                StoryProgressManager.Instance.AddNewStory(fields[9], csvFile.name);
             }
-
-
+            //任务
+            if (fields.Length > 11 && !fields[10].Equals(string.Empty))
+            {
+                piece.taskPID = fields[10];
+            }
 
             dialoguePieces.Add(piece);
         }
