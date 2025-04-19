@@ -16,7 +16,7 @@ namespace SchoolD.Dialogue
         private static readonly Dictionary<string, Func<string, int>> _valueGetters =
             new Dictionary<string, Func<string, int>>(StringComparer.OrdinalIgnoreCase)
             {
-                ["Favorability"] = GetFavorability,
+                ["好感度"] = GetFavorability,
                 // ["QuestProgress"] = GetQuestProgress,
                 // ["ItemOwned"] = GetItemCount,
                 //["FlagSet"] = GetFlagState
@@ -27,8 +27,13 @@ namespace SchoolD.Dialogue
         /// </summary>
         public static bool Check(string condition)
         {
+            Debug.Log($"=== 开始处理条件: {condition} ===");
             if (string.IsNullOrWhiteSpace(condition))
+            {
+                Debug.Log("条件为空，默认通过");
                 return true;
+            }
+
 
             try
             {
@@ -44,6 +49,9 @@ namespace SchoolD.Dialogue
                     throw new ArgumentException($"未知条件类型: {type}");
 
                 int currentValue = getter(target);
+
+                Debug.Log("当前好感度:" + currentValue);
+
                 return Compare(currentValue, op, requiredValue);
             }
             catch (Exception e)

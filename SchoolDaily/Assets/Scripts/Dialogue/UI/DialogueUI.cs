@@ -29,12 +29,24 @@ public class DialogueUI : MonoBehaviour
     private int selectedOptionIndex = -1; // 记录玩家选择的选项索引
 
     public Animator optionMove;
+<<<<<<< Updated upstream
+=======
 
     public GameObject taskPanel; // 存放任务提示的面板
-    public Animator LeftoptionMove;//任务控制器
+    public Animator LeftoptionMove;
+    private bool isblack = false;
+    private string moveToPosition;
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+=======
+    public int nexePieceIndex = -1;
+>>>>>>> Stashed changes
     private string MoveToPosition;
 
+>>>>>>> Stashed changes
     private void Awake()
     {
         dialogueText.text = "";
@@ -71,6 +83,7 @@ public class DialogueUI : MonoBehaviour
 
     private IEnumerator ShowDialogue(DialoguePiece piece)
     {
+
         if (piece != null)
         {
             piece.hasToPause = true;
@@ -78,6 +91,7 @@ public class DialogueUI : MonoBehaviour
             dialogueText.text = "";
             emotionLeftImage.gameObject.SetActive(false);
             emotionRightImage.gameObject.SetActive(false);
+            MoveToPosition = "";
 
             // 默认隐藏所有UI
             dialogueBoxTop.SetActive(false);
@@ -97,7 +111,7 @@ public class DialogueUI : MonoBehaviour
                 dialogueBoxBottom.SetActive(true);
                 dialogueText.gameObject.SetActive(true);
 
-                yield return StartCoroutine(AnimateText(piece.dialogueText, 1f)); // 逐字动画
+                // yield return StartCoroutine(AnimateText(piece.dialogueText, 1f)); // 逐字动画
             }
             // 非旁白模式：正常显示对话
             else
@@ -171,18 +185,34 @@ public class DialogueUI : MonoBehaviour
                         SetImageColor(false, Settings.DialogueInactiveColor); // 右边亮
                     }
                 }
-            }
+<<<<<<< Updated upstream
 
+                // 处理选项或逐字动画
+                if (piece.option != null && piece.option.Count > 0)
+                {
+                    dialogueText.gameObject.SetActive(false);
+                    List<Button> optionButtons = new List<Button>();
+                    for (int i = 0; i < piece.option.Count; i++)
+=======
+            }
+            if (!string.IsNullOrEmpty(piece.dialogueText))
+                yield return StartCoroutine(AnimateText(piece.dialogueText, 1f));
+
+            //场景切换，人物移动
+            if (!string.IsNullOrEmpty(piece.MoveToPosition))
+            {
+                MoveToPosition = piece.MoveToPosition;
+            }
             // 处理选项或逐字动画
             if (piece.option != null && piece.option.Count > 0)
             {
-                dialogueText.gameObject.SetActive(false);
                 List<Button> optionButtons = new List<Button>();
 
                 // 检查是否有前置条件
                 bool hasPreconditions = !string.IsNullOrEmpty(piece.prerequisites);
                 string[] preconditions = hasPreconditions ? piece.prerequisites.Split('|') : new string[0];
 
+                Debug.Log("前置条件" + preconditions.Length);
                 for (int i = 0; i < piece.option.Count; i++)
                 {
                     bool shouldShow = true;
@@ -190,10 +220,13 @@ public class DialogueUI : MonoBehaviour
                     // 只有存在前置条件时才检查
                     if (hasPreconditions && i < preconditions.Length && !string.IsNullOrEmpty(preconditions[i]))
                     {
-                        shouldShow = ConditionSystem.CheckAll(preconditions[i]);
+                        Debug.Log(preconditions[i]);
+                        shouldShow = ConditionSystem.Check(preconditions[i]);
+                        Debug.Log("满足：" + shouldShow);
                     }
 
                     if (shouldShow)
+>>>>>>> Stashed changes
                     {
                         Button optionButton = Instantiate(optionButtonPrefab, optionsPanel.transform);
                         optionButton.image.SetNativeSize();
@@ -202,14 +235,8 @@ public class DialogueUI : MonoBehaviour
                         optionButton.onClick.AddListener(() => OnOptionSelected(currentOptionIndex));
                         optionButtons.Add(optionButton);
                     }
-                    else
-                    {
-                        // 灰显不可选选项（可选）
-                        Button lockedOption = Instantiate(optionButtonPrefab, optionsPanel.transform);
-                        lockedOption.interactable = false;
-                        lockedOption.GetComponentInChildren<TextMeshProUGUI>().text = $"{piece.option[i]}（未解锁）";
-                        lockedOption.GetComponentInChildren<TextMeshProUGUI>().color = Color.gray;
-                    }
+<<<<<<< Updated upstream
+=======
                 }
 
                 // 如果没有可显示的选项，自动继续
@@ -219,6 +246,7 @@ public class DialogueUI : MonoBehaviour
                 }
                 else
                 {
+>>>>>>> Stashed changes
                     optionMove.SetBool("existoption", true);
                     optionMove.SetBool("selected", false);
 
@@ -226,40 +254,57 @@ public class DialogueUI : MonoBehaviour
                     {
                         yield return null;
                     }
+                    if (selectedOptionIndex != -1)
+                    {
+                        optionMove.SetBool("selected", true);
+                        optionMove.SetBool("existoption", false);
+                        yield return new WaitForSeconds(0.5f);
+                        foreach (Button button in optionButtons)
+                        {
 
-                    optionMove.SetBool("selected", true);
-                    optionMove.SetBool("existoption", false);
-                    yield return new WaitForSeconds(0.5f);
+                            Destroy(button.gameObject);
+                        }
+                    }
+
+                    ProcessOption(selectedOptionIndex, piece.option);
+                    selectedOptionIndex = -1;
                 }
-
-                foreach (Button button in optionButtons)
+                else
                 {
-                    Destroy(button.gameObject);
+                    yield return StartCoroutine(AnimateText(piece.dialogueText, 1f)); // 逐字动画
                 }
+<<<<<<< Updated upstream
+=======
 
-                ProcessOption(selectedOptionIndex, piece.option);
+                if (!ProcessOption(selectedOptionIndex, piece.option))
+                    yield break;
                 selectedOptionIndex = -1;
             }
-            else
-            {
-                yield return StartCoroutine(AnimateText(piece.dialogueText, 1f));
-            }
 
-            if (!string.IsNullOrEmpty(piece.taskPID))//处理任务
+            //处理任务
+            if (!string.IsNullOrEmpty(piece.taskPID))
             {
-                LeftoptionMove.SetBool("hasNewTask", true);
+                LeftoptionMove.SetBool("haveNewTask", true);
                 yield return new WaitForSeconds(0.5f);
-                LeftoptionMove.SetBool("hasNewTask", false);
+                LeftoptionMove.SetBool("haveNewTask", false);
 
                 // 查找TaskTipDetail子对象
                 taskPanel.transform.Find("TaskTip/TaskTipDetail").gameObject.GetComponent<TextMeshProUGUI>().text = TaskSystem.Instance.GetTask(piece.taskPID).description;
                 //EventHandler.callHasNewTaskEvent(TaskSystem.Instance.GetTask(piece.taskPID));
+>>>>>>> Stashed changes
             }
 
             // 动态加载下一剧情文件
             if (!string.IsNullOrEmpty(piece.nextDialogueCSVFileName))
             {
-                yield return BlackScreenManager.Instance.PlayTransition(Settings.fadeDuration, Settings.blackoutDuration, false);
+                BlackScreenManager.Instance.TransionBlackScreenSortOrder(100);
+                yield return BlackScreenManager.Instance.FadeIn(Settings.fadeDuration, false);
+
+                SetAllFalse();
+
+                yield return BlackScreenManager.Instance.FadeOut(Settings.fadeDuration, false);
+                BlackScreenManager.Instance.TransionBlackScreenSortOrder(0);
+
 
                 // 动态加载CSV
                 TextAsset nextCSV = DialogueCSVReader.LoadCSVFromResources(piece.nextDialogueCSVFileName);
@@ -271,42 +316,61 @@ public class DialogueUI : MonoBehaviour
                 yield break;
             }
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+            if (!string.IsNullOrEmpty(piece.moveToPosition))
+            {
+                moveToPosition = piece.moveToPosition;
+            }
+=======
             //场景切换，人物移动
             if (!string.IsNullOrEmpty(piece.MoveToPosition))
                 MoveToPosition = piece.MoveToPosition;
+>>>>>>> Stashed changes
+=======
+
+>>>>>>> Stashed changes
 
             piece.isDone = true;
             continueButton.gameObject.SetActive(piece.hasToPause && piece.isDone);
         }
         else
         {
+<<<<<<< Updated upstream
+            // 隐藏所有UI（无对话时）
+            dialogueBoxTop.SetActive(false);
+            dialogueBoxBottom.SetActive(false);
+            nameLeft.gameObject.SetActive(false);
+            nameRight.gameObject.SetActive(false);
+            faceLeft.gameObject.SetActive(false);
+            faceRight.gameObject.SetActive(false);
+            dialogueText.gameObject.SetActive(false);
+            continueButton.gameObject.SetActive(false);
+
+            faceLeft.sprite = null;
+            emotionLeftImage.sprite = null;
+            nameLeft.text = "";
+
+
+            currentPiece = null;
+=======
             SetAllFalse();
+<<<<<<< Updated upstream
+            if (!string.IsNullOrEmpty(moveToPosition))
+                EventHandler.CallTransitionEvent(moveToPosition, SceneToInitalPosition.Instance.GetInitialPosition(moveToPosition));
+            moveToPosition = "";
+>>>>>>> Stashed changes
+=======
 
             if (!string.IsNullOrEmpty(MoveToPosition)) //场景切换，人物移动
-            {
                 EventHandler.CallTransitionEvent(MoveToPosition, SceneToInitialPosition.Instance.GetInitialPosition(MoveToPosition));
-                MoveToPosition = "";
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
             }
 
+>>>>>>> Stashed changes
         }
-    }
-    private void SetAllFalse()
-    {
-        // 隐藏所有UI（无对话时）
-        dialogueBoxTop.SetActive(false);
-        dialogueBoxBottom.SetActive(false);
-        nameLeft.gameObject.SetActive(false);
-        nameRight.gameObject.SetActive(false);
-        faceLeft.gameObject.SetActive(false);
-        faceRight.gameObject.SetActive(false);
-        dialogueText.gameObject.SetActive(false);
-        continueButton.gameObject.SetActive(false);
-
-        faceLeft.sprite = null;
-        emotionLeftImage.sprite = null;
-        nameLeft.text = "";
-
-        currentPiece = null;
     }
 
     IEnumerator AnimateText(string text, float duration)
@@ -317,7 +381,7 @@ public class DialogueUI : MonoBehaviour
         for (int i = 0; i <= text.Length; i++)
         {
             // 如果玩家按了空格或点击，立即显示完整文本
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0))
             {
                 dialogueText.text = text;
                 break;
@@ -345,28 +409,99 @@ public class DialogueUI : MonoBehaviour
         }
     }
 
+
+    private IEnumerator SettleOptions()
+    {
+        DialoguePiece piece = currentPiece;
+
+        List<Button> optionButtons = new List<Button>();
+
+        // 检查是否有前置条件
+        bool hasPreconditions = !string.IsNullOrEmpty(piece.prerequisites);
+        string[] preconditions = hasPreconditions ? piece.prerequisites.Split('|') : new string[0];
+
+        for (int i = 0; i < piece.option.Count; i++)
+        {
+            bool shouldShow = true;
+
+            // 只有存在前置条件时才检查
+            if (hasPreconditions && i < preconditions.Length && !string.IsNullOrEmpty(preconditions[i]))
+            {
+                shouldShow = ConditionSystem.CheckAll(preconditions[i]);
+            }
+
+            if (shouldShow)
+            {
+                Button optionButton = Instantiate(optionButtonPrefab, optionsPanel.transform);
+                optionButton.image.SetNativeSize();
+                optionButton.GetComponentInChildren<TextMeshProUGUI>().text = piece.option[i];
+                int currentOptionIndex = i;
+                optionButton.onClick.AddListener(() => OnOptionSelected(currentOptionIndex));
+                optionButtons.Add(optionButton);
+            }
+        }
+
+        // 如果没有可显示的选项，自动继续
+        if (optionButtons.Count == 0)
+        {
+            selectedOptionIndex = 0;
+        }
+        else
+        {
+            optionMove.SetBool("existoption", true);
+            optionMove.SetBool("selected", false);
+
+            while (selectedOptionIndex == -1)
+            {
+                yield return null;
+            }
+
+            optionMove.SetBool("selected", true);
+            optionMove.SetBool("existoption", false);
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        foreach (Button button in optionButtons)
+        {
+            Destroy(button.gameObject);
+        }
+
+        ProcessOption(selectedOptionIndex, piece.option);
+        selectedOptionIndex = -1;
+    }
     // 选项选择回调
     private void OnOptionSelected(int index)
     {
         selectedOptionIndex = index;
     }
 
+<<<<<<< Updated upstream
+    // 处理选项结果
     private void ProcessOption(int optionIndex, List<string> options)
     {
-        // 显示选择的选项文本
+        // Debug.Log("玩家选择了选项：" + optionIndex);
         dialogueText.text = options[optionIndex];
-        dialogueText.gameObject.SetActive(true);
 
-        // 解析nextIndex跳转目标
-        if (!string.IsNullOrEmpty(currentPiece.nextIndex))
+        dialogueText.gameObject.SetActive(true);
+=======
+    private bool ProcessOption(int optionIndex, List<string> options)
+    {
+        if (string.IsNullOrEmpty(currentPiece.nextIndex))
+        {
+            dialogueText.text = options[optionIndex];
+            return true;
+        }
+        else
         {
             string[] nextIndices = currentPiece.nextIndex.Split('|');
             if (optionIndex < nextIndices.Length)
             {
-                // 通知控制器加载下一段对话
                 EventHandler.CallLoadDialogueByIndex(nextIndices[optionIndex]);
+                selectedOptionIndex = -1;
             }
+            return false;
         }
+>>>>>>> Stashed changes
     }
     private void SetImageColor(bool isLeft, Color color)
     {

@@ -54,7 +54,7 @@ namespace SchoolD.Dialogue
         {
             if (other.CompareTag("Player"))
             {
-                if (!StoryProgressManager.Instance.IsStoryCompleted(CurrentcsvFileName))
+                if (!StoryProgressManager1.Instance.IsStoryCompleted(CurrentcsvFileName))
                 {//如果该剧情没过
                     StartCoroutine(DialogueRoutine());
                 }
@@ -98,8 +98,12 @@ namespace SchoolD.Dialogue
 
             istalking = false;
 
+<<<<<<< Updated upstream
             // StoryProgressManager.Instance.MarkStoryAsCompleted(int.Parse(csvFile.name));//标记该剧情已过
+            StoryProgressManager1.Instance.MarkStoryAsCompleted(CurrentcsvFileName);
+=======
             StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);
+>>>>>>> Stashed changes
 
             OnFinishEvent?.Invoke();
         }

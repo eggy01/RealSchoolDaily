@@ -15,18 +15,17 @@ public class BlackScreenManager : MonoBehaviour
     {
         Instance = this;
     }
-    public void TransionBlackScreenSortOrder(int num)//调整黑屏层级
-    {
-        blackScreenCanvasGroup.GetComponentInParent<Canvas>().sortingOrder = num;
-    }
     /// <summary>
     /// 执行完整的黑屏过渡效果（淡入→保持→淡出）
     /// </summary>
     public IEnumerator PlayTransition(float fadeDuration, float holdDuration, bool showText = false)
     {
-        // Canvas parentCanvas = blackScreenCanvasGroup.GetComponentInParent<Canvas>();
-        // parentCanvas.sortingOrder = 100;
+<<<<<<< Updated upstream
+        Canvas parentCanvas = blackScreenCanvasGroup.GetComponentInParent<Canvas>();
+        parentCanvas.sortingOrder = 100;
+=======
         TransionBlackScreenSortOrder(100);
+>>>>>>> Stashed changes
         // 淡入
         yield return FadeIn(fadeDuration, showText);
 
@@ -35,8 +34,7 @@ public class BlackScreenManager : MonoBehaviour
 
         // 淡出
         yield return FadeOut(fadeDuration, showText);
-        TransionBlackScreenSortOrder(0);
-        // parentCanvas.sortingOrder = 2;
+        parentCanvas.sortingOrder = 2;
     }
     /// <summary>
     /// 淡入黑屏

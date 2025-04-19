@@ -47,6 +47,8 @@ namespace SchoolD.Dialogue
             StartCoroutine(PeriodicCheck());
         }
 
+<<<<<<< Updated upstream
+=======
         private void OnEnable()
         {
             EventHandler.OnLoadDialogueByIndex += LoadNextDialogueByIndex;
@@ -60,25 +62,38 @@ namespace SchoolD.Dialogue
         // 通过索引跳转
         private void LoadNextDialogueByIndex(string indexStr)
         {
+            Debug.Log($"LoadNextDialogueByIndex被调用，indexStr:{indexStr} 当前对话列表长度:{dialogueList.Count}");
             if (int.TryParse(indexStr, out int targetIndex))
             {
-                // 在当前对话列表中查找目标index
-                var nextPiece = dialogueList.Find(p => p.index == targetIndex);
-                if (nextPiece != null)
-                {
-                    // 清空当前堆栈重新开始
-                    dialogueStack.Clear();
-                    dialogueStack.Push(nextPiece);
+                // 1. 找到所有匹配的对话片段
+                var matchedPieces = dialogueList.FindAll(p => p.index == targetIndex);
 
-                    // 如果不是正在对话则开始新对话
-                    if (!istalking)
-                    {
-                        StartCoroutine(DialogueRoutine());
-                    }
+                if (matchedPieces == null || matchedPieces.Count == 0)
+                {
+                    Debug.Log("333333333333 - 没有找到匹配的对话片段");
+                    return;
                 }
+
+                // // 3. 打印调试信息
+                // foreach (DialoguePiece p in matchedPieces)
+                // {
+                //     Debug.Log("跳转的序号：" + p.no);
+                //     Debug.Log("跳转的文本：" + p.dialogueText);
+                // }
+
+                dialogueStack.Clear();
+                for (int i = matchedPieces.Count - 1; i >= 0; i--)
+                {
+                    dialogueStack.Push(matchedPieces[i]);
+                }
+
+                // 6. 开始新对话
+                istalking = true;
+                StartCoroutine(DialogueRoutine());
             }
         }
 
+>>>>>>> Stashed changes
         private IEnumerator PeriodicCheck()
         {
             while (true)
@@ -100,9 +115,22 @@ namespace SchoolD.Dialogue
             // 加载CSV数据
             if (csvFiles.Length > 0)
             {
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+                Debug.Log(StoryProgressManager1.Instance.IsStoryCompleted("Beginner_02"));
+                Debug.Log(StoryProgressManager1.Instance.CanUnlockStory("Beginner_03"));
                 for (int i = 0; i < csvFiles.Length; i++)
                 {
+                    //!StoryProgressManager.Instance.IsStoryCompleted(int.Parse(csvFiles[i].name))
+                    if (StoryProgressManager1.Instance.CanUnlockStory(csvFiles[i].name) && !StoryProgressManager1.Instance.IsStoryCompleted(csvFiles[i].name)) // 再结合玩家获得的属性
+=======
+                for (int i = 0; i < csvFiles.Length; i++)
+=======
+                for (int i = 1; i < csvFiles.Length; i++)
+>>>>>>> Stashed changes
+                {
                     if (StoryProgressManager.Instance.CanUnlockStory(csvFiles[i].name) && !StoryProgressManager.Instance.IsStoryCompleted(csvFiles[i].name)) // 再结合玩家获得的属性
+>>>>>>> Stashed changes
                     {
                         dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[i]);
                         hasActiveDialogue = true;
@@ -149,6 +177,8 @@ namespace SchoolD.Dialogue
                 {
                     StartCoroutine(DialogueRoutine());
                 }
+                else if (!hasActiveDialogue)
+                    TriggerDefaultDialogue();
             }
 
             if (istalking && Input.GetKeyDown(KeyCode.Space))
@@ -156,26 +186,31 @@ namespace SchoolD.Dialogue
                 EventHandler.TriggerNextDialogue();
             }
         }
+
         private IEnumerator DialogueRoutine()
         {
             istalking = true;
 
             while (dialogueStack.Count > 0)
             {
+<<<<<<< Updated upstream
+                var piece = dialogueStack.Pop();
+=======
                 var piece = dialogueStack.Peek(); // 先查看但不弹出
 
                 // 条件检查
-                if (!string.IsNullOrEmpty(piece.prerequisites) && !piece.IsConditionsMet())
+                if (!string.IsNullOrEmpty(piece.prerequisites) && !piece.prerequisites.Contains("|") && !piece.IsConditionsMet())
                 {
                     Debug.Log($"对话终止，条件不满足: {piece.prerequisites}");
                     canTalkUI.SetActive(false);
                     istalking = false;
-                    //yield return ShowConditionNotMetHint(); // 显示条件不足提示（需自行实现）
+
                     yield break; // 直接跳出协程
                 }
 
                 // 只有条件满足时才继续
                 piece = dialogueStack.Pop();
+>>>>>>> Stashed changes
                 EventHandler.CallShowDialogueEvent(piece);
 
                 // 等待对话完成
@@ -184,7 +219,7 @@ namespace SchoolD.Dialogue
                 // 等待玩家输入继续
                 if (piece.hasToPause)
                 {
-                    yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+                    yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0));
                 }
             }
 
@@ -194,7 +229,7 @@ namespace SchoolD.Dialogue
             istalking = false;
             dialogueList.Clear();
 
-            StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);//标记该剧情已过
+            StoryProgressManager1.Instance.MarkStoryAsCompleted(CurrentcsvFileName);//标记该剧情已过
             canTalkUI.SetActive(false);
 
             hasActiveDialogue = false; // 重置标记，以便下次可以重新加载剧情文件
@@ -203,7 +238,7 @@ namespace SchoolD.Dialogue
             OnFinishEvent?.Invoke();
         }
 
-
+<<<<<<< Updated upstream
         private void OnMouseOver()
         {
             if (Input.GetMouseButtonDown(1)) // 1表示右键
@@ -215,6 +250,8 @@ namespace SchoolD.Dialogue
             }
         }
 
+=======
+>>>>>>> Stashed changes
         private void TriggerDefaultDialogue()
         {
             // 加载默认对话
