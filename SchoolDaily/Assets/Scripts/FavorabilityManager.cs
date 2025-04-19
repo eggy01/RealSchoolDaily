@@ -10,13 +10,22 @@ public class FavorabilityManager : MonoBehaviour
     private Dictionary<string, int> _favorData = new Dictionary<string, int>()
     {
         // 初始化默认值
-        {"林风", 40},
+        {"林风", 20},
         {"弗洛", 30}
     };
 
     private void Awake()
     {
-        Instance = this;
+        // 单例初始化
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // 跨场景保留
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     /// <summary>

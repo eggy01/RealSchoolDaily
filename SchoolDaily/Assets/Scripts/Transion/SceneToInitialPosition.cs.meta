@@ -1,14 +1,10 @@
 fileFormatVersion: 2
-guid: dfa4869d54406344a93e9f865eb43271
+guid: fb1d846477530494fa3b5bddd95201f7
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences: []
-<<<<<<< Updated upstream
-  executionOrder: -10
-=======
-  executionOrder: -2
->>>>>>> Stashed changes
+  executionOrder: 0
   icon: {instanceID: 0}
   userData: 
   assetBundleName: 
