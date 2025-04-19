@@ -4,7 +4,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(ScrollRect))]
 public class ForceScrollWheel : MonoBehaviour
 {
-    public float scrollSensitivity = 1f; // 滚轮灵敏度
+    public float scrollSensitivity = 0.1f; // 滚轮灵敏度
     private ScrollRect scrollRect;
 
     void Start()

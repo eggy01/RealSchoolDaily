@@ -59,7 +59,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -193,7 +193,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -282,7 +282,6 @@ GameObject:
   - component: {fileID: 2992666814549805742}
   - component: {fileID: -3872012834974985933}
   - component: {fileID: 1088593400451132980}
-  - component: {fileID: 6911146157855206306}
   m_Layer: 5
   m_Name: StoreItems
   m_TagString: Untagged
@@ -426,18 +425,6 @@ MonoBehaviour:
   selectedNameColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   normalPriceColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   selectedPriceColor: {r: 0.9, g: 0.8, b: 0.1, a: 1}
---- !u!114 &6911146157855206306
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7409903707486493749}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b69b8ccb1b74404caa808c0503bb6fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &9020795038129045710
 GameObject:
   m_ObjectHideFlags: 0
@@ -497,7 +484,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.7735849, g: 0.74001426, b: 0.74001426, a: 1}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
