@@ -31,7 +31,7 @@ public class DialogueUI : MonoBehaviour
     public Animator optionMove;
 
     public GameObject taskPanel; // 存放任务提示的面板
-    public Animator LeftoptionMove;
+    public Animator LeftoptionMove;//任务控制器
 
     private string MoveToPosition;
 
@@ -171,13 +171,29 @@ public class DialogueUI : MonoBehaviour
                         SetImageColor(false, Settings.DialogueInactiveColor); // 右边亮
                     }
                 }
+            }
 
-                // 处理选项或逐字动画
-                if (piece.option != null && piece.option.Count > 0)
+            // 处理选项或逐字动画
+            if (piece.option != null && piece.option.Count > 0)
+            {
+                dialogueText.gameObject.SetActive(false);
+                List<Button> optionButtons = new List<Button>();
+
+                // 检查是否有前置条件
+                bool hasPreconditions = !string.IsNullOrEmpty(piece.prerequisites);
+                string[] preconditions = hasPreconditions ? piece.prerequisites.Split('|') : new string[0];
+
+                for (int i = 0; i < piece.option.Count; i++)
                 {
-                    dialogueText.gameObject.SetActive(false);
-                    List<Button> optionButtons = new List<Button>();
-                    for (int i = 0; i < piece.option.Count; i++)
+                    bool shouldShow = true;
+
+                    // 只有存在前置条件时才检查
+                    if (hasPreconditions && i < preconditions.Length && !string.IsNullOrEmpty(preconditions[i]))
+                    {
+                        shouldShow = ConditionSystem.CheckAll(preconditions[i]);
+                    }
+
+                    if (shouldShow)
                     {
                         Button optionButton = Instantiate(optionButtonPrefab, optionsPanel.transform);
                         optionButton.image.SetNativeSize();
@@ -186,6 +202,23 @@ public class DialogueUI : MonoBehaviour
                         optionButton.onClick.AddListener(() => OnOptionSelected(currentOptionIndex));
                         optionButtons.Add(optionButton);
                     }
+                    else
+                    {
+                        // 灰显不可选选项（可选）
+                        Button lockedOption = Instantiate(optionButtonPrefab, optionsPanel.transform);
+                        lockedOption.interactable = false;
+                        lockedOption.GetComponentInChildren<TextMeshProUGUI>().text = $"{piece.option[i]}（未解锁）";
+                        lockedOption.GetComponentInChildren<TextMeshProUGUI>().color = Color.gray;
+                    }
+                }
+
+                // 如果没有可显示的选项，自动继续
+                if (optionButtons.Count == 0)
+                {
+                    selectedOptionIndex = 0;
+                }
+                else
+                {
                     optionMove.SetBool("existoption", true);
                     optionMove.SetBool("selected", false);
 
@@ -193,24 +226,34 @@ public class DialogueUI : MonoBehaviour
                     {
                         yield return null;
                     }
-                    if (selectedOptionIndex != -1)
-                    {
-                        optionMove.SetBool("selected", true);
-                        optionMove.SetBool("existoption", false);
-                        yield return new WaitForSeconds(0.5f);
-                        foreach (Button button in optionButtons)
-                        {
-                            Destroy(button.gameObject);
-                        }
-                    }
 
-                    ProcessOption(selectedOptionIndex, piece.option);
-                    selectedOptionIndex = -1;
+                    optionMove.SetBool("selected", true);
+                    optionMove.SetBool("existoption", false);
+                    yield return new WaitForSeconds(0.5f);
                 }
-                else
+
+                foreach (Button button in optionButtons)
                 {
-                    yield return StartCoroutine(AnimateText(piece.dialogueText, 1f)); // 逐字动画
+                    Destroy(button.gameObject);
                 }
+
+                ProcessOption(selectedOptionIndex, piece.option);
+                selectedOptionIndex = -1;
+            }
+            else
+            {
+                yield return StartCoroutine(AnimateText(piece.dialogueText, 1f));
+            }
+
+            if (!string.IsNullOrEmpty(piece.taskPID))//处理任务
+            {
+                LeftoptionMove.SetBool("hasNewTask", true);
+                yield return new WaitForSeconds(0.5f);
+                LeftoptionMove.SetBool("hasNewTask", false);
+
+                // 查找TaskTipDetail子对象
+                taskPanel.transform.Find("TaskTip/TaskTipDetail").gameObject.GetComponent<TextMeshProUGUI>().text = TaskSystem.Instance.GetTask(piece.taskPID).description;
+                //EventHandler.callHasNewTaskEvent(TaskSystem.Instance.GetTask(piece.taskPID));
             }
 
             // 动态加载下一剧情文件
@@ -308,13 +351,22 @@ public class DialogueUI : MonoBehaviour
         selectedOptionIndex = index;
     }
 
-    // 处理选项结果
     private void ProcessOption(int optionIndex, List<string> options)
     {
-        // Debug.Log("玩家选择了选项：" + optionIndex);
+        // 显示选择的选项文本
         dialogueText.text = options[optionIndex];
-
         dialogueText.gameObject.SetActive(true);
+
+        // 解析nextIndex跳转目标
+        if (!string.IsNullOrEmpty(currentPiece.nextIndex))
+        {
+            string[] nextIndices = currentPiece.nextIndex.Split('|');
+            if (optionIndex < nextIndices.Length)
+            {
+                // 通知控制器加载下一段对话
+                EventHandler.CallLoadDialogueByIndex(nextIndices[optionIndex]);
+            }
+        }
     }
     private void SetImageColor(bool isLeft, Color color)
     {

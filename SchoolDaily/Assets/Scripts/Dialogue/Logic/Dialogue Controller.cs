@@ -47,6 +47,38 @@ namespace SchoolD.Dialogue
             StartCoroutine(PeriodicCheck());
         }
 
+        private void OnEnable()
+        {
+            EventHandler.OnLoadDialogueByIndex += LoadNextDialogueByIndex;
+        }
+
+        private void OnDisable()
+        {
+            EventHandler.OnLoadDialogueByIndex -= LoadNextDialogueByIndex;
+        }
+
+        // 通过索引跳转
+        private void LoadNextDialogueByIndex(string indexStr)
+        {
+            if (int.TryParse(indexStr, out int targetIndex))
+            {
+                // 在当前对话列表中查找目标index
+                var nextPiece = dialogueList.Find(p => p.index == targetIndex);
+                if (nextPiece != null)
+                {
+                    // 清空当前堆栈重新开始
+                    dialogueStack.Clear();
+                    dialogueStack.Push(nextPiece);
+
+                    // 如果不是正在对话则开始新对话
+                    if (!istalking)
+                    {
+                        StartCoroutine(DialogueRoutine());
+                    }
+                }
+            }
+        }
+
         private IEnumerator PeriodicCheck()
         {
             while (true)
@@ -124,14 +156,26 @@ namespace SchoolD.Dialogue
                 EventHandler.TriggerNextDialogue();
             }
         }
-
         private IEnumerator DialogueRoutine()
         {
             istalking = true;
 
             while (dialogueStack.Count > 0)
             {
-                var piece = dialogueStack.Pop();
+                var piece = dialogueStack.Peek(); // 先查看但不弹出
+
+                // 条件检查
+                if (!string.IsNullOrEmpty(piece.prerequisites) && !piece.IsConditionsMet())
+                {
+                    Debug.Log($"对话终止，条件不满足: {piece.prerequisites}");
+                    canTalkUI.SetActive(false);
+                    istalking = false;
+                    //yield return ShowConditionNotMetHint(); // 显示条件不足提示（需自行实现）
+                    yield break; // 直接跳出协程
+                }
+
+                // 只有条件满足时才继续
+                piece = dialogueStack.Pop();
                 EventHandler.CallShowDialogueEvent(piece);
 
                 // 等待对话完成
@@ -140,7 +184,7 @@ namespace SchoolD.Dialogue
                 // 等待玩家输入继续
                 if (piece.hasToPause)
                 {
-                    yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0));
+                    yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
                 }
             }
 
@@ -158,6 +202,7 @@ namespace SchoolD.Dialogue
 
             OnFinishEvent?.Invoke();
         }
+
 
         private void OnMouseOver()
         {

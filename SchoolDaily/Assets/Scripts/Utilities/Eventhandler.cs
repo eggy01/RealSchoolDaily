@@ -82,10 +82,30 @@ public class EventHandler
         => OnStartNewDialogueEvent?.Invoke(stack, newDialogueFileName);
 
 
-    // public static event Action<bool, float> OnScreenFadeEvent;
+    //有新任务
+    public static event Action<Task> hasNewTaskEvent;
+    public static void callHasNewTaskEvent(Task task)
+    {
+        hasNewTaskEvent?.Invoke(task);
+    }
 
-    // public static void TriggerScreenFadeEvent(bool isFadeIn, float duration)
-    // {
-    //     OnScreenFadeEvent?.Invoke(isFadeIn, duration);
-    // }
+    // 任务相关事件
+    public static event Action<bool> OnShowTaskPanel;
+    public static event Action<string> OnUpdateTaskUI;
+    public static void CallShowTaskPanel(bool show)
+    {
+        OnShowTaskPanel?.Invoke(show);
+    }
+
+    public static void CallUpdateTaskUI(string taskPID)
+    {
+        OnUpdateTaskUI?.Invoke(taskPID);
+    }
+
+    // 跳转剧情
+    public static event Action<string> OnLoadDialogueByIndex;
+    public static void CallLoadDialogueByIndex(string index)
+    {
+        OnLoadDialogueByIndex?.Invoke(index);
+    }
 }
