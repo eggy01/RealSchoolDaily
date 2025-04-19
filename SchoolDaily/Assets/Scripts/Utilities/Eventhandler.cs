@@ -26,11 +26,6 @@ public class EventHandler
     //天气相关
     // 添加日期变化事件
     public static event System.Action OnDayChangedEvent;
-    public static event Action OnHourChanged;
-    public static void CallOnHourChangedEvent()
-    {
-        OnHourChanged?.Invoke();
-    }
     public static void CallOnDayChangedEvent()
     {
         OnDayChangedEvent?.Invoke();

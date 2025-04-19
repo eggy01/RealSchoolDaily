@@ -97,7 +97,8 @@ public class DialogueCSVReader : MonoBehaviour
             piece.onLeft = !fields[2].Trim().Contains(Settings.playerName);
 
             // 解析选项
-            if (fields[2].Trim().Contains(Settings.playerName) && fields.Length > 6 && !fields[5].Equals(string.Empty))
+            //fields[2].Trim().Contains(Settings.playerName) &&
+            if (fields.Length > 6 && !fields[5].Equals(string.Empty))
             {
                 piece.option.Clear(); // 清空现有选项
 
@@ -118,8 +119,6 @@ public class DialogueCSVReader : MonoBehaviour
                         piece.option.Add(options[i].Trim());
                     }
                 }
-                // 打印选项内容
-                //Debug.Log(string.Join(", ", piece.option));
             }
 
             // 解析表情
@@ -134,15 +133,18 @@ public class DialogueCSVReader : MonoBehaviour
                 if (fields[7].Contains("动画:黑屏"))
                     piece.extra = 1;
 
-                if (fields[7].Contains("移动"))
-                    if (fields[7].Trim().Equals("宿舍外"))
+                if (fields[7].Contains("移动:"))
+                    if (fields[7].Contains("宿舍外"))
                         piece.MoveToPosition = "Life Scene";
             }
 
             //检测是否有下一条紧接着的对话
             if (fields.Length > 9 && !fields[8].Equals(string.Empty))
             {
-                piece.nextDialogueCSVFileName = fields[8];
+                if (fields[8].Contains("|"))
+                    piece.nextIndex = fields[8];
+                else
+                    piece.nextDialogueCSVFileName = fields[8];
             }
 
             //判断。

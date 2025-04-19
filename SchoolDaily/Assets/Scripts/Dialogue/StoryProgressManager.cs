@@ -28,6 +28,7 @@ public class StoryProgressManager : MonoBehaviour
         storyProgressDict.Add("Beginner_01", false);
         storyProgressDict.Add("Beginner_02", false);
         storyProgressDict.Add("Beginner_03", false);
+        storyProgressDict.Add("DefaultInterActive", false);
     }
 
     // 标记剧情为已过
@@ -67,7 +68,6 @@ public class StoryProgressManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("dafferre:" + storyFileName);
             return false;
         }
     }
