@@ -1,7 +1,11 @@
+using System;
 using UnityEngine;
 
 public class TimeManager : MonoBehaviour
 {
+    public static TimeManager Instance; // 单例实例
+    public Action<int> OnHourChanged;
+
     private int gameMinute, gameHour, gameDay, gameMonth, gameYear;
     private int gameWeekDay = 1; // 1-7表示周一到周日
     private int gameWeekCount = 1; // 学期周数计数器
@@ -15,9 +19,14 @@ public class TimeManager : MonoBehaviour
 
     private readonly int[] monthDays = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
+    private void Awake()
+    {
+        Instance = this; // 初始化单例
+    }
+
     private void Start() => NewGameTime();
 
-    //天气相关
+    // 天气相关
     private bool dayChanged = false;
 
     public int GetMonth() => gameMonth;
@@ -26,6 +35,7 @@ public class TimeManager : MonoBehaviour
     public bool GetisInTerm() => isInTerm;
     public bool GetdayChanged() => dayChanged;
 
+    public int GetHour() => gameHour; // 添加获取当前小时的方法
 
     private void SkipToNextMonth()
     {
@@ -33,7 +43,6 @@ public class TimeManager : MonoBehaviour
         EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
                                      gameSeason, gameWeekDay, termCount);
     }
-
 
     private void Update()
     {
@@ -102,37 +111,44 @@ public class TimeManager : MonoBehaviour
     {
         gameMinute++;
 
-        // 先检查是否到达整点（避免先显示01再跳转）
         if (gameMinute > Settings.minuteHold)
         {
             gameMinute = 0;
+            bool isNewDay = false;
+
             if (++gameHour > Settings.hourHold)
             {
                 gameHour = 0;
                 HandleDayIncrement();
+                isNewDay = true;
             }
-            // 整点强制更新为00
-            EventHandler.CallGameMinuteEvent(0, gameHour);
-            lastUpdatedMinute = 0; // 重置最后更新分钟
-            return; // 直接返回，避免后续逻辑
-        }
 
-        // 非整点时的10分钟更新逻辑
-        if (gameMinute / 10 != lastUpdatedMinute / 10)
+            // 确保触发小时事件
+            OnHourChanged?.Invoke(gameHour);
+            EventHandler.CallGameMinuteEvent(0, gameHour);
+            lastUpdatedMinute = 0;
+
+            if (!isNewDay) return;
+        }
+        else
         {
-            lastUpdatedMinute = gameMinute;
-            EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
+            // 非整点时的10分钟更新逻辑
+            if (gameMinute / 10 != lastUpdatedMinute / 10)
+            {
+                lastUpdatedMinute = gameMinute;
+                EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
+            }
         }
     }
 
     private void HandleDayIncrement()
     {
-        //天气相关
+        // 天气相关
         dayChanged = true; // 标记新的一天开始
 
         gameDay++;
 
-        //天气相关
+        // 天气相关
         Debug.Log($"日期变化！当前天数：{gameDay}"); // 添加调试日志
         EventHandler.CallOnDayChangedEvent();
         gameWeekDay = gameWeekDay % 7 + 1; // 更新星期
@@ -213,5 +229,5 @@ public class TimeManager : MonoBehaviour
     {
         return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
     }
-
 }
+
