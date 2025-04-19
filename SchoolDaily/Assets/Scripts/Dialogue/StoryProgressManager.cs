@@ -21,10 +21,19 @@ public class StoryProgressManager : MonoBehaviour
 
     private void InitializeStoryProgress()
     {
+<<<<<<< Updated upstream
         for (int i = 0; i < capacity; i++)
         {
             storyProgressList.Add(false);
         }
+=======
+        // 初始化剧情进度字典
+        // 示例：添加初始剧情进度
+        storyProgressDict.Add("Beginner_01", false);
+        storyProgressDict.Add("Beginner_02", false);
+        storyProgressDict.Add("Beginner_03", false);
+        storyProgressDict.Add("DefaultInterActive", false);
+>>>>>>> Stashed changes
     }
 
 
@@ -51,7 +60,25 @@ public class StoryProgressManager : MonoBehaviour
         }
         else
         {
+<<<<<<< Updated upstream
             Debug.Log("Story ID out of range: " + storyId);
+=======
+            Debug.LogError("Story file name not found: " + storyFileName);
+            return false;
+        }
+    }
+
+    // 检查剧情是否可以解锁
+    public bool CanUnlockStory(string storyFileName)
+    {
+        if (storyUnlockConditions.ContainsKey(storyFileName))
+        {
+            string previousStoryFileName = storyUnlockConditions[storyFileName];
+            return IsStoryCompleted(previousStoryFileName);
+        }
+        else
+        {
+>>>>>>> Stashed changes
             return false;
         }
     }

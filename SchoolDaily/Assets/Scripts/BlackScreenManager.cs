@@ -20,8 +20,12 @@ public class BlackScreenManager : MonoBehaviour
     /// </summary>
     public IEnumerator PlayTransition(float fadeDuration, float holdDuration, bool showText = false)
     {
+<<<<<<< Updated upstream
         Canvas parentCanvas = blackScreenCanvasGroup.GetComponentInParent<Canvas>();
         parentCanvas.sortingOrder = 100;
+=======
+        TransionBlackScreenSortOrder(100);
+>>>>>>> Stashed changes
         // 淡入
         yield return FadeIn(fadeDuration, showText);
 

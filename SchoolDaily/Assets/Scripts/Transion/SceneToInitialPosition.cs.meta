@@ -4,7 +4,11 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences: []
+<<<<<<< Updated upstream
   executionOrder: -10
+=======
+  executionOrder: -2
+>>>>>>> Stashed changes
   icon: {instanceID: 0}
   userData: 
   assetBundleName: 

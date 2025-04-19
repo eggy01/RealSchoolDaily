@@ -98,8 +98,12 @@ namespace SchoolD.Dialogue
 
             istalking = false;
 
+<<<<<<< Updated upstream
             // StoryProgressManager.Instance.MarkStoryAsCompleted(int.Parse(csvFile.name));//标记该剧情已过
             StoryProgressManager1.Instance.MarkStoryAsCompleted(CurrentcsvFileName);
+=======
+            StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);
+>>>>>>> Stashed changes
 
             OnFinishEvent?.Invoke();
         }

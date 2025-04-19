@@ -47,6 +47,53 @@ namespace SchoolD.Dialogue
             StartCoroutine(PeriodicCheck());
         }
 
+<<<<<<< Updated upstream
+=======
+        private void OnEnable()
+        {
+            EventHandler.OnLoadDialogueByIndex += LoadNextDialogueByIndex;
+        }
+
+        private void OnDisable()
+        {
+            EventHandler.OnLoadDialogueByIndex -= LoadNextDialogueByIndex;
+        }
+
+        // 通过索引跳转
+        private void LoadNextDialogueByIndex(string indexStr)
+        {
+            Debug.Log($"LoadNextDialogueByIndex被调用，indexStr:{indexStr} 当前对话列表长度:{dialogueList.Count}");
+            if (int.TryParse(indexStr, out int targetIndex))
+            {
+                // 1. 找到所有匹配的对话片段
+                var matchedPieces = dialogueList.FindAll(p => p.index == targetIndex);
+
+                if (matchedPieces == null || matchedPieces.Count == 0)
+                {
+                    Debug.Log("333333333333 - 没有找到匹配的对话片段");
+                    return;
+                }
+
+                // // 3. 打印调试信息
+                // foreach (DialoguePiece p in matchedPieces)
+                // {
+                //     Debug.Log("跳转的序号：" + p.no);
+                //     Debug.Log("跳转的文本：" + p.dialogueText);
+                // }
+
+                dialogueStack.Clear();
+                for (int i = matchedPieces.Count - 1; i >= 0; i--)
+                {
+                    dialogueStack.Push(matchedPieces[i]);
+                }
+
+                // 6. 开始新对话
+                istalking = true;
+                StartCoroutine(DialogueRoutine());
+            }
+        }
+
+>>>>>>> Stashed changes
         private IEnumerator PeriodicCheck()
         {
             while (true)
@@ -69,6 +116,7 @@ namespace SchoolD.Dialogue
             if (csvFiles.Length > 0)
             {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 Debug.Log(StoryProgressManager1.Instance.IsStoryCompleted("Beginner_02"));
                 Debug.Log(StoryProgressManager1.Instance.CanUnlockStory("Beginner_03"));
                 for (int i = 0; i < csvFiles.Length; i++)
@@ -77,6 +125,9 @@ namespace SchoolD.Dialogue
                     if (StoryProgressManager1.Instance.CanUnlockStory(csvFiles[i].name) && !StoryProgressManager1.Instance.IsStoryCompleted(csvFiles[i].name)) // 再结合玩家获得的属性
 =======
                 for (int i = 0; i < csvFiles.Length; i++)
+=======
+                for (int i = 1; i < csvFiles.Length; i++)
+>>>>>>> Stashed changes
                 {
                     if (StoryProgressManager.Instance.CanUnlockStory(csvFiles[i].name) && !StoryProgressManager.Instance.IsStoryCompleted(csvFiles[i].name)) // 再结合玩家获得的属性
 >>>>>>> Stashed changes
@@ -126,6 +177,8 @@ namespace SchoolD.Dialogue
                 {
                     StartCoroutine(DialogueRoutine());
                 }
+                else if (!hasActiveDialogue)
+                    TriggerDefaultDialogue();
             }
 
             if (istalking && Input.GetKeyDown(KeyCode.Space))
@@ -140,7 +193,24 @@ namespace SchoolD.Dialogue
 
             while (dialogueStack.Count > 0)
             {
+<<<<<<< Updated upstream
                 var piece = dialogueStack.Pop();
+=======
+                var piece = dialogueStack.Peek(); // 先查看但不弹出
+
+                // 条件检查
+                if (!string.IsNullOrEmpty(piece.prerequisites) && !piece.prerequisites.Contains("|") && !piece.IsConditionsMet())
+                {
+                    Debug.Log($"对话终止，条件不满足: {piece.prerequisites}");
+                    canTalkUI.SetActive(false);
+                    istalking = false;
+
+                    yield break; // 直接跳出协程
+                }
+
+                // 只有条件满足时才继续
+                piece = dialogueStack.Pop();
+>>>>>>> Stashed changes
                 EventHandler.CallShowDialogueEvent(piece);
 
                 // 等待对话完成
@@ -168,6 +238,7 @@ namespace SchoolD.Dialogue
             OnFinishEvent?.Invoke();
         }
 
+<<<<<<< Updated upstream
         private void OnMouseOver()
         {
             if (Input.GetMouseButtonDown(1)) // 1表示右键
@@ -179,6 +250,8 @@ namespace SchoolD.Dialogue
             }
         }
 
+=======
+>>>>>>> Stashed changes
         private void TriggerDefaultDialogue()
         {
             // 加载默认对话

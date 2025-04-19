@@ -86,7 +86,12 @@ public class DialogueCSVReader : MonoBehaviour
             piece.onLeft = !fields[1].Trim().Contains(Settings.playerName);
 
             // 解析选项
+<<<<<<< Updated upstream
             if (fields[1].Trim().Contains(Settings.playerName) && fields.Length > 5 && !fields[4].Equals(string.Empty))
+=======
+            //fields[2].Trim().Contains(Settings.playerName) &&
+            if (fields.Length > 6 && !fields[5].Equals(string.Empty))
+>>>>>>> Stashed changes
             {
                 piece.option.Clear(); // 清空现有选项
 
@@ -107,8 +112,11 @@ public class DialogueCSVReader : MonoBehaviour
                         piece.option.Add(options[i].Trim());
                     }
                 }
+<<<<<<< Updated upstream
                 // 打印选项内容
                 Debug.Log(string.Join(", ", piece.option));
+=======
+>>>>>>> Stashed changes
             }
 
             // 解析表情
@@ -142,12 +150,33 @@ public class DialogueCSVReader : MonoBehaviour
             //检测是否有下一条紧接着的对话
             if (fields.Length > 8 && !fields[7].Equals(string.Empty))
             {
+<<<<<<< Updated upstream
                 piece.nextDialogueCSVFileName = fields[7];
+=======
+                if (fields[7].Contains("动画:黑屏"))
+                    piece.extra = 1;
+
+                if (fields[7].Contains("移动:"))
+                    if (fields[7].Contains("宿舍外"))
+                        piece.MoveToPosition = "Life Scene";
+>>>>>>> Stashed changes
             }
 
             //解析额外信息，如动画。
             if (fields.Length > 9 && !fields[8].Equals(string.Empty))
             {
+<<<<<<< Updated upstream
+=======
+                if (fields[8].Contains("|"))
+                    piece.nextIndex = fields[8];
+                else
+                    piece.nextDialogueCSVFileName = fields[8];
+            }
+
+            //判断。
+            if (fields.Length > 10 && !fields[9].Equals(string.Empty))
+            {
+>>>>>>> Stashed changes
                 if (fields[9].Contains("first"))//该条为第一条
                     piece.isfinalNotFirst = 0;
                 if (fields[9].Contains("final"))//该条为最后一条
