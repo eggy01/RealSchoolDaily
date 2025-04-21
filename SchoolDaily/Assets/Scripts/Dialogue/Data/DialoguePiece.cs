@@ -35,6 +35,7 @@ namespace SchoolD.Dialogue
 
                 [Header("触发条件")]
                 public string prerequisites; // 示例："Favorability.林风.>=.30;ItemOwned.门票.>=.1"
+                public string award;//奖励
 
                 /// <summary>
                 /// 检查是否满足所有前置条件

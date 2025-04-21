@@ -192,7 +192,6 @@ public class DialogueUI : MonoBehaviour
                 bool hasPreconditions = !string.IsNullOrEmpty(piece.prerequisites);
                 string[] preconditions = hasPreconditions ? piece.prerequisites.Split('|') : new string[0];
 
-                Debug.Log("前置条件" + preconditions.Length);
                 for (int i = 0; i < piece.option.Count; i++)
                 {
                     bool shouldShow = true;
@@ -281,13 +280,14 @@ public class DialogueUI : MonoBehaviour
             }
 
 
-
+            EventHandler.HaveOnFocusCamear();
             piece.isDone = true;
             continueButton.gameObject.SetActive(piece.hasToPause && piece.isDone);
         }
         else
         {
             SetAllFalse();
+            EventHandler.HaveOnFocusCamear();
 
             if (!string.IsNullOrEmpty(MoveToPosition)) //场景切换，人物移动
             {

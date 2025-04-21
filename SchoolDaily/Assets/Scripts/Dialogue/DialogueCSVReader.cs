@@ -170,6 +170,10 @@ public class DialogueCSVReader : MonoBehaviour
             if (fields.Length > 13 && !fields[12].Equals(string.Empty))
                 piece.prerequisites = fields[12];
 
+            //结算
+            if (fields.Length > 14 && !fields[13].Equals(string.Empty))
+                piece.award = fields[13];
+
 
             dialoguePieces.Add(piece);
         }
