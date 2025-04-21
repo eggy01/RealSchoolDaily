@@ -20,9 +20,6 @@ public class ToolTip : MonoBehaviour
 
     public void SetText(string content, string header = "")
     {
-        // 调试日志
-        Debug.Log($"设置ToolTip文本 - 标题: {header}, 内容: {content}");
-
         // 设置标题
         if (string.IsNullOrEmpty(header))
         {

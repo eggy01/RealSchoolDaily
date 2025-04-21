@@ -24,6 +24,12 @@ public class npcExpressionOffset : MonoBehaviour
             case "林风":
                 npcIndex = 1;
                 break;
+            case "纪远行":
+                npcIndex = 2;
+                break;
+            case "宁芷":
+                npcIndex = 3;
+                break;
 
         }
         return npcIndex;
@@ -34,6 +40,11 @@ public class npcExpressionOffset : MonoBehaviour
         {
             if (expression.name.Contains("林风"))
                 npcName = "林风";
+        }
+        if (npcName.Equals("神秘学姐"))
+        {
+            if (expression.name.Contains("宁芷"))
+                npcName = "宁芷";
         }
 
         expressionImage.sprite = expression;
@@ -49,6 +60,11 @@ public class npcExpressionOffset : MonoBehaviour
         {
             if (emotionName.Contains("林风"))
                 npcName = "林风";
+        }
+        if (npcName.Equals("神秘学姐"))
+        {
+            if (emotionName.Contains("宁芷"))
+                npcName = "宁芷";
         }
 
 

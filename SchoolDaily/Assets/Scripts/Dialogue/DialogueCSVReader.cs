@@ -47,9 +47,8 @@ public class DialogueCSVReader : MonoBehaviour
             // 分割行，考虑逗号分隔但内容中可能包含逗号的情况
             string[] fields = Instance.ParseCsvLine(line);
 
-            if (fields.Length < 4) continue; // 确保有足够字段
-
             DialoguePiece piece = new DialoguePiece();
+            piece.belongToCSVFileName = csvFile.name;
 
             if (int.TryParse(fields[0], out int index))
             {
@@ -74,6 +73,8 @@ public class DialogueCSVReader : MonoBehaviour
                 fields[2] = fields[2].Replace("(=pn)", Settings.playerName);
             if (fields[2].Contains("主角"))
                 fields[2] = fields[2].Replace("主角", Settings.playerName);
+            // if (fields[2].Equals("负责分发图书的学生"))
+            //     fields[2] = "女学生";
 
             piece.name = fields[2].Trim();
 
@@ -85,6 +86,14 @@ public class DialogueCSVReader : MonoBehaviour
             else if (piece.name == "???")
             {
                 piece.faceImage = spriteDict["默认2"];
+            }
+            else if (piece.name.Equals("负责分发图书的学生"))
+            {
+                piece.faceImage = spriteDict["女学生"];
+            }
+            else if (piece.name.Equals("神秘学姐"))
+            {
+                piece.faceImage = spriteDict["宁芷"];
             }
 
 

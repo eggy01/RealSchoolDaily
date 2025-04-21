@@ -35,6 +35,19 @@ namespace SchoolD.Dialogue
             canTalkUI = transform.Find("CanTalkIcon").gameObject; // 假设可对话图标的子对象名称为"CanTalkIcon"
             canTalkUI.SetActive(false); // 默认不显示可对话图标
         }
+        private void OnNewDialogueStarted(List<DialoguePiece> newDialogueList, string newDialogueFileName)
+        {
+            dialogueList = newDialogueList;
+            FillDialogueStack();
+
+            // 2. 重置对话状态
+            istalking = true;
+
+            CurrentcsvFileName = newDialogueFileName;
+
+            // 3. 启动新对话协程
+            StartCoroutine(DialogueRoutine());
+        }
 
         private void Start()
         {
@@ -191,6 +204,8 @@ namespace SchoolD.Dialogue
                 // 只有条件满足时才继续
                 piece = dialogueStack.Pop();
                 EventHandler.CallShowDialogueEvent(piece);
+                if (Input.GetKeyDown(KeyCode.P))
+                    break;
 
                 // 等待对话完成
                 yield return new WaitUntil(() => piece.isDone);

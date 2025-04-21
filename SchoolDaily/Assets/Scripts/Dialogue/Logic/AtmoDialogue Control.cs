@@ -13,40 +13,13 @@ namespace SchoolD.Dialogue
         public List<DialoguePiece> dialogueList = new List<DialoguePiece>();//存储每一句对话的list
         private Stack<DialoguePiece> dialogueStack = new Stack<DialoguePiece>();
 
-        public TextAsset csvFile;
-
+        public TextAsset[] csvFiles; // 剧情文件
         private string CurrentcsvFileName;//当前剧情文件的名字
 
-        private void OnEnable()
-        {
-            // 订阅事件
-            EventHandler.OnStartNewDialogueEvent += OnNewDialogueStarted;
-        }
-
-        private void OnDisable()
-        {
-            // 取消订阅（防止内存泄漏）
-            EventHandler.OnStartNewDialogueEvent -= OnNewDialogueStarted;
-        }
-
-        // 事件处理逻辑
-        private void OnNewDialogueStarted(List<DialoguePiece> newDialogueList, string newDialogueFileName)
-        {
-            dialogueList = newDialogueList;
-            FillDialogueStack();
-
-            // 2. 重置对话状态
-            istalking = true;
-
-            CurrentcsvFileName = newDialogueFileName;
-
-            // 3. 启动新对话协程
-            StartCoroutine(DialogueRoutine());
-        }
         private void Awake()
         {
-            dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFile);
-            CurrentcsvFileName = csvFile.name;
+            dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[0]);
+            CurrentcsvFileName = csvFiles[0].name;
             FillDialogueStack();
         }
 
@@ -54,12 +27,25 @@ namespace SchoolD.Dialogue
         {
             if (other.CompareTag("Player"))
             {
-                if (!StoryProgressManager.Instance.IsStoryCompleted(CurrentcsvFileName))
-                {//如果该剧情没过
+                for (int i = 0; i < csvFiles.Length; i++)
+                {
+                    Debug.Log(csvFiles[i].name + "完成：" + StoryProgressManager.Instance.IsStoryCompleted(csvFiles[i].name));
+                    Debug.Log(StoryProgressManager.Instance.CanUnlockStory(csvFiles[i].name));
+                    if (StoryProgressManager.Instance.CanUnlockStory(csvFiles[i].name) && !StoryProgressManager.Instance.IsStoryCompleted(csvFiles[i].name)) // 再结合玩家获得的属性
+                    {
+                        dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[i]);
+                        CurrentcsvFileName = csvFiles[i].name;
+                        break;
+                    }
+                }
+                if (!string.IsNullOrEmpty(CurrentcsvFileName))
+                {
+                    FillDialogueStack();
                     StartCoroutine(DialogueRoutine());
                 }
                 else
                 {
+                    Debug.Log("删除触发器");
                     Destroy(gameObject);//如果过了销毁该触发器
                 }
 
@@ -97,6 +83,7 @@ namespace SchoolD.Dialogue
             EventHandler.CallShowDialogueEvent(null);
 
             istalking = false;
+            CurrentcsvFileName = "";
 
             StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);
 

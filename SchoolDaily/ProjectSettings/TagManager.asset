@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - BoundsConfiner
+  - TextBook
   layers:
   - Default
   - TransparentFX
