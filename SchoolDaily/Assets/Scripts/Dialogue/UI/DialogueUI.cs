@@ -36,6 +36,8 @@ public class DialogueUI : MonoBehaviour
     public int nexePieceIndex = -1;
     private string MoveToPosition;
 
+    public GameObject textbook;
+
     private void Awake()
     {
         dialogueText.text = "";
@@ -93,14 +95,18 @@ public class DialogueUI : MonoBehaviour
             continueButton.gameObject.SetActive(false);
 
 
-
             // 旁白模式：只显示 dialogueBoxTop 和 dialogueText
-            if (piece.name.Equals("旁白"))
+            if (piece.name.Equals("旁白") || piece.name.Equals("教程"))
             {
                 dialogueBoxBottom.SetActive(true);
                 dialogueText.gameObject.SetActive(true);
-
-                // yield return StartCoroutine(AnimateText(piece.dialogueText, 1f)); // 逐字动画
+            }
+            else if (piece.index == 0)
+            {
+                dialogueBoxBottom.SetActive(true);
+                dialogueText.gameObject.SetActive(true);
+                faceLeft.gameObject.SetActive(true);
+                faceLeft.sprite = piece.faceImage;
             }
             // 非旁白模式：正常显示对话
             else
@@ -175,8 +181,23 @@ public class DialogueUI : MonoBehaviour
                     }
                 }
             }
-            if (!string.IsNullOrEmpty(piece.dialogueText))
+            if (piece.name.Equals("教程"))
+            {
                 yield return StartCoroutine(AnimateText(piece.dialogueText, 1f));
+                // 开始教程
+                TutorialSystem.Instance.StartInventoryTutorial(piece.dialogueText);
+
+                // 等待教程完成
+                yield return TutorialSystem.Instance.WaitForTutorialComplete();
+
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(piece.dialogueText))
+                    yield return StartCoroutine(AnimateText(piece.dialogueText, 1f));
+            }
+
+
 
             //场景切换，人物移动
             if (!string.IsNullOrEmpty(piece.MoveToPosition))
@@ -260,6 +281,7 @@ public class DialogueUI : MonoBehaviour
             // 动态加载下一剧情文件
             if (!string.IsNullOrEmpty(piece.nextDialogueCSVFileName))
             {
+                Debug.Log("加载下一剧情：" + piece.nextDialogueCSVFileName);
                 BlackScreenManager.Instance.TransionBlackScreenSortOrder(100);
                 yield return BlackScreenManager.Instance.FadeIn(Settings.fadeDuration, false);
 
@@ -273,14 +295,13 @@ public class DialogueUI : MonoBehaviour
                 TextAsset nextCSV = DialogueCSVReader.LoadCSVFromResources(piece.nextDialogueCSVFileName);
                 if (nextCSV != null)
                 {
+                    StoryProgressManager.Instance.MarkStoryAsCompleted(piece.belongToCSVFileName);
                     var newDialogueList = DialogueCSVReader.Instance.LoadDialogueData(nextCSV);
                     EventHandler.CallStartNewDialogueEvent(newDialogueList, piece.nextDialogueCSVFileName);
                 }
                 yield break;
             }
 
-
-            EventHandler.HaveOnFocusCamear();
             piece.isDone = true;
             continueButton.gameObject.SetActive(piece.hasToPause && piece.isDone);
         }

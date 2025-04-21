@@ -5679,7 +5679,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   dialogueList: []
-  csvFile: {fileID: 4900000, guid: f67e858574655144c9c02680bc1a73ba, type: 3}
+  csvFiles:
+  - {fileID: 4900000, guid: f67e858574655144c9c02680bc1a73ba, type: 3}
+  - {fileID: 4900000, guid: 8d1d67398adcded499689ad900a3d20b, type: 3}
 --- !u!61 &1791768460
 BoxCollider2D:
   m_ObjectHideFlags: 0

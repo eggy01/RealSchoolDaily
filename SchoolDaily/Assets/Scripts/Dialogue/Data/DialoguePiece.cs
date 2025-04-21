@@ -7,6 +7,7 @@ namespace SchoolD.Dialogue
         public class DialoguePiece
         {
                 [Header("对话详情")]
+                public string belongToCSVFileName;
                 public Sprite faceImage;//该条对话的人物图片
                 public bool onLeft;//是否在左边，固定玩家在右，
                 public string name;//该条对话的人物名称
