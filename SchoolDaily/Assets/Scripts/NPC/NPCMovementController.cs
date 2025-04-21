@@ -17,6 +17,12 @@ public class NPCMovementController : MonoBehaviour
     public bool showPathGizmos = true;
     private bool isRecalculating = false;
 
+    [Header("动画参数")]
+    [SerializeField] private string horizontalAnimParam = "horizontal";
+    [SerializeField] private string verticalAnimParam = "vertical";
+    [SerializeField] private string movingAnimParam = "isWalking";
+    private Animator animator;
+    private Vector2 lastMoveDirection;
 
     private NPCScheduleData scheduleData;
     private List<Vector2> currentPath;
@@ -31,7 +37,7 @@ public class NPCMovementController : MonoBehaviour
     {
         scheduleData = GetComponent<NPCScheduleData>();
         InitializeTimeManager();
-        Debug.Log(transform.position);
+        animator = GetComponent<Animator>();
     }
 
     void InitializeTimeManager()
@@ -106,6 +112,11 @@ public class NPCMovementController : MonoBehaviour
         {
             Vector2 targetPoint = currentPath[currentPathIndex];
 
+            // 计算移动方向
+            Vector2 moveDirection = (targetPoint - (Vector2)transform.position).normalized;
+
+            // 更新动画参数
+            UpdateAnimationParameters(moveDirection);
             // 使用更平滑的移动方式
             transform.position = Vector2.MoveTowards(
                 transform.position,
@@ -118,8 +129,42 @@ public class NPCMovementController : MonoBehaviour
 
             yield return null;
         }
+        // 到达目的地后停止动画
+        animator.SetBool(movingAnimParam, false);
         isRecalculating = false;
         FinalizeMovement();
+    }
+    private void UpdateAnimationParameters(Vector2 moveDirection)
+    {
+        // 优先使用较大绝对值的方向
+        if (Mathf.Abs(moveDirection.x) > Mathf.Abs(moveDirection.y))
+        {
+            animator.SetFloat(horizontalAnimParam, Mathf.Sign(moveDirection.x));
+            animator.SetFloat(verticalAnimParam, 0);
+        }
+        else
+        {
+            animator.SetFloat(verticalAnimParam, Mathf.Sign(moveDirection.y));
+            animator.SetFloat(horizontalAnimParam, 0);
+        }
+
+        // 更新移动状态
+        animator.SetBool(movingAnimParam, moveDirection.magnitude > 0.1f);
+
+        // 记录最后移动方向（用于Idle状态）
+        if (moveDirection.magnitude > 0.1f)
+        {
+            lastMoveDirection = moveDirection;
+        }
+    }
+
+    private void FinalizeMovement()
+    {
+        // 保持最后移动方向
+        animator.SetFloat(horizontalAnimParam, Mathf.Sign(lastMoveDirection.x));
+        animator.SetFloat(verticalAnimParam, Mathf.Sign(lastMoveDirection.y));
+        OnReachedDestination?.Invoke();
+        moveCoroutine = null;
     }
 
     private void HandlePathObstacleCheck(Vector2 targetPoint)
@@ -139,12 +184,6 @@ public class NPCMovementController : MonoBehaviour
         {
             currentPathIndex++;
         }
-    }
-
-    private void FinalizeMovement()
-    {
-        OnReachedDestination?.Invoke();
-        moveCoroutine = null;
     }
 
     public void MoveTo(Vector2 targetPosition)
@@ -200,8 +239,8 @@ public class NPCMovementController : MonoBehaviour
         Gizmos.color = Color.cyan;
         for (int i = 0; i < currentPath.Count; i++)
         {
-            Gizmos.DrawSphere(currentPath[0],2f);
-            Gizmos.DrawSphere(currentPath[currentPath.Count - 1],1f);
+            Gizmos.DrawSphere(currentPath[0], 1f);
+            Gizmos.DrawSphere(currentPath[currentPath.Count - 1], 1f);
             Gizmos.DrawSphere(currentPath[i], 0.1f);
             if (i > 0)
                 Gizmos.DrawLine(currentPath[i - 1], currentPath[i]);

@@ -8,7 +8,7 @@ public class Pathfinding2D : MonoBehaviour
 
     [Header("网格设置")]
     public Vector2 gridSize = new Vector2(200, 200);
-    public float nodeRadius = 0.25f;
+    public float nodeRadius = 1f;
     public LayerMask obstacleMask;
 
     private Node[,] grid;
@@ -18,21 +18,7 @@ public class Pathfinding2D : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        nodeDiameter = nodeRadius * 2;
         CreateGrid();
-    }
-    void OnDrawGizmos()
-    {
-        Gizmos.DrawWireCube(transform.position, gridSize);
-
-        // if (grid != null)
-        // {
-        //     foreach (Node n in grid)
-        //     {
-        //         Gizmos.color = n.walkable ? Color.white : Color.red;
-        //         Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - 0.1f));
-        //     }
-        // }
     }
 
     void CreateGrid()
@@ -97,12 +83,6 @@ public class Pathfinding2D : MonoBehaviour
             Node currentNode = openSet.RemoveFirst();//从 openSet 中取出 fCost 最小的节点
             closedSet.Add(currentNode);//将当前节点添加到 closedSet 中，表示已处理过的节点。
 
-            Debug.Log($"第 {loopCount} 次循环:");
-            foreach (Node closedNode in closedSet)
-            {
-                Debug.Log($"Node: ({closedNode.gridX}, {closedNode.gridY}), gCost: {closedNode.gCost}, hCost: {closedNode.hCost}, fCost: {closedNode.gCost + closedNode.hCost}");
-            }
-
             // 找到目标节点
             if (currentNode == targetNode)
             {
@@ -120,9 +100,8 @@ public class Pathfinding2D : MonoBehaviour
 
             foreach (Node neighbour in GetNeighbours(currentNode))//找当前节点的邻居节点
             {
-                if (!neighbour.walkable || closedSet.Contains(neighbour))
+                if (!neighbour.walkable||closedSet.Contains(neighbour))
                     continue;
-
                 // 计算新路径代价
                 int newCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour);
 
@@ -146,11 +125,6 @@ public class Pathfinding2D : MonoBehaviour
             }
         }
         return null; // 未找到路径
-    }
-
-    private void PrintNodeInfo(Node node)
-    {
-        Debug.Log($"Node: ({node.gridX}, {node.gridY}), gCost: {node.gCost}, hCost: {node.hCost}, fCost: {node.gCost + node.hCost}");
     }
 
     private List<Node> RetracePath(Node startNode, Node endNode)
@@ -209,14 +183,13 @@ public class Pathfinding2D : MonoBehaviour
     private List<Node> GetNeighbours(Node node)
     {
         List<Node> neighbours = new List<Node>();
-
         // 上下左右四个方向
         Vector2Int[] directions = {
         new Vector2Int(0, 1),  // 上
         new Vector2Int(1, 0),  // 右
         new Vector2Int(0, -1), // 下
         new Vector2Int(-1, 0) // 左
-    };
+        };
 
         foreach (var dir in directions)
         {
@@ -233,15 +206,25 @@ public class Pathfinding2D : MonoBehaviour
 
     private Node NodeFromWorldPoint(Vector2 worldPosition)
     {
-        float percentX = (worldPosition.x + gridSize.x / 2) / gridSize.x;
-        float percentY = (worldPosition.y + gridSize.y / 2) / gridSize.y;
+        // 获取 pathfinding 物体的全局坐标
+        Vector2 pathfindingPosition = transform.position;
 
+        // 计算传入的世界坐标与 pathfinding 物体的相对位置
+        Vector2 relativePosition = worldPosition - pathfindingPosition;
+
+        // 根据相对位置计算百分比
+        float percentX = (relativePosition.x + gridSize.x / 2) / gridSize.x;
+        float percentY = (relativePosition.y + gridSize.y / 2) / gridSize.y;
+
+        // 限制百分比在 0 到 1 之间
         percentX = Mathf.Clamp01(percentX);
         percentY = Mathf.Clamp01(percentY);
 
+        // 根据百分比计算网格坐标
         int x = Mathf.RoundToInt((gridSizeX - 1) * percentX);
         int y = Mathf.RoundToInt((gridSizeY - 1) * percentY);
 
+        // 返回对应的网格节点
         return grid[x, y];
     }
 
@@ -250,7 +233,6 @@ public class Pathfinding2D : MonoBehaviour
         int dstX = Mathf.Abs(a.gridX - b.gridX);
         int dstY = Mathf.Abs(a.gridY - b.gridY);
         return dstX+dstY;
-
         // if (dstX > dstY)
         //     return 14 * dstY + 10 * (dstX - dstY);
         // return 14 * dstX + 10 * (dstY - dstX);
