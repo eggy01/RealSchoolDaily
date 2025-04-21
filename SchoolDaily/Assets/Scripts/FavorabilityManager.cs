@@ -10,7 +10,7 @@ public class FavorabilityManager : MonoBehaviour
     private Dictionary<string, int> _favorData = new Dictionary<string, int>()
     {
         // 初始化默认值
-        {"林风", 40},
+        {"林风", 30},
         {"弗洛", 30}
     };
 

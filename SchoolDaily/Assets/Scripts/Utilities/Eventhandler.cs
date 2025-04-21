@@ -108,4 +108,11 @@ public class EventHandler
     {
         OnLoadDialogueByIndex?.Invoke(index);
     }
+
+    //聚焦相机//画面展示
+    public static event Action OnFocusCamear;
+    public static void HaveOnFocusCamear()
+    {
+        OnFocusCamear?.Invoke();
+    }
 }

@@ -2800,7 +2800,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1514823885
-  m_SortingLayer: 9
+  m_SortingLayer: 10
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -3743,6 +3743,7 @@ GameObject:
   - component: {fileID: 1123265326}
   - component: {fileID: 1123265327}
   - component: {fileID: 1123265328}
+  - component: {fileID: 1123265329}
   m_Layer: 0
   m_Name: "\u7535\u8111\u684C"
   m_TagString: Untagged
@@ -3870,6 +3871,20 @@ PolygonCollider2D:
       - {x: 1.4882555, y: -0.7223029}
       - {x: 1.4468727, y: 0.39915848}
   m_UseDelaunayMesh: 0
+--- !u!114 &1123265329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1123265325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fabd74ff12fc8fe4c8e1355c23706c19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  content: 
+  header: "\u8FD9\u662F\u6797\u98CE\u7684\u7535\u8111"
 --- !u!1 &1132705899
 GameObject:
   m_ObjectHideFlags: 0
@@ -4025,7 +4040,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1302360457
-  m_SortingLayer: 8
+  m_SortingLayer: 9
   m_SortingOrder: 0
   m_Sprite: {fileID: 1776305661, guid: a23923dad6ef4754fb78b1af2f8fa5d2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -4139,7 +4154,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1272825644
 Transform:
   m_ObjectHideFlags: 0
@@ -4678,7 +4693,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -34388357
-  m_SortingLayer: 7
+  m_SortingLayer: 8
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 1.9375, y: 0.75, z: 0}
@@ -5412,6 +5427,7 @@ GameObject:
   - component: {fileID: 1731102916}
   - component: {fileID: 1731102915}
   - component: {fileID: 1731102917}
+  - component: {fileID: 1731102918}
   m_Layer: 0
   m_Name: "\u684C\u5B50"
   m_TagString: Untagged
@@ -5531,6 +5547,20 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 4.5, y: 3.7190113}
   m_EdgeRadius: 0
+--- !u!114 &1731102918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731102914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fabd74ff12fc8fe4c8e1355c23706c19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  content: 
+  header: "\u8FD9\u662F\u516C\u5171\u7684\u684C\u5B50"
 --- !u!1 &1740300209
 GameObject:
   m_ObjectHideFlags: 0
@@ -5650,7 +5680,6 @@ MonoBehaviour:
       m_Calls: []
   dialogueList: []
   csvFile: {fileID: 4900000, guid: f67e858574655144c9c02680bc1a73ba, type: 3}
-  storyId: 1
 --- !u!61 &1791768460
 BoxCollider2D:
   m_ObjectHideFlags: 0
