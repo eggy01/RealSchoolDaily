@@ -5997,10 +5997,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9fdb1a4df38d5479511581fc9ff82a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dialogueID: 1
-  dialogueCSV: {fileID: 4900000, guid: f67e858574655144c9c02680bc1a73ba, type: 3}
   requireKeyPress: 0
-  prerequisiteCondition: "\u65F6\u95F4.>=.2\u67081\u65E58:00"
+  dialogueOptions:
+  - dialogueCSV: {fileID: 4900000, guid: f67e858574655144c9c02680bc1a73ba, type: 3}
+    prerequisiteCondition: 
+    isOnce: 1
+    SkipIndex: 0
+    hasTriggered: 0
+  - dialogueCSV: {fileID: 4900000, guid: 8d1d67398adcded499689ad900a3d20b, type: 3}
+    prerequisiteCondition: "\u65F6\u95F4.>=19:00"
+    isOnce: 1
+    SkipIndex: 0
+    hasTriggered: 0
 --- !u!1 &1820294781
 GameObject:
   m_ObjectHideFlags: 0

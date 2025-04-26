@@ -88,6 +88,7 @@ namespace SchoolD.Dialogue
                 }
                 if (option.SkipIndex > 0)
                 {
+                    option.hasTriggered = true;
                     EventHandler.CallLoadDialogueByIndex(option.SkipIndex.ToString(), option.dialogueCSV.name);
                 }
                 else
@@ -96,8 +97,8 @@ namespace SchoolD.Dialogue
                     DialogueManager.Instance.TriggerDialogue(option.dialogueCSV.name);
                 }
 
-
                 option.hasTriggered = true;
+
                 return;
             }
 

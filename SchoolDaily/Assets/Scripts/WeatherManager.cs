@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class WeatherManager : MonoBehaviour
 {
@@ -12,6 +13,16 @@ public class WeatherManager : MonoBehaviour
         Windy,
         Cloudy
     }
+
+    [Header("场景设置")]
+    public List<string> outdoorScenes = new List<string>
+    {
+        "A Scene",
+        "B Scene",
+        "Teach Scene",
+        "Life Scene"
+    };
+
     [Header("光照设置")]
     public Light sunLight;
     public Color sunnyLightColor = new Color(1f, 1f, 0.95f);
@@ -21,11 +32,11 @@ public class WeatherManager : MonoBehaviour
     public Color cloudyLightColor = new Color(0.8f, 0.8f, 0.8f);
 
     [Header("天气参数")]
-    public float minWeatherDuration = 1f; // 最短持续时间(天)
-    public float maxWeatherDuration = 3f; // 最长持续时间(天)
-    private float currentWeatherDuration; // 当前天气将持续的天数
-    private int daysPassedWithCurrentWeather; // 当前天气已持续的天数
-    public float transitionDuration = 5f;    // 过渡时间
+    public float minWeatherDuration = 1f;
+    public float maxWeatherDuration = 3f;
+    private float currentWeatherDuration;
+    private int daysPassedWithCurrentWeather;
+    public float transitionDuration = 5f;
 
     [Header("粒子系统")]
     public ParticleSystem rainParticleSystem;
@@ -34,36 +45,49 @@ public class WeatherManager : MonoBehaviour
     public ParticleSystem cloudParticleSystem;
 
     private WeatherType currentWeather;
-    private float weatherTimer;
     private TimeManager timeManager;
+    private bool isOutdoorScene;
 
     private void Awake()
     {
         timeManager = FindObjectOfType<TimeManager>();
+        CheckCurrentScene();
     }
 
     private void Start()
     {
-        // 初始设置随机持续时间
         currentWeatherDuration = Random.Range(minWeatherDuration, maxWeatherDuration);
         daysPassedWithCurrentWeather = 0;
         ChangeRandomWeather();
     }
+
     private void OnEnable()
     {
         EventHandler.OnDayChangedEvent += OnDayChanged;
+        SceneManager.activeSceneChanged += OnSceneChanged;
     }
 
     private void OnDisable()
     {
         EventHandler.OnDayChangedEvent -= OnDayChanged;
+        SceneManager.activeSceneChanged -= OnSceneChanged;
+    }
+
+    private void OnSceneChanged(Scene oldScene, Scene newScene)
+    {
+        CheckCurrentScene();
+        UpdateWeatherEffects();
+    }
+
+    private void CheckCurrentScene()
+    {
+        string currentScene = SceneManager.GetActiveScene().name;
+        isOutdoorScene = outdoorScenes.Contains(currentScene);
+        Debug.Log($"当前场景: {currentScene}, 是室外场景: {isOutdoorScene}");
     }
 
     private void OnDayChanged()
     {
-        Debug.Log("当前天气变化间隔" + currentWeatherDuration);
-        Debug.Log("游戏暂停" + timeManager.gameClockPause);
-        Debug.Log(timeManager.GetdayChanged());
         if (!timeManager.gameClockPause)
         {
             daysPassedWithCurrentWeather++;
@@ -77,17 +101,17 @@ public class WeatherManager : MonoBehaviour
         }
     }
 
-
-    private void Update()
-    {
-
-    }
-
     private void ChangeRandomWeather()
     {
         WeatherType newWeather = GetSeasonalWeather();
         Debug.Log("天气：" + newWeather);
         SetWeather(newWeather);
+    }
+
+    private void UpdateWeatherEffects()
+    {
+        // 根据当前是否在室外场景重新激活/禁用天气效果
+        SetWeather(currentWeather);
     }
 
     private WeatherType GetSeasonalWeather()
@@ -165,45 +189,75 @@ public class WeatherManager : MonoBehaviour
 
     private void SetWeather(WeatherType weather)
     {
-        // 停止所有粒子效果
-        rainParticleSystem.Stop();
-        snowParticleSystem.Stop();
-        windParticleSystem.Stop();
-        cloudParticleSystem.Stop();
-
-        // 设置新天气
         currentWeather = weather;
 
+        // 始终更新光照（室内外都需要）
+        UpdateLighting(weather);
+
+        // 只在室外场景激活粒子效果
+        if (isOutdoorScene)
+        {
+            UpdateParticleEffects(weather);
+        }
+        else
+        {
+            StopAllParticleEffects();
+        }
+    }
+
+    private void UpdateLighting(WeatherType weather)
+    {
         switch (weather)
         {
             case WeatherType.Sunny:
                 sunLight.color = sunnyLightColor;
                 sunLight.intensity = 1f;
                 break;
-
             case WeatherType.Rainy:
                 sunLight.color = rainyLightColor;
                 sunLight.intensity = 0.6f;
-                rainParticleSystem.Play();
                 break;
-
             case WeatherType.Snowy:
                 sunLight.color = snowyLightColor;
                 sunLight.intensity = 0.8f;
-                snowParticleSystem.Play();
                 break;
-
             case WeatherType.Windy:
                 sunLight.color = windyLightColor;
                 sunLight.intensity = 0.9f;
-                windParticleSystem.Play();
                 break;
-
             case WeatherType.Cloudy:
                 sunLight.color = cloudyLightColor;
                 sunLight.intensity = 0.7f;
+                break;
+        }
+    }
+
+    private void UpdateParticleEffects(WeatherType weather)
+    {
+        StopAllParticleEffects();
+
+        switch (weather)
+        {
+            case WeatherType.Rainy:
+                rainParticleSystem.Play();
+                break;
+            case WeatherType.Snowy:
+                snowParticleSystem.Play();
+                break;
+            case WeatherType.Windy:
+                windParticleSystem.Play();
+                break;
+            case WeatherType.Cloudy:
                 cloudParticleSystem.Play();
                 break;
         }
+    }
+
+    private void StopAllParticleEffects()
+    {
+        rainParticleSystem.Stop();
+        snowParticleSystem.Stop();
+        windParticleSystem.Stop();
+        cloudParticleSystem.Stop();
     }
 }
