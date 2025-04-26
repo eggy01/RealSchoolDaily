@@ -54,27 +54,25 @@ public class DialogueCSVReader : MonoBehaviour
             {
                 piece.index = index;
             }
-            else
-            {
-                Debug.LogWarning($"无法解析索引: {fields[0]}");
-            }
+            // else
+            // {
+            //     Debug.LogWarning($"无法解析索引: {fields[0]}");
+            // }
 
             if (int.TryParse(fields[1], out int no))
             {
                 piece.no = no;
             }
-            else
-            {
-                Debug.LogWarning($"无法解析索引: {fields[0]}");
-            }
+            // else
+            // {
+            //     Debug.LogWarning($"无法解析索引: {fields[0]}");
+            // }
 
             //解析角色名字
             if (fields[2].Contains("(=pn)") || fields[2].Contains("主角"))
                 fields[2] = fields[2].Replace("(=pn)", Settings.playerName);
             if (fields[2].Contains("主角"))
                 fields[2] = fields[2].Replace("主角", Settings.playerName);
-            // if (fields[2].Equals("负责分发图书的学生"))
-            //     fields[2] = "女学生";
 
             piece.name = fields[2].Trim();
 
@@ -105,8 +103,6 @@ public class DialogueCSVReader : MonoBehaviour
             // 设置位置（默认npc在左，主角在右）
             piece.onLeft = !fields[2].Trim().Contains(Settings.playerName);
 
-            // 解析选项
-            //fields[2].Trim().Contains(Settings.playerName) &&
             if (fields.Length > 6 && !fields[5].Equals(string.Empty))
             {
                 piece.option.Clear(); // 清空现有选项
@@ -142,7 +138,7 @@ public class DialogueCSVReader : MonoBehaviour
                 if (fields[7].Contains("动画:黑屏"))
                     piece.extra = 1;
 
-                if (fields[7].Contains("移动:"))
+                if (fields[7].Contains("人物移动:"))
                     if (fields[7].Contains("宿舍外"))
                         piece.MoveToPosition = "Life Scene";
             }
@@ -166,22 +162,22 @@ public class DialogueCSVReader : MonoBehaviour
             }
 
             //激活剧情
-            if (fields.Length > 11 && !fields[10].Equals(string.Empty))
-            {
-                StoryProgressManager.Instance.AddNewStory(fields[10], csvFile.name);
-            }
+            // if (fields.Length > 11 && !fields[10].Equals(string.Empty))
+            // {
+            //     StoryProgressManager.Instance.AddNewStory(fields[10], csvFile.name);
+            // }
 
             //任务
             if (fields.Length > 12 && !fields[11].Equals(string.Empty))
-                piece.taskPID = fields[11];
+                piece.task = fields[11];
 
-            //前置条件
+            //前置条件|解锁条件
             if (fields.Length > 13 && !fields[12].Equals(string.Empty))
                 piece.prerequisites = fields[12];
 
             //结算
             if (fields.Length > 14 && !fields[13].Equals(string.Empty))
-                piece.award = fields[13];
+                piece.reward = fields[13];
 
 
             dialoguePieces.Add(piece);

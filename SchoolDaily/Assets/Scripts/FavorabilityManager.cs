@@ -38,6 +38,7 @@ public class FavorabilityManager : MonoBehaviour
         }
 
         _favorData[npcName] = Mathf.Max(0, _favorData[npcName] + amount);
+        SaveData();
         Debug.Log($"[好感度] {npcName} {(amount >= 0 ? "+" : "")}{amount} = {_favorData[npcName]}");
     }
 
@@ -47,10 +48,11 @@ public class FavorabilityManager : MonoBehaviour
     public void Set(string npcName, int value)
     {
         _favorData[npcName] = Mathf.Max(0, value);
+        SaveData();
         Debug.Log($"[好感度] {npcName} 设置为 {value}");
     }
 
-    // 保存/加载方法（可选）
+    // 保存/加载方法
     public void SaveData()
     {
         PlayerPrefs.SetString("FavorData", JsonUtility.ToJson(_favorData));

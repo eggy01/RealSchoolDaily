@@ -43,6 +43,7 @@ public class TimeManager : MonoBehaviour
     public bool GetdayChanged() => dayChanged;
 
     public int GetHour() => gameHour;
+    public int GetMinute() => gameMinute;
 
     private void SkipToNextMonth()
     {

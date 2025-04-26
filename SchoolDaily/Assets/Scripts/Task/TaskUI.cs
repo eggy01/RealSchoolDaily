@@ -4,164 +4,199 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TaskUI : MonoBehaviour
+namespace SchoolD.Task
 {
-    [Header("UI组件")]
-    public GameObject taskPanel; // 主任务面板
-    public Transform taskListContent; // 任务列表父对象
-    public TextMeshProUGUI taskTitleText; // 任务标题文本
-    public TextMeshProUGUI taskDescriptionText; // 任务描述文本
-    public TextMeshProUGUI taskLocationText; // 任务地点文本
-    public TextMeshProUGUI taskTimeText; // 任务时间文本
-    public Image taskStatusIcon; // 任务状态图标
-
-    [Header("预设体")]
-    public GameObject taskItemPrefab; // 任务列表项预设体
-
-    [Header("图标")]
-    public Sprite activeTaskIcon; // 进行中任务图标
-    public Sprite completedTaskIcon; // 已完成任务图标
-    public Sprite availableTaskIcon; // 可接取任务图标
-
-    private void Start()
+    public class TaskUI : MonoBehaviour
     {
-        // 初始化隐藏任务面板
-        taskPanel.SetActive(false);
+        [Header("UI组件")]
+        public GameObject taskPanel; // 主任务面板
+        public GameObject taskDetailPanel; // 任务详情面板
+        public TextMeshProUGUI taskTitleText; // 任务标题文本
+        public Transform taskListContent; // 任务列表父对象
 
-        // 注册事件
-        EventHandler.OnShowTaskPanel += ShowTaskPanel;
-        EventHandler.OnUpdateTaskUI += UpdateTaskUI;
-    }
+        public TextMeshProUGUI taskNameText; // 任务名称文本
+        public TextMeshProUGUI taskPidText; // 任务编号文本
+        public TextMeshProUGUI taskDescriptionText; // 任务描述文本
+        public TextMeshProUGUI taskLocationText; // 任务地点文本
+        public TextMeshProUGUI taskTimeText; // 任务时间文本
+        public TextMeshProUGUI taskStatusText; // 任务时间文本
 
-    private void OnDestroy()
-    {
-        // 注销事件
-        EventHandler.OnShowTaskPanel -= ShowTaskPanel;
-        EventHandler.OnUpdateTaskUI -= UpdateTaskUI;
-    }
+        public Animator LeftoptionMove;//任务控制器
+        public GameObject TaskTip;
 
-    /// <summary>
-    /// 显示/隐藏任务面板
-    /// </summary>
-    public void ShowTaskPanel(bool show)
-    {
-        taskPanel.SetActive(show);
 
-        if (show)
+        [Header("预设体")]
+        public GameObject taskItemPrefab; // 任务列表项预设体
+
+        // 新增的翻页组件
+        [Header("翻页控制")]
+        public Button prevButton;
+        public Button nextButton;
+        public TextMeshProUGUI pageText;
+
+        private List<Task> allParentTasks = new List<Task>();
+        private int currentPageIndex = 0;
+
+        private void Start()
         {
-            // 刷新任务列表
-            RefreshTaskList();
+            taskPanel.SetActive(false);
 
-            // 默认显示第一个任务
-            var tasks = TaskSystem.Instance.GetAllTasks();
-            if (tasks.Count > 0)
-            {
-                ShowTaskDetails(tasks[0]);
-            }
-        }
-    }
+            // 初始化翻页按钮
+            prevButton.onClick.AddListener(ShowPreviousParentTask);
+            nextButton.onClick.AddListener(ShowNextParentTask);
 
-    /// <summary>
-    /// 刷新任务列表
-    /// </summary>
-    public void RefreshTaskList()
-    {
-        // 清空现有列表
-        foreach (Transform child in taskListContent)
-        {
-            Destroy(child.gameObject);
+            EventHandler.OnShowTaskPanel += ShowTaskPanel;
+            EventHandler.OnUpdateTaskUI += UpdateTaskUI;
+
         }
 
-        // 获取所有任务并按状态分组
-        var activeTasks = TaskSystem.Instance.GetActiveTasks();
-
-        var completedTasks = TaskSystem.Instance.GetTasksByStatus(true);
-
-        var availableTasks = TaskSystem.Instance.GetAvailableTasks();
-
-        // 添加进行中任务
-        AddTasksToUIList(activeTasks, "进行中任务");
-
-        // 添加可接取任务
-        AddTasksToUIList(availableTasks, "可接取任务");
-
-        // 添加已完成任务
-        AddTasksToUIList(completedTasks, "已完成任务");
-    }
-
-    /// <summary>
-    /// 添加任务到UI列表
-    /// </summary>
-    private void AddTasksToUIList(List<Task> tasks, string categoryName)
-    {
-        if (tasks.Count == 0) return;
-
-        // 添加分类标题
-        var categoryHeader = Instantiate(taskItemPrefab, taskListContent);
-
-        categoryHeader.GetComponent<TaskListItem>().SetAsHeader(categoryName);
-
-        // 添加任务项
-        foreach (var task in tasks)
+        private void OnDestroy()
         {
-            var taskItem = Instantiate(taskItemPrefab, taskListContent);
-            var listItem = taskItem.GetComponent<TaskListItem>();
-
-            // 设置图标
-            Sprite statusIcon = task.isCompleted ? completedTaskIcon :
-                              task.isActive ? activeTaskIcon : availableTaskIcon;
-
-            listItem.Setup(task, statusIcon);
-
-            // 添加点击事件
-            listItem.GetComponent<Button>().onClick.AddListener(() => ShowTaskDetails(task));
+            EventHandler.OnShowTaskPanel -= ShowTaskPanel;
+            EventHandler.OnUpdateTaskUI -= UpdateTaskUI;
         }
-    }
 
-    /// <summary>
-    /// 显示任务详情
-    /// </summary>
-    public void ShowTaskDetails(Task task)
-    {
-        taskTitleText.text = task.title;//任务标题
-
-        taskDescriptionText.text = task.description;//任务描述
-
-        taskLocationText.text = $"地点: {task.location}";
-
-        taskTimeText.text = $"时间: {task.time}";
-
-        // 设置状态图标
-        taskStatusIcon.sprite = task.isCompleted ? completedTaskIcon :
-                              task.isActive ? activeTaskIcon : availableTaskIcon;
-    }
-
-    /// <summary>
-    /// 更新任务UI
-    /// </summary>
-    public void UpdateTaskUI(string taskPID)
-    {
-        var task = TaskSystem.Instance.GetTask(taskPID);
-        if (task != null)
+        public void ShowTaskPanel()//关闭或显示任务面板
         {
-            // 如果任务面板是打开的，则刷新UI
+            taskPanel.SetActive(!taskPanel.activeSelf);
+
             if (taskPanel.activeSelf)
             {
-                RefreshTaskList();
-                ShowTaskDetails(task);
+                // 获取已挂起父任务
+                allParentTasks = TaskSystem.Instance.GetParentTasks()
+                    .FindAll(t => t.state == TaskState.Active);
+                currentPageIndex = 0;
+
+                if (allParentTasks.Count > 0)
+                {
+                    ShowCurrentParentTask();
+                }
+            }
+        }
+
+        private void ShowCurrentParentTask()
+        {
+            // 显示当前父任务信息
+            var parentTask = allParentTasks[currentPageIndex];
+
+            // 使用原有UI组件显示信息
+            taskTitleText.text = parentTask.title;
+
+            // 刷新子任务列表
+            RefreshChildTasks(parentTask.PID);
+
+            // 更新翻页状态
+            UpdatePageControls();
+        }
+
+        private void RefreshChildTasks(string parentPID)
+        {
+            // 清空现有列表（保持原有方式）
+            foreach (Transform child in taskListContent)
+            {
+                Destroy(child.gameObject);
             }
 
-            // 显示任务更新提示
-            ShowTaskUpdateNotification(task);
+            // 只显示进行中的子任务
+            var activeChildTasks = TaskSystem.Instance.GetChildTasks(parentPID)
+                .FindAll(t => t.state == TaskState.Active);
+
+            foreach (var task in activeChildTasks)
+            {
+                var taskItem = Instantiate(taskItemPrefab, taskListContent);
+                var listItem = taskItem.GetComponent<TaskListItem>();
+
+                // 设置任务项内容
+                listItem.Setup(task);
+
+                // 为任务项添加点击监听
+                var button = taskItem.GetComponent<Button>();
+                if (button != null)
+                {
+                    button.onClick.AddListener(() => showTaskDetail(task));
+                }
+                else
+                {
+                    Debug.LogWarning("任务项预制体上没有Button组件，无法添加点击事件");
+                }
+            }
+        }
+        public void showTaskDetail(Task task)
+        {
+            taskDetailPanel.gameObject.SetActive(true);
+            taskNameText.text = task.title;
+            taskPidText.text = task.PID;
+            taskStatusText.text = GetStateDisplayName(task.state);
+            taskDescriptionText.text = task.description;
+            taskTimeText.text = task.time;
+            taskLocationText.text = task.location;
+        }
+
+        private void ShowPreviousParentTask()
+        {
+            if (currentPageIndex > 0)
+            {
+                currentPageIndex--;
+                ShowCurrentParentTask();
+            }
+        }
+
+        private void ShowNextParentTask()
+        {
+            if (currentPageIndex < allParentTasks.Count - 1)
+            {
+                currentPageIndex++;
+                ShowCurrentParentTask();
+            }
+        }
+
+        private void UpdatePageControls()
+        {
+            // 更新页码显示
+            pageText.text = $"{currentPageIndex + 1}/{allParentTasks.Count}";
+
+            // 更新按钮状态
+            prevButton.interactable = currentPageIndex > 0;
+            nextButton.interactable = currentPageIndex < allParentTasks.Count - 1;
+        }
+
+        public void UpdateTaskUI(string taskPID)
+        {
+            if (taskPanel.activeSelf)
+            {
+                // 刷新当前显示
+                ShowCurrentParentTask();
+            }
+        }
+        //private bool isShowingTip = false;
+        // public IEnumerator ShowNewTaskTip(bool isNewNOtComplete)//任务的提示
+        // {
+        //     if (isShowingTip) yield break;
+        //     if (isNewNOtComplete)
+        //         TaskTip.GetComponentInChildren<TextMeshProUGUI>().text = "解锁新任务！";
+        //     else
+        //         TaskTip.GetComponentInChildren<TextMeshProUGUI>().text = "任务完成！";
+        //     LeftoptionMove.SetBool("haveNewTask", true);
+        //     yield return new WaitForSeconds(1f);
+        //     LeftoptionMove.SetBool("haveNewTask", false);
+
+        //     isShowingTip = false;
+        // }
+
+
+        // 添加一个转换方法
+        private string GetStateDisplayName(TaskState state)
+        {
+            switch (state)
+            {
+                case TaskState.NoStarted: return "未开始";
+                case TaskState.Active: return "进行中";
+                case TaskState.Completed: return "已完成";
+                case TaskState.Suspended: return "已挂起";
+                case TaskState.Stopped: return "已停止";
+                default: return "未知状态";
+            }
         }
     }
 
-    /// <summary>
-    /// 显示任务更新提示
-    /// </summary>
-    private void ShowTaskUpdateNotification(Task task)
-    {
-        // 这里可以实现任务更新时的特效或提示
-        Debug.Log($"任务更新: {task.title}");
-    }
 }

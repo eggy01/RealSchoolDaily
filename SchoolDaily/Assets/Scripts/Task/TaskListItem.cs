@@ -3,27 +3,16 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
-public class TaskListItem : MonoBehaviour
+namespace SchoolD.Task
 {
-    [SerializeField] private TextMeshProUGUI titleText;//标题文本
-    [SerializeField] private Image statusIcon;//状态图标
-    [SerializeField] private GameObject headerTemplate;//分类
-
-    public void Setup(Task task, Sprite icon)
+    public class TaskListItem : MonoBehaviour
     {
-        titleText.text = task.title;
-        statusIcon.sprite = icon;
-        headerTemplate.SetActive(false);
-    }
+        [SerializeField] private TextMeshProUGUI DescripText;//标题文本
+        public void Setup(Task task)
+        {
+            DescripText.text = task.description;
+        }
 
-    public void SetAsHeader(string headerText)
-    {
-        titleText.text = headerText;
-        statusIcon.gameObject.SetActive(false);
-        headerTemplate.SetActive(true);
-
-        // 禁用按钮交互
-        GetComponent<Button>().interactable = false;
     }
 }
+

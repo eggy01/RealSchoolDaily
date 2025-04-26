@@ -3,207 +3,456 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-[Serializable]
-public class Task
+namespace SchoolD.Task
 {
-    public string PID;          // 任务唯一ID
-    public string location;     // 触发地点
-    public string title;       // 任务标题
-    public string reward;       // 奖励描述
-    public string description; // 任务详情
-    public string time;        // 触发时间
-
-    [Header("状态")]
-    public bool isCompleted;
-    public bool isActive;
-}
-
-public class TaskSystem : MonoBehaviour
-{
-    public static TaskSystem Instance { get; private set; }
-
-    [SerializeField]
-    private List<Task> allTasks = new List<Task>();
-    private Dictionary<string, Task> taskDict = new Dictionary<string, Task>();
-
-    private void Awake()
+    [Serializable]
+    public enum TaskState
     {
-        Instance = this;
-        Initialize();
+        //子任务，未开始，正在运行，已完成，已停止
+        Active,     // 正在运行 (for child tasks)
+        Completed,  // 已完成 (for child tasks)
+
+        //父任务，未开始，正在运行,已挂起，,已完成，已停止
+        NoStarted,      //未开始
+        Suspended,  // 已挂起 
+        Stopped     // 已停止 
     }
 
-    private void Initialize()
+    [Serializable]
+    public class Task
     {
-        // 示例数据 - 实际应从CSV/JSON加载
-        allTasks = new List<Task>
-        {
-            new Task {
-                PID = "0000001",
-                location = "寝室",
-                title = "开学日",
-                description = "今天是开学第一天。",
-                time = "9月3日"
-            },
-            new Task {
-                PID = "0000002",
-                location = "寝室",
-                title = "开学日",
-                description = "林风好感度+5。林风的课本不见了，帮她找找吧。",
-                time = "9月3日"
-            }
-        };
+        public string PID;          // 任务唯一ID
+        public string parentPID;    // 父任务ID (为空表示是父任务)
+        public string location;     // 触发地点
+        public string title;       // 任务标题
+        public string reward;       // 奖励描述
+        public string description; // 任务详情
+        public string time;        // 截止时间
 
-        // 建立字典索引
-        foreach (var task in allTasks)
+        [Header("状态")]
+        public TaskState state;
+
+        // 是否是父任务
+        public bool IsParentTask => string.IsNullOrEmpty(parentPID);
+
+    }
+
+    public class TaskSystem : MonoBehaviour
+    {
+        public static TaskSystem Instance { get; private set; }
+
+        [SerializeField]
+        private List<Task> allTasks = new List<Task>();
+        private Dictionary<string, Task> taskDict = new Dictionary<string, Task>();//存所有的任务，pid:task
+        private Dictionary<string, List<Task>> parentChildMap = new Dictionary<string, List<Task>>();//parent PID:task
+        public TextAsset taskCsvFile;
+        private void Awake()
         {
-            taskDict[task.PID] = task;
+            Instance = this;
+            Initialize();
         }
-    }
-
-    // 在TaskSystem中添加
-    public void LoadTasksFromCSV(TextAsset csvFile)
-    {
-        string[] lines = csvFile.text.Split('\n');
-
-        for (int i = 1; i < lines.Length; i++) // 跳过表头
+        private void Update()
         {
-            if (string.IsNullOrWhiteSpace(lines[i])) continue;
-
-            string[] fields = ParseCSVLine(lines[i]);
-            if (fields.Length < 5) continue;
-
-            var task = new Task
+            if (Input.GetKeyDown(KeyCode.T))//
             {
-                PID = fields[0].Trim(),
-                location = fields[1].Trim(),
-                title = fields[2].Trim(),
-                reward = fields[3].Trim(),
-                description = fields[4].Trim(),
-                time = fields.Length > 5 ? fields[5].Trim() : ""
-            };
-
-            allTasks.Add(task);
-            taskDict[task.PID] = task;
-        }
-    }
-
-    private string[] ParseCSVLine(string line)
-    {
-        List<string> fields = new List<string>();
-        bool inQuotes = false;
-        int startIndex = 0;
-
-        for (int i = 0; i < line.Length; i++)
-        {
-            if (line[i] == '"')
-            {
-                inQuotes = !inQuotes;
-            }
-            else if (line[i] == ',' && !inQuotes)
-            {
-                string field = line.Substring(startIndex, i - startIndex).Trim();
-                field = field.Trim('"'); // 移除可能的引号
-                fields.Add(field);
-                startIndex = i + 1;
+                Debug.Log("按下T");
+                EventHandler.CallShowTaskPanel(); // 显示或显示面板
             }
         }
 
-        // 添加最后一个字段
-        string lastField = line.Substring(startIndex).Trim();
-        lastField = lastField.Trim('"');
-        fields.Add(lastField);
-
-        return fields.ToArray();
-    }
-
-    // 在TaskSystem中添加核心方法
-    public void StartTask(string pid)
-    {
-        if (taskDict.TryGetValue(pid, out Task task))
+        private void Initialize()
         {
-            task.isActive = true;
-            Debug.Log($"任务开始: {task.title}\n{task.description}");
-        }
-    }
+            LoadTasksFromCSV(taskCsvFile);
+            //     // 示例数据 - 实际应从CSV/JSON加载
+            //     allTasks = new List<Task>
+            // {
+            //     // 父任务
+            //     new Task {
+            //         PID = "0001",
+            //         parentPID = "",
+            //         location = "寝室",
+            //         title = "开学日",
+            //         description = "开学第一天的系列任务",
+            //         time = "9月3日",
+            //         state = TaskState.Suspended
+            //     },
+            //     // 子任务
+            //     new Task {
+            //         PID = "000101",
+            //         parentPID = "0001",
+            //         location = "寝室",
+            //         title = "开学日-1",
+            //         description = "今天是开学第一天。",
+            //         time = "9月3日 8:00",
+            //         state = TaskState.Active
+            //     },
+            //     new Task {
+            //         PID = "000102",
+            //         parentPID = "0001",
+            //         location = "寝室",
+            //         title = "开学日-2",
+            //         description = "林风好感度+5。林风的课本不见了，帮她找找吧。",
+            //         time = "9月3日 10:00",
+            //         state = TaskState.Active
+            //     }
+            // };
 
-    public void CompleteTask(string pid)
-    {
-        if (taskDict.TryGetValue(pid, out Task task))
+            //     // 建立索引
+            //     RebuildDictionaries();
+        }
+
+        private void RebuildDictionaries()
         {
-            task.isCompleted = true;
-            task.isActive = false;
-            ApplyRewards(task.description); // 处理奖励
-            Debug.Log($"任务完成: {task.title}");
-        }
-    }
+            taskDict.Clear();
+            parentChildMap.Clear();
 
-    private void ApplyRewards(string desc)
-    {
-        // 解析描述中的奖励（如"林风好感度+5"）
-        if (desc.Contains("好感度+"))
+            foreach (var task in allTasks)
+            {
+                taskDict[task.PID] = task;
+
+                if (!task.IsParentTask)//子任务
+                {
+                    if (!parentChildMap.ContainsKey(task.parentPID))//没有其父任务信息
+                    {
+                        parentChildMap[task.parentPID] = new List<Task>();//创建一个父任务列表
+                    }
+                    parentChildMap[task.parentPID].Add(task);
+                }
+            }
+        }
+
+        public void LoadTasksFromCSV(TextAsset csvFile)
         {
-            string[] parts = desc.Split('+');
-            string npcName = parts[0].Replace("好感度", "").Trim();
-            int amount = int.Parse(parts[1].Split('。')[0]);
+            string[] lines = csvFile.text.Split('\n');
 
-            FavorabilityManager.Instance.Add(npcName, amount);
+            for (int i = 1; i < lines.Length; i++) // 跳过表头
+            {
+                if (string.IsNullOrWhiteSpace(lines[i])) continue;
+
+                string[] fields = ParseCSVLine(lines[i]);
+                if (fields.Length < 6) continue;
+
+                var task = new Task
+                {
+                    PID = fields[0].Trim(),
+                    parentPID = fields[1].Trim(),
+                    location = fields[2].Trim(),
+                    title = fields[3].Trim(),
+                    reward = fields[4].Trim(),
+                    description = fields[5].Trim(),
+                    time = fields.Length > 6 ? fields[6].Trim() : "",
+                    state = fields.Length > 7 ? (TaskState)Enum.Parse(typeof(TaskState), fields[7].Trim()) : TaskState.NoStarted,
+                };
+
+                allTasks.Add(task);
+            }
+
+            RebuildDictionaries();
         }
-    }
 
-    /// <summary>
-    /// 获取单个任务完整信息
-    /// </summary>
-    public Task GetTask(string pid)
-    {
-        if (taskDict.TryGetValue(pid, out Task task))
+        private string[] ParseCSVLine(string line)
         {
-            return task;
+            List<string> fields = new List<string>();
+            bool inQuotes = false;
+            int startIndex = 0;
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                if (line[i] == '"')
+                {
+                    inQuotes = !inQuotes;
+                }
+                else if (line[i] == ',' && !inQuotes)
+                {
+                    string field = line.Substring(startIndex, i - startIndex).Trim();
+                    field = field.Trim('"');
+                    fields.Add(field);
+                    startIndex = i + 1;
+                }
+            }
+
+            string lastField = line.Substring(startIndex).Trim();
+            lastField = lastField.Trim('"');
+            fields.Add(lastField);
+
+            return fields.ToArray();
         }
-        Debug.LogWarning($"找不到PID为 {pid} 的任务");
-        return null;
-    }
 
-    /// <summary>
-    /// 获取所有任务列表
-    /// </summary>
-    public List<Task> GetAllTasks()
-    {
-        return new List<Task>(allTasks); // 返回副本避免外部修改
-    }
+        public void StartTask(string pid)
+        {
+            if (taskDict.TryGetValue(pid, out Task task) && !task.IsParentTask)
+            {
+                // 只能从未开始状态开始任务
+                if (task.state == TaskState.NoStarted)
+                {
+                    task.state = TaskState.Active;
+                    Debug.Log($"任务开始: {task.title}\n{task.description}");
 
-    /// <summary>
-    /// 按状态筛选任务
-    /// </summary>
-    public List<Task> GetTasksByStatus(bool wantCompleted, bool wantActive = false)
-    {
-        return allTasks.FindAll(t =>
-            t.isCompleted == wantCompleted &&
-            (wantActive ? t.isActive : true));
-    }
+                    TipController.Instance.ShowTaskTip(true);
+                    //EventHandler.callOnUnlockNewTask(true);
 
-    /// <summary>
-    /// 按地点查询任务
-    /// </summary>
-    public List<Task> GetTasksByLocation(string location)
-    {
-        return allTasks.FindAll(t =>
-            t.location.Equals(location, StringComparison.OrdinalIgnoreCase));
-    }
+                    // 更新父任务状态为已挂起
+                    UpdateParentTaskState(task.parentPID, true);
+                }
+                else
+                {
+                    Debug.LogWarning($"任务 {pid} 当前状态为 {task.state}，不能从该状态开始");
+                }
+            }
+        }
 
-    /// <summary>
-    /// 获取当前可接取任务（未完成且未激活）
-    /// </summary>
-    public List<Task> GetAvailableTasks()
-    {
-        return allTasks.FindAll(t => !t.isCompleted && !t.isActive);
-    }
+        public void CompleteTask(string pid)
+        {
+            if (taskDict.TryGetValue(pid, out Task task) && !task.IsParentTask)
+            {
+                // 只能从进行中状态完成任务
+                if (task.state == TaskState.Active)
+                {
+                    task.state = TaskState.Completed;
+                    ApplyRewards(task.reward);
+                    Debug.Log($"任务完成: {task.title}");
+                    EventHandler.callOnUnlockNewTask(false);
 
-    /// <summary>
-    /// 获取进行中任务
-    /// </summary>
-    public List<Task> GetActiveTasks()
-    {
-        return allTasks.FindAll(t => t.isActive && !t.isCompleted);
-    }
+                    // 检查父任务状态是否需要更新
+                    UpdateParentTaskState(task.parentPID, false);
 
+                    TipController.Instance.ShowTaskTip(false);
+                    //EventHandler.CallUpdateTaskUI(pid);
+                }
+                else
+                {
+                    Debug.LogWarning($"任务 {pid} 当前状态为 {task.state}，不能从该状态完成");
+                }
+            }
+        }
+
+        private void UpdateParentTaskState(string parentPID, bool childStarted)
+        {
+            if (string.IsNullOrEmpty(parentPID)) return;
+
+            if (parentChildMap.TryGetValue(parentPID, out List<Task> children) &&
+                taskDict.TryGetValue(parentPID, out Task parentTask))
+            {
+                bool allCompleted = true;
+                bool anyActive = false;
+                bool anyNoStarted = false;
+
+                // 检查所有子任务状态
+                foreach (var child in children)
+                {
+                    if (child.state != TaskState.Completed)
+                    {
+                        allCompleted = false;
+                    }
+
+                    if (child.state == TaskState.Active)
+                    {
+                        anyActive = true;
+                    }
+
+                    if (child.state == TaskState.NoStarted)
+                    {
+                        anyNoStarted = true;
+                    }
+                }
+
+                // 状态判断优先级：
+                // 1. 所有子任务完成 -> 父任务完成
+                // 2. 有子任务进行中 -> 父任务进行中
+                // 3. 其他情况（有未开始但无进行中） -> 父任务挂起
+                if (allCompleted)
+                {
+                    parentTask.state = TaskState.Completed;
+                    ApplyRewards(parentTask.reward);
+                }
+                else if (anyActive)
+                {
+                    parentTask.state = TaskState.Active; // 有子任务运行则父任务设为进行中
+                }
+                else
+                {
+                    parentTask.state = TaskState.Suspended; // 无子任务运行则挂起
+                }
+
+                // 保留childStarted的原始逻辑（如有新子任务开始需要特殊处理）
+                if (childStarted && parentTask.state != TaskState.Active)
+                {
+                    parentTask.state = TaskState.Suspended;
+                }
+
+            }
+        }
+
+        private void ApplyRewards(string desc)
+        {
+            RewardManager.Instance.ApplyRewards(desc);
+        }
+
+        public Task GetTask(string pid)
+        {
+            if (taskDict.TryGetValue(pid, out Task task))
+            {
+                return task;
+            }
+            Debug.LogWarning($"找不到PID为 {pid} 的任务");
+            return null;
+        }
+
+        public List<Task> GetAllTasks()
+        {
+            return new List<Task>(allTasks);
+        }
+
+        public List<Task> GetTasksByStatus(TaskState state)
+        {
+            return allTasks.FindAll(t => t.state == state);
+        }
+
+        public List<Task> GetTasksByLocation(string location)
+        {
+            return allTasks.FindAll(t =>
+                t.location.Equals(location, StringComparison.OrdinalIgnoreCase) &&
+                !t.IsParentTask); // 通常只显示子任务在位置中
+        }
+
+        public List<Task> GetAvailableTasks()
+        {
+            return allTasks.FindAll(t =>
+                !t.IsParentTask &&
+                t.state == TaskState.Active);
+        }
+
+        public List<Task> GetActiveTasks()
+        {
+            return allTasks.FindAll(t =>
+                !t.IsParentTask &&
+                t.state == TaskState.Active);
+        }
+
+        public List<Task> GetChildTasks(string parentPID)
+        {
+            if (parentChildMap.TryGetValue(parentPID, out List<Task> children))
+            {
+                return new List<Task>(children);
+            }
+            return new List<Task>();
+        }
+
+        public List<Task> GetParentTasks()
+        {
+            return allTasks.FindAll(t => t.IsParentTask);
+        }
+
+        /// <summary>
+        /// 检查并标记过期的子任务
+        /// </summary>
+        private void CheckExpiredChildTasks(DateTime currentTime)
+        {
+            foreach (var task in allTasks)
+            {
+                // 只处理子任务且状态是未开始/进行中
+                if (!task.IsParentTask &&
+                   (task.state == TaskState.NoStarted || task.state == TaskState.Active))
+                {
+                    if (TryParseTaskTime(task.time, out DateTime deadline) &&
+                        currentTime > deadline)
+                    {
+                        task.state = TaskState.Stopped;
+                        Debug.Log($"子任务已过期: {task.title} (PID: {task.PID})");
+
+                        // 触发事件（可选）
+                        //EventHandler.OnTaskExpired?.Invoke(task.PID);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 检查并处理过期的父任务
+        /// </summary>
+        private void CheckExpiredParentTasks(DateTime currentTime)
+        {
+            foreach (var task in allTasks)
+            {
+                // 只处理父任务且状态不是已停止/已完成
+                if (task.IsParentTask &&
+                    task.state != TaskState.Stopped &&
+                    task.state != TaskState.Completed)
+                {
+                    bool shouldStopParent = false;
+
+                    // 情况1：父任务自身时间过期
+                    if (TryParseTaskTime(task.time, out DateTime parentDeadline) &&
+                        currentTime > parentDeadline)
+                    {
+                        shouldStopParent = true;
+                    }
+                    // 情况2：所有子任务已过期/完成
+                    else if (AreAllChildTasksFinalized(task.PID))
+                    {
+                        shouldStopParent = true;
+                    }
+
+                    if (shouldStopParent)
+                    {
+                        task.state = TaskState.Stopped;
+                        Debug.Log($"父任务已停止: {task.title} (PID: {task.PID})");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 检查所有子任务是否都已结束（完成或停止）
+        /// </summary>
+        private bool AreAllChildTasksFinalized(string parentPID)
+        {
+            if (parentChildMap.TryGetValue(parentPID, out var children))
+            {
+                foreach (var child in children)
+                {
+                    if (child.state != TaskState.Completed &&
+                        child.state != TaskState.Stopped)
+                    {
+                        return false;
+                    }
+                }
+                return true; // 所有子任务已结束
+            }
+            return false; // 没有子任务视为未结束
+        }
+
+        /// <summary>
+        /// 支持多种时间格式的解析
+        /// </summary>
+        private bool TryParseTaskTime(string timeStr, out DateTime result)
+        {
+            result = DateTime.MinValue;
+            if (string.IsNullOrEmpty(timeStr)) return false;
+
+            try
+            {
+                // 统一处理中文日期符号
+                timeStr = timeStr.Replace("年", "/")
+                                .Replace("月", "/")
+                                .Replace("日", "")
+                                .Replace("时", ":")
+                                .Replace("分", "");
+
+                // // 自动补全年份（如果不存在）
+                // if (!timeStr.Contains("/") && TimeManager.Instance != null)
+                // {
+                //     timeStr = $"{TimeManager.Instance.CurrentYear}/{timeStr}";
+                // }
+
+                return DateTime.TryParse(timeStr, out result);
+            }
+            catch
+            {
+                Debug.LogWarning($"时间解析失败: {timeStr}");
+                return false;
+            }
+        }
+
+    }
 }

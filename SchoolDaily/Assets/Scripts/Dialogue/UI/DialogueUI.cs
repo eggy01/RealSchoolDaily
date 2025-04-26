@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.iOS;
 using UnityEngine.UI;
+using SchoolD.Task;
 
 public class DialogueUI : MonoBehaviour
 {
@@ -29,9 +30,6 @@ public class DialogueUI : MonoBehaviour
     private int selectedOptionIndex = -1; // 记录玩家选择的选项索引
 
     public Animator optionMove;
-
-    public GameObject taskPanel; // 存放任务提示的面板
-    public Animator LeftoptionMove;//任务控制器
 
     public int nexePieceIndex = -1;
     private string MoveToPosition;
@@ -74,7 +72,7 @@ public class DialogueUI : MonoBehaviour
 
     private IEnumerator ShowDialogue(DialoguePiece piece)
     {
-
+        player.Instance.SetPause(true);
         if (piece != null)
         {
             piece.hasToPause = true;
@@ -267,21 +265,32 @@ public class DialogueUI : MonoBehaviour
             }
 
             //处理任务
-            if (!string.IsNullOrEmpty(piece.taskPID))
+            if (!string.IsNullOrEmpty(piece.task))
             {
-                LeftoptionMove.SetBool("haveNewTask", true);
-                yield return new WaitForSeconds(0.5f);
-                LeftoptionMove.SetBool("haveNewTask", false);
+                if (piece.task.Contains("接受任务"))
+                {
+                    string pid = piece.task.Replace("接受任务:", "").Trim();
+                    TaskSystem.Instance.StartTask(pid);
 
-                // 查找TaskTipDetail子对象
-                taskPanel.transform.Find("TaskTip/TaskTipDetail").gameObject.GetComponent<TextMeshProUGUI>().text = TaskSystem.Instance.GetTask(piece.taskPID).description;
-                //EventHandler.callHasNewTaskEvent(TaskSystem.Instance.GetTask(piece.taskPID));
+                }
+                else if (piece.task.Contains("完成任务:"))
+                {
+                    string pid = piece.task.Replace("完成任务:", "").Trim();
+                    TaskSystem.Instance.CompleteTask(pid);
+                }
+
+            }
+            //处理奖励
+            if (!string.IsNullOrEmpty(piece.reward))
+            {
+                RewardManager.Instance.ApplyRewards(piece.reward);
             }
 
             // 动态加载下一剧情文件
             if (!string.IsNullOrEmpty(piece.nextDialogueCSVFileName))
             {
-                Debug.Log("加载下一剧情：" + piece.nextDialogueCSVFileName);
+                //Debug.Log("加载下一剧情：" + piece.nextDialogueCSVFileName);
+
                 BlackScreenManager.Instance.TransionBlackScreenSortOrder(100);
                 yield return BlackScreenManager.Instance.FadeIn(Settings.fadeDuration, false);
 
@@ -314,6 +323,7 @@ public class DialogueUI : MonoBehaviour
             {
                 EventHandler.CallTransitionEvent(MoveToPosition, SceneToInitialPosition.Instance.GetInitialPosition(MoveToPosition));
             }
+            player.Instance.SetPause(false);
 
         }
     }
@@ -450,7 +460,8 @@ public class DialogueUI : MonoBehaviour
             string[] nextIndices = currentPiece.nextIndex.Split('|');
             if (optionIndex < nextIndices.Length)
             {
-                EventHandler.CallLoadDialogueByIndex(nextIndices[optionIndex]);
+                Debug.Log("跳转序号:" + nextIndices[optionIndex]);
+                EventHandler.CallLoadDialogueByIndex(nextIndices[optionIndex], currentPiece.belongToCSVFileName);
                 selectedOptionIndex = -1;
             }
             return false;

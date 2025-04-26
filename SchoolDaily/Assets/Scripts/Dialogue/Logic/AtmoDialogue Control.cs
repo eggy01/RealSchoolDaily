@@ -18,9 +18,10 @@ namespace SchoolD.Dialogue
 
         private void Awake()
         {
-            dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[0]);
-            CurrentcsvFileName = csvFiles[0].name;
-            FillDialogueStack();
+            // dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[0]);
+            // CurrentcsvFileName = csvFiles[0].name;
+            // FillDialogueStack();
+
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -29,6 +30,7 @@ namespace SchoolD.Dialogue
             {
                 for (int i = 0; i < csvFiles.Length; i++)
                 {
+                    CurrentcsvFileName = "";
                     Debug.Log(csvFiles[i].name + "完成：" + StoryProgressManager.Instance.IsStoryCompleted(csvFiles[i].name));
                     Debug.Log(StoryProgressManager.Instance.CanUnlockStory(csvFiles[i].name));
                     if (StoryProgressManager.Instance.CanUnlockStory(csvFiles[i].name) && !StoryProgressManager.Instance.IsStoryCompleted(csvFiles[i].name)) // 再结合玩家获得的属性
@@ -66,8 +68,22 @@ namespace SchoolD.Dialogue
 
             while (dialogueStack.Count > 0)
             {
-                var piece = dialogueStack.Pop();
+                var piece = dialogueStack.Peek(); // 先查看但不弹出
+
+                // 条件检查
+                if (!string.IsNullOrEmpty(piece.prerequisites) && !piece.prerequisites.Contains("|") && !piece.IsConditionsMet())
+                {
+                    Debug.Log($"对话终止，条件不满足: {piece.prerequisites}");
+                    istalking = false;
+
+                    yield break; // 直接跳出协程
+                }
+
+                // 只有条件满足时才继续
+                piece = dialogueStack.Pop();
                 EventHandler.CallShowDialogueEvent(piece);
+                if (Input.GetKeyDown(KeyCode.P))
+                    break;
 
                 // 等待对话完成
                 yield return new WaitUntil(() => piece.isDone);
@@ -75,17 +91,23 @@ namespace SchoolD.Dialogue
                 // 等待玩家输入继续
                 if (piece.hasToPause)
                 {
-                    yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0));
+                    yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
                 }
             }
+            CleanUpDialogue();
+        }
 
+        // 新增：对话清理公共逻辑
+        private void CleanUpDialogue()
+        {
             // 对话结束
             EventHandler.CallShowDialogueEvent(null);
-
             istalking = false;
-            CurrentcsvFileName = "";
+            dialogueList.Clear();
+            if (!CurrentcsvFileName.Contains("Default"))
+                StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);
 
-            StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);
+            //hasActiveDialogue = false;
 
             OnFinishEvent?.Invoke();
         }

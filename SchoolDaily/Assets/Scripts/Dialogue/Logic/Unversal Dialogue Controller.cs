@@ -7,10 +7,6 @@ using UnityEngine.UIElements;
 
 namespace SchoolD.Dialogue
 {
-    //交互触发
-    //[RequireComponent(typeof(NPCMovement))] npc移动代码
-
-    // [RequireComponent(typeof(BoxCollider2D))]
     public class UnversalDialogueController : MonoBehaviour
     {
         private bool istalking; // 记录是否正在说话
@@ -22,6 +18,7 @@ namespace SchoolD.Dialogue
         private string CurrentcsvFileName;//当前剧情文件的名字
 
         public bool hasActiveDialogue = false;//是否存在激活剧情
+        public bool SkipIndex;
 
         private void Awake()
         { }
@@ -53,8 +50,10 @@ namespace SchoolD.Dialogue
         }
 
         // 通过索引跳转
-        private void LoadNextDialogueByIndex(string indexStr)
+        private void LoadNextDialogueByIndex(string indexStr, string dialogueID)
         {
+            SkipIndex = true;
+            dialogueList = DialogueCSVReader.Instance.LoadDialogueData(DialogueCSVReader.LoadCSVFromResources(dialogueID));
             Debug.Log($"LoadNextDialogueByIndex被调用，indexStr:{indexStr} 当前对话列表长度:{dialogueList.Count}");
             if (int.TryParse(indexStr, out int targetIndex))
             {
@@ -66,6 +65,7 @@ namespace SchoolD.Dialogue
                     Debug.Log("333333333333 - 没有找到匹配的对话片段");
                     return;
                 }
+                Debug.Log("匹配对话：" + matchedPieces.Count);
 
                 dialogueStack.Clear();
                 for (int i = matchedPieces.Count - 1; i >= 0; i--)
@@ -93,43 +93,49 @@ namespace SchoolD.Dialogue
 
             while (dialogueStack.Count > 0)
             {
-                var piece = dialogueStack.Peek(); // 先查看但不弹出
+                var piece = dialogueStack.Pop(); // 直接弹出，避免Peek+Pop
 
-                // 条件检查
-                if (!string.IsNullOrEmpty(piece.prerequisites) && !piece.prerequisites.Contains("|") && !piece.IsConditionsMet())
-                {
-                    Debug.Log($"对话终止，条件不满足: {piece.prerequisites}");
-                    istalking = false;
+                // // 条件检查
+                // if (!string.IsNullOrEmpty(piece.prerequisites) &&
+                //     !piece.prerequisites.Contains("|") &&
+                //     !piece.IsConditionsMet())
+                // {
+                //     Debug.Log($"对话终止，条件不满足: {piece.prerequisites}");
+                //     CleanUpDialogue();
+                //     yield break;
+                // }
 
-                    yield break; // 直接跳出协程
-                }
-
-                // 只有条件满足时才继续
-                piece = dialogueStack.Pop();
+                // 显示当前对话片段
                 EventHandler.CallShowDialogueEvent(piece);
-                if (Input.GetKeyDown(KeyCode.P))
-                    break;
 
                 // 等待对话完成
                 yield return new WaitUntil(() => piece.isDone);
 
-                // 等待玩家输入继续
+                // 等待玩家继续输入
                 if (piece.hasToPause)
                 {
                     yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
                 }
             }
 
-            // 对话结束
-            EventHandler.CallShowDialogueEvent(null);
+            CleanUpDialogue();
+        }
 
+        private void CleanUpDialogue()
+        {
+            Debug.Log("清理：");
+            EventHandler.CallShowDialogueEvent(null);
             istalking = false;
             dialogueList.Clear();
+            dialogueStack.Clear();
+            Debug.Log("Skip" + SkipIndex);
+            if (!SkipIndex)
+            {
+                StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);
+            }
 
-            StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);//标记该剧情已过
-
-            hasActiveDialogue = false; // 重置标记，以便下次可以重新加载剧情文件
-
+            hasActiveDialogue = false;
+            SkipIndex = false; // 重置标志
         }
         private void FillDialogueStack()
         {

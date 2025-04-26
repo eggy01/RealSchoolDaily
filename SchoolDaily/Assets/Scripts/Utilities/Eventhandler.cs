@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using SchoolD.Dialogue;
 using Unity.VisualScripting;
 using UnityEngine;
+using SchoolD.Task;
 
 public class EventHandler
 {
@@ -82,19 +83,13 @@ public class EventHandler
         => OnStartNewDialogueEvent?.Invoke(stack, newDialogueFileName);
 
 
-    //有新任务
-    public static event Action<Task> hasNewTaskEvent;
-    public static void callHasNewTaskEvent(Task task)
-    {
-        hasNewTaskEvent?.Invoke(task);
-    }
 
     // 任务相关事件
-    public static event Action<bool> OnShowTaskPanel;
+    public static event Action OnShowTaskPanel;
     public static event Action<string> OnUpdateTaskUI;
-    public static void CallShowTaskPanel(bool show)
+    public static void CallShowTaskPanel()
     {
-        OnShowTaskPanel?.Invoke(show);
+        OnShowTaskPanel?.Invoke();
     }
 
     public static void CallUpdateTaskUI(string taskPID)
@@ -102,11 +97,18 @@ public class EventHandler
         OnUpdateTaskUI?.Invoke(taskPID);
     }
 
-    // 跳转剧情
-    public static event Action<string> OnLoadDialogueByIndex;
-    public static void CallLoadDialogueByIndex(string index)
+    //有新任务
+    public static event Action<bool> OnUnlockNewTask;
+    public static void callOnUnlockNewTask(bool isNewNOtComplete)
     {
-        OnLoadDialogueByIndex?.Invoke(index);
+        OnUnlockNewTask?.Invoke(isNewNOtComplete);
+    }
+
+    // 跳转剧情
+    public static event Action<string, string> OnLoadDialogueByIndex;
+    public static void CallLoadDialogueByIndex(string index, string dialogueID)
+    {
+        OnLoadDialogueByIndex?.Invoke(index, dialogueID);
     }
 
     //聚焦相机//画面展示
@@ -115,4 +117,6 @@ public class EventHandler
     {
         OnFocusCamear?.Invoke();
     }
+
+
 }

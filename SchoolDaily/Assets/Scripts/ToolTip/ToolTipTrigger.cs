@@ -12,6 +12,16 @@ public class ToolTipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     [SerializeField]
     public string header = "默认标题";
 
+    // public void OnMouseEnter()
+    // {
+    //     Debug.Log($"触发提示 - 标题: {header}, 内容: {content}"); // 调试日志
+    //     ToolTipSystem.Show(content, header);
+    // }
+    // public void OnMouseExit()
+    // {
+    //     ToolTipSystem.Hide();
+    // }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         Debug.Log($"触发提示 - 标题: {header}, 内容: {content}"); // 调试日志

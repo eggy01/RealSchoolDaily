@@ -1,0 +1,9 @@
+﻿storyID,previousStoryID,TimeLimit
+Beginner_01
+Beginner_02
+Beginner_03,Beginner_02
+Beginner_04,Beginner_03
+Beginner_05
+Beginner_06,,时间.>=.9月3日23:00
+1111,
+2222,Beginner_06,时间.<=.9月3日23:00

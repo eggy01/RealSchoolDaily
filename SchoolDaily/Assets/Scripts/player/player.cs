@@ -11,7 +11,7 @@ public class player : MonoBehaviour
     public float speed = 3;
     private Animator anim;
     private bool inputDisable;
-    private bool isPaused;
+    public bool isPaused;
 
     private void OnEnable()
     {
@@ -89,6 +89,25 @@ public class player : MonoBehaviour
         {
             anim.SetFloat("horizontal", direction.x);
             anim.SetFloat("vertical", direction.y);
+        }
+    }
+
+    // 唯一的外部控制接口
+    public void SetPause(bool pause)
+    {
+        isPaused = pause;
+
+        // 处理动画
+        if (pause)
+        {
+            anim.SetBool("isWalking", false);
+            anim.SetFloat("horizontal", 0);
+            anim.SetFloat("vertical", 0);
+            anim.enabled = false;
+        }
+        else
+        {
+            anim.enabled = true;
         }
     }
 
