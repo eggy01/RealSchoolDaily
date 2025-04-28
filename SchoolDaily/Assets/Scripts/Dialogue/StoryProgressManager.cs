@@ -45,7 +45,6 @@ public class StoryProgressManager : MonoBehaviour
         Instance = this;
         saveFilePath = Path.Combine(Application.persistentDataPath, "storyProgress.save");
         Debug.Log("存档路径: " + saveFilePath);
-
         // 先尝试加载，如果失败再从CSV初始化
         if (!LoadProgress())
         {

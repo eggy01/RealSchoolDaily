@@ -15,6 +15,11 @@ public class BlackScreenManager : MonoBehaviour
     {
         Instance = this;
     }
+    public void SetText(string str)
+    {
+        textElement.text = str;
+        SetTextVisibility(true);
+    }
     public void TransionBlackScreenSortOrder(int num)//调整黑屏层级
     {
         blackScreenCanvasGroup.GetComponentInParent<Canvas>().sortingOrder = num;
@@ -48,6 +53,7 @@ public class BlackScreenManager : MonoBehaviour
         while (!Mathf.Approximately(blackScreenCanvasGroup.alpha, targetAlpha))
         {
             blackScreenCanvasGroup.alpha = Mathf.MoveTowards(blackScreenCanvasGroup.alpha, targetAlpha, speed * Time.deltaTime);
+            Debug.Log("dafsf" + blackScreenCanvasGroup.alpha);
             yield return null;
         }
     }
@@ -75,5 +81,27 @@ public class BlackScreenManager : MonoBehaviour
     {
         if (textElement != null)
             textElement.gameObject.SetActive(show);
+    }
+
+    public IEnumerator AnimateText(string text, float duration)
+    {
+        SetTextVisibility(true);
+        Debug.Log("打字机输出");
+        float lettersPerSecond = text.Length / duration;
+
+        for (int i = 0; i <= text.Length; i++)
+        {
+            // 如果玩家按了空格或点击，立即显示完整文本
+            if (Input.GetMouseButtonDown(0))
+            {
+                textElement.text = text;
+                break;
+            }
+
+            textElement.text = text.Substring(0, i);
+            yield return new WaitForSeconds(1f / lettersPerSecond);
+        }
+        yield return new WaitForSeconds(3f);
+        SetTextVisibility(false);
     }
 }

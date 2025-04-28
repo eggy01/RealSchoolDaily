@@ -118,5 +118,17 @@ public class EventHandler
         OnFocusCamear?.Invoke();
     }
 
+    //获得物品
+    public static event Action<ItemData> OnItemAdded;
+    public static void CallItemAdded(ItemData item)
+    {
+        OnItemAdded?.Invoke(item);
+    }
+
+    public static event Action<string> OnDateChanged; // 新增日期变化事件
+    public static void CallDateChangedEvent(string currentDate)
+    {
+        OnDateChanged?.Invoke(currentDate);
+    }
 
 }

@@ -55,45 +55,6 @@ namespace SchoolD.Dialogue
             StartCoroutine(PeriodicCheck());
         }
 
-        // private void OnEnable()
-        // {
-        //     EventHandler.OnLoadDialogueByIndex += LoadNextDialogueByIndex;
-        // }
-
-        // private void OnDisable()
-        // {
-        //     EventHandler.OnLoadDialogueByIndex -= LoadNextDialogueByIndex;
-        // }
-
-        // 通过索引跳转
-        // private void LoadNextDialogueByIndex(string indexStr)
-        // {
-        //     Debug.Log($"LoadNextDialogueByIndex被调用，indexStr:{indexStr} 当前对话列表长度:{dialogueList.Count}");
-        //     if (int.TryParse(indexStr, out int targetIndex))
-        //     {
-        //         //序号为-1时，退出当前对话
-        //         if (targetIndex == -1)
-        //             return;
-        //         // 1. 找到所有匹配的对话片段
-        //         var matchedPieces = dialogueList.FindAll(p => p.index == targetIndex);
-
-        //         if (matchedPieces == null || matchedPieces.Count == 0)
-        //         {
-        //             Debug.Log("333333333333 - 没有找到匹配的对话片段");
-        //             return;
-        //         }
-
-        //         dialogueStack.Clear();
-        //         for (int i = matchedPieces.Count - 1; i >= 0; i--)
-        //         {
-        //             dialogueStack.Push(matchedPieces[i]);
-        //         }
-
-        //         // 6. 开始新对话
-        //         istalking = true;
-        //         StartCoroutine(DialogueRoutine());
-        //     }
-        // }
 
         private IEnumerator PeriodicCheck()
         {
@@ -123,6 +84,7 @@ namespace SchoolD.Dialogue
                         dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[i]);
                         hasActiveDialogue = true;
                         CurrentcsvFileName = csvFiles[i].name;
+                        Debug.Log("当前剧情：" + CurrentcsvFileName);
                         break;
                     }
                 }

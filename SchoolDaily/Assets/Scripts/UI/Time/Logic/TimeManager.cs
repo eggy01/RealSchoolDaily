@@ -57,23 +57,7 @@ public class TimeManager : MonoBehaviour
         // 测试专用：按 D 键跳到下一天（仅在 Unity 编辑器运行时可使用）
         if (Input.GetKeyDown(KeyCode.R))
         {
-            gameHour = 7;  // 强制设置为7点
-            gameMinute = 0;
-            minuteTimer = 0;
-            lastUpdatedMinute = 0;
-
-            gameDay++;
-            gameWeekDay = gameWeekDay % 7 + 1;
-
-            if (gameDay > GetMonthDays(gameMonth, gameYear))
-            {
-                gameDay = 1;
-                HandleMonthIncrement();
-            }
-
-            EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
-            EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
-                                         gameSeason, gameWeekDay, termCount);
+            SkipToNextDay();
         }
 
         // 测试
@@ -125,6 +109,7 @@ public class TimeManager : MonoBehaviour
             if (++gameHour > Settings.hourHold)
             {
                 gameHour = 0;
+
                 HandleDayIncrement();
             }
 
@@ -176,6 +161,7 @@ public class TimeManager : MonoBehaviour
 
         EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
                                      gameSeason, gameWeekDay, termCount);
+        CheckDateChange();
     }
 
     private void HandleMonthIncrement()
@@ -224,6 +210,38 @@ public class TimeManager : MonoBehaviour
         }
     }
 
+    private string _lastDate; // 记录上次的日期
+    private void CheckDateChange()
+    {
+        var currentDate = GetCurrentDateTime();
+        if (!currentDate.Equals(_lastDate))
+        {
+            _lastDate = currentDate;
+            EventHandler.CallDateChangedEvent(currentDate);
+            Debug.Log("日期已变更: " + currentDate);
+        }
+    }
+    public void SkipToNextDay()//跳到第二天
+    {
+        gameHour = 7;  // 强制设置为7点
+        gameMinute = 0;
+        minuteTimer = 0;
+        lastUpdatedMinute = 0;
+
+        gameDay++;
+        gameWeekDay = gameWeekDay % 7 + 1;
+
+        if (gameDay > GetMonthDays(gameMonth, gameYear))
+        {
+            gameDay = 1;
+            HandleMonthIncrement();
+        }
+
+        EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
+        EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
+                                     gameSeason, gameWeekDay, termCount);
+    }
+
     private void UpdateSeason()
     {
         gameSeason = (Season)((gameMonth - 1) / 3);
@@ -239,5 +257,124 @@ public class TimeManager : MonoBehaviour
     private bool IsLeapYear(int year)
     {
         return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+    }
+
+    /// <summary>
+    /// 跳转到指定时间
+    /// 支持格式：
+    /// - "HH:mm" (如 "9:00")
+    /// - "MM月dd日 HH:mm" (如 "2月1日 8:00")
+    /// - "yyyy年MM月dd日 HH:mm" (如 "0年2月1日 8:00")
+    /// </summary>
+    public void SkipToTime(string timeString)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(timeString))
+                throw new ArgumentException("时间字符串不能为空");
+
+            // 解析纯时间格式（如 "9:00"）
+            if (timeString.Contains(":") && !timeString.Contains("月") && !timeString.Contains("日"))
+            {
+                ParseTimeOnly(timeString);
+            }
+            // 解析带日期的格式（如 "2月1日 8:00"）
+            else if (timeString.Contains("月") && timeString.Contains("日"))
+            {
+                ParseDateTime(timeString);
+            }
+            else
+            {
+                throw new FormatException("不支持的时间格式");
+            }
+
+            // 更新游戏时间并触发事件
+            UpdateSeason();
+            EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
+            EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
+                                         gameSeason, gameWeekDay, termCount);
+
+            Debug.Log($"已跳转到时间: {gameYear}年{gameMonth}月{gameDay}日 {gameHour}:{gameMinute:D2}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"时间跳转失败: {e.Message}");
+        }
+    }
+
+    // 解析纯时间格式（如 "9:00"）
+    private void ParseTimeOnly(string timeString)
+    {
+        string[] timeParts = timeString.Split(':');
+        if (timeParts.Length != 2)
+            throw new FormatException("时间格式应为HH:mm");
+
+        int hour = int.Parse(timeParts[0]);
+        int minute = int.Parse(timeParts[1]);
+
+        if (hour < 0 || hour > 23 || minute < 0 || minute > 59)
+            throw new ArgumentOutOfRangeException("时间值超出范围");
+
+        gameHour = hour;
+        gameMinute = minute;
+        minuteTimer = 0;
+        lastUpdatedMinute = minute;
+    }
+
+    // 解析带日期的格式（如 "2月1日 8:00"）
+    private void ParseDateTime(string dateTimeString)
+    {
+        // 分割日期和时间部分
+        string[] dateTimeParts = dateTimeString.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        if (dateTimeParts.Length != 2)
+            throw new FormatException("日期时间格式应为'MM月dd日 HH:mm'");
+
+        // 解析日期部分
+        string datePart = dateTimeParts[0];
+        int monthEnd = datePart.IndexOf('月');
+        int dayEnd = datePart.IndexOf('日');
+
+        if (monthEnd == -1 || dayEnd == -1)
+            throw new FormatException("日期格式应为'MM月dd日'");
+
+        int month = int.Parse(datePart.Substring(0, monthEnd));
+        int day = int.Parse(datePart.Substring(monthEnd + 1, dayEnd - monthEnd - 1));
+
+        // 检查月份和日期有效性
+        if (month < 1 || month > 12)
+            throw new ArgumentOutOfRangeException("月份必须在1-12之间");
+
+        int maxDays = GetMonthDays(month, gameYear);
+        if (day < 1 || day > maxDays)
+            throw new ArgumentOutOfRangeException($"日期必须在1-{maxDays}之间");
+
+        // 解析时间部分
+        ParseTimeOnly(dateTimeParts[1]);
+
+        // 更新日期
+        gameMonth = month;
+        gameDay = day;
+
+        // 更新星期（需要根据日期计算）
+        UpdateWeekDay();
+    }
+
+    // 根据日期更新星期几（简化版，实际应根据具体日历实现）
+    private void UpdateWeekDay()
+    {
+        // 这里实现一个简单的星期计算逻辑
+        // 实际项目中应该使用更精确的算法或查表法
+        DateTime baseDate = new DateTime(2023, 2, 1); // 假设2023年2月1日是周三
+        int baseWeekDay = 3;
+
+        DateTime targetDate = new DateTime(gameYear + 2023, gameMonth, gameDay);
+        int daysDiff = (targetDate - baseDate).Days;
+        gameWeekDay = (baseWeekDay + daysDiff - 1) % 7 + 1;
+    }
+
+    // 添加获取完整日期时间的方法
+    public string GetCurrentDateTime()
+    {
+        return (gameMonth + "月" + gameDay + "日");
     }
 }

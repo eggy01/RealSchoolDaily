@@ -26,17 +26,20 @@ namespace SchoolD.Dialogue
 
                 public string nextIndex;//跳转到序号//用于一个csv文本内
 
-                public int extra;//动画等额外信息    黑屏表示1
+                public int extra;//动画等额外信息   
 
                 public string activeDialogue;//激活剧情
 
                 public string task;//任务
 
                 public string MoveToPosition;
+                public string SkipToTime;
 
                 [Header("触发条件")]
                 public string prerequisites; // 示例："Favorability.林风.>=.30;ItemOwned.门票.>=.1"
                 public string reward;//奖励
+                public string Achieve;//成就
+                public List<DialogueEffect> effects;
 
                 /// <summary>
                 /// 检查是否满足所有前置条件
@@ -47,12 +50,31 @@ namespace SchoolD.Dialogue
                 }
 
 
-
                 // 构造函数
                 public DialoguePiece()
                 {
                         option = new List<string>(); // 初始化选项列表
+                        effects = new List<DialogueEffect>();
                 }
+        }
+        [System.Serializable]
+        public class DialogueEffect
+        {
+                public EffectType type;
+                public string parameters; // 可以存储JSON或特定格式字符串
+                public float duration = 0.5f; // 默认持续时间
+                //public string showText = "";
+        }
+
+        public enum EffectType
+        {
+                None,
+                BlackScreen,//黑屏
+                TimeSkip,//时间跳转
+                SceneTransition,//场景调整
+                ShowText, // 新增文本显示类型
+                PlaySound,// 新增声音播放类型
+                MultipleEffects // 用于组合多个效果
         }
 }
 

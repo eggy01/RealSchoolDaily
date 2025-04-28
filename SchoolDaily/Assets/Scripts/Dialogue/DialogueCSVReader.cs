@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SchoolD.Dialogue;
+using System;
 public class DialogueCSVReader : MonoBehaviour
 {
     public static DialogueCSVReader Instance { get; private set; }
@@ -54,19 +55,11 @@ public class DialogueCSVReader : MonoBehaviour
             {
                 piece.index = index;
             }
-            // else
-            // {
-            //     Debug.LogWarning($"无法解析索引: {fields[0]}");
-            // }
 
             if (int.TryParse(fields[1], out int no))
             {
                 piece.no = no;
             }
-            // else
-            // {
-            //     Debug.LogWarning($"无法解析索引: {fields[0]}");
-            // }
 
             //解析角色名字
             if (fields[2].Contains("(=pn)") || fields[2].Contains("主角"))
@@ -77,11 +70,13 @@ public class DialogueCSVReader : MonoBehaviour
             piece.name = fields[2].Trim();
 
 
+
+
             if (spriteDict.TryGetValue(piece.name, out Sprite sprite))
             {
                 piece.faceImage = sprite;
             }
-            else if (piece.name == "???")
+            else if (piece.name == "???" || piece.name.Equals("男主持人") || piece.name.Equals("女主持人"))
             {
                 piece.faceImage = spriteDict["默认2"];
             }
@@ -93,6 +88,8 @@ public class DialogueCSVReader : MonoBehaviour
             {
                 piece.faceImage = spriteDict["宁芷"];
             }
+            else
+                piece.faceImage = null;
 
 
             // 设置对话内容
@@ -135,13 +132,44 @@ public class DialogueCSVReader : MonoBehaviour
             // 解析操作，如，黑屏等
             if (fields.Length > 8 && !fields[7].Equals(string.Empty))
             {
-                if (fields[7].Contains("动画:黑屏"))
-                    piece.extra = 1;
+                piece.effects = DialogueEffectExecutor.Instance.ParseSubEffects(fields[7]);
+                // // 支持多种效果组合，用 | 分隔
+                // string[] effects = fields[7].Split('|');
 
-                if (fields[7].Contains("人物移动:"))
-                    if (fields[7].Contains("宿舍外"))
-                        piece.MoveToPosition = "Life Scene";
+                // foreach (string effect in effects)
+                // {
+                //     DialogueEffect de = new DialogueEffect();
+
+                //     if (effect.StartsWith("黑屏"))
+                //     {
+                //         de.type = EffectType.BlackScreen;
+                //         // 支持带参数：黑屏,2.0（2秒持续时间）
+                //         if (effect.Contains("，"))
+                //         {
+                //             string[] parts = effect.Split('，');
+                //             de.parameters = parts[0].Replace("黑屏", "");
+
+                //             if (float.TryParse(parts[1], out float dur))
+                //                 de.duration = dur;
+                //             // if (string.IsNullOrEmpty(parts[2]))
+                //             //     de.showText = parts[2].Replace("显示文本=", "");
+                //         }
+                //     }
+                //     else if (effect.StartsWith("跳转时间:"))
+                //     {
+                //         de.type = EffectType.TimeSkip;
+                //         de.parameters = effect.Replace("跳转时间:", "");
+                //     }
+                //     else if (effect.StartsWith("场景切换:"))
+                //     {
+                //         de.type = EffectType.SceneTransition;
+                //         de.parameters = effect.Replace("场景切换:", "");
+                //     }
+                //     Debug.Log("效果+1");
+
+                //     piece.effects.Add(de);
             }
+
 
             //检测是否有下一条紧接着的对话
             if (fields.Length > 9 && !fields[8].Equals(string.Empty))
@@ -166,6 +194,12 @@ public class DialogueCSVReader : MonoBehaviour
             // {
             //     StoryProgressManager.Instance.AddNewStory(fields[10], csvFile.name);
             // }
+            //改
+            if (fields.Length > 11 && !fields[10].Equals(string.Empty))
+            {
+                piece.belongToCSVFileName = fields[10];
+            }
+
 
             //任务
             if (fields.Length > 12 && !fields[11].Equals(string.Empty))
@@ -177,7 +211,12 @@ public class DialogueCSVReader : MonoBehaviour
 
             //结算
             if (fields.Length > 14 && !fields[13].Equals(string.Empty))
+            {
+                if (fields[13].Contains("获得成就"))
+                    piece.Achieve = fields[13].Replace("获得成就:", "");
                 piece.reward = fields[13];
+            }
+
 
 
             dialoguePieces.Add(piece);

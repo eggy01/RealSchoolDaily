@@ -11,7 +11,8 @@ public class FavorabilityManager : MonoBehaviour
     {
         // 初始化默认值
         {"林风", 30},
-        {"弗洛", 30}
+        {"弗洛", 30},
+        {"纪远行",0}
     };
 
     private void Awake()

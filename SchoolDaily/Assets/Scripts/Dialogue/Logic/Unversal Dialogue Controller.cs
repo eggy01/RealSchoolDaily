@@ -57,6 +57,8 @@ namespace SchoolD.Dialogue
             Debug.Log($"LoadNextDialogueByIndex被调用，indexStr:{indexStr} 当前对话列表长度:{dialogueList.Count}");
             if (int.TryParse(indexStr, out int targetIndex))
             {
+                if (targetIndex == -1)//跳转序号为-1时，关闭对话
+                    EventHandler.CallShowDialogueEvent(null);
                 // 1. 找到所有匹配的对话片段
                 var matchedPieces = dialogueList.FindAll(p => p.index == targetIndex);
 
