@@ -4,19 +4,22 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(EventTrigger))]
-public class ShopItemUI : MonoBehaviour
+public class ShopItemUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public Image icon;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI priceText;
 
     [Header("选中颜色")]
-    public Color normalNameColor = Color.black;
-    public Color selectedNameColor = Color.yellow;
-    public Color normalPriceColor = Color.gray;
-    public Color selectedPriceColor = new Color(0.9f, 0.8f, 0.1f);
+    public Color normalNameColor;
+    public Color selectedNameColor;
+    public Color normalPriceColor;
+    public Color selectedPriceColor;
+    public Color highlightedColor;
 
     public ItemData Item { get; private set; }
+
+    private bool isSelected;
 
     public void Initialize(ItemData item, Sprite iconSprite, string displayName, string price)
     {
@@ -24,15 +27,39 @@ public class ShopItemUI : MonoBehaviour
         icon.sprite = iconSprite;
         nameText.text = displayName;
         priceText.text = price;
-        SetSelected(false); // 初始化状态
+        SetSelected(false);
+        highlightedColor = new Color(227f/255f, 225f/255f, 160f/255f);
     }
 
     public void SetSelected(bool isSelected)
     {
-        // 通过文字颜色变化实现选中反馈
+        this.isSelected = isSelected;
         nameText.color = isSelected ? selectedNameColor : normalNameColor;
         priceText.color = isSelected ? selectedPriceColor : normalPriceColor;
-        
-        
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        nameText.color = highlightedColor;
+        priceText.color = highlightedColor;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (isSelected)
+        {
+            nameText.color = selectedNameColor;
+            priceText.color = selectedPriceColor;
+        }
+        else
+        {
+            nameText.color = normalNameColor;
+            priceText.color = normalPriceColor;
+        }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        SetSelected(!isSelected); // 切换选中状态
     }
 }

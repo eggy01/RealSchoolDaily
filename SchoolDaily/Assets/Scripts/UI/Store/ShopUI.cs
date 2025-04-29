@@ -32,11 +32,15 @@ public class ShopUI : MonoBehaviour
     public Transform itemContainer;
     public GameObject itemPrefab;
     public Button buyButton;
+    public GameObject currenticonimage;
+    public GameObject currentnameimage;
+    public Image currenticon;
+    public TextMeshProUGUI currentname;
 
     [Header("设置")]
     public int maxQuantity = 99;
     public int minQuantity = 0;
-    public Color normalColor = Color.white;
+    public Color normalColor = Color.black;
     public Color insufficientColor = Color.red;
     public Sprite defaultIcon;
     private bool isPaused;
@@ -237,6 +241,8 @@ public class ShopUI : MonoBehaviour
         UpdateTotalCost();
         UpdateGoldDisplay();
         UpdateBuyButtonState();
+        Updatecurrenticon();
+        Updatecurrentname();
     }
 
     private void UpdateQuantityDisplay()
@@ -265,6 +271,17 @@ public class ShopUI : MonoBehaviour
             && GetCurrentGold() >= _currentSelectedItem.Price * _currentQuantity;
 
         buyButton.interactable = canBuy;
+    }
+    private void Updatecurrenticon()
+    {
+        currenticonimage.SetActive(true);
+        Sprite itemIcon = Resources.Load<Sprite>(_currentSelectedItem?.IconPath);
+        currenticon.sprite = itemIcon;
+    }
+    private void Updatecurrentname()
+    {
+        currentnameimage.SetActive(true);
+        currentname.text = _currentSelectedItem?.Name;
     }
     #endregion
 
