@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using SchoolD.Dialogue;
+using UnityEngine.UIElements;
+using System;
+using static ScheduleEntry;
 
-public class DialogueEffectExecutor
+public class DialogueEffectExecutor : MonoBehaviour
 {
     // 单例实例
     public static DialogueEffectExecutor Instance { get; } = new DialogueEffectExecutor();
+    public GameObject Player;
 
     // 效果类型分类器
     private readonly Dictionary<EffectType, System.Func<DialogueEffect, IEnumerator>> _effectHandlers;
@@ -22,7 +26,8 @@ public class DialogueEffectExecutor
             { EffectType.SceneTransition, ExecuteSceneTransition },
             { EffectType.MultipleEffects, ExecuteMultipleEffects },
             { EffectType.ShowText, ExecuteShowText }, // 新增文本显示效果类型
-             { EffectType.PlaySound, ExecutePlaySound } // 新增声音处理器
+             { EffectType.PlaySound, ExecutePlaySound }, // 新增声音处理器
+             { EffectType.PlayerAutoMoveto, ExecutePlayerAutoMoveto } // 新增声音处理器
         };
     }
 
@@ -128,6 +133,43 @@ public class DialogueEffectExecutor
         var transitionData = ParseSceneTransition(effect.parameters);
         EventHandler.CallTransitionEvent(transitionData.sceneName, transitionData.position);
         yield return null;
+    }
+
+    private IEnumerator ExecutePlayerAutoMoveto(DialogueEffect effect)
+    {
+        // // 1. 解析目标位置
+        // string[] PositionStr = effect.parameters.Split(':');
+        // var targetPosition = ParsePosition(PositionStr[1]);
+
+        // // 2. 获取或添加移动控制器
+        // var movement = Player.GetComponent<NPCMovementController>();
+        // if (movement == null)
+        // {
+        //     movement = Player.AddComponent<NPCMovementController>();
+
+        //     // 确保有NPCScheduleData组件
+        //     var scheduleData = Player.GetComponent<NPCScheduleData>();
+        //     if (scheduleData == null)
+        //     {
+        //         scheduleData = Player.AddComponent<NPCScheduleData>();
+        //         scheduleData.dailySchedule = new List<ScheduleEntry>();  // 去掉 "new" 后面的多余点号
+        //         scheduleData.dailySchedule.Add(new ScheduleEntry());
+        //     }
+        // }
+
+        // // 3. 设置移动时段 (当前时间到24点)
+        // int currentHour = TimeManager.Instance.GetHour();
+        // var schedule = Player.GetComponent<NPCScheduleData>().dailySchedule[0];
+        // schedule.startHour = currentHour;
+        // schedule.endHour = 24; // 确保结束时间大于开始时间
+        // schedule.targetPosition = targetPosition;
+
+        // // 6. 清理组件
+        // Destroy(Player.GetComponent<NPCMovementController>());
+        // Destroy(Player.GetComponent<NPCScheduleData>());
+
+        yield return null;
+
     }
 
     private IEnumerator ExecuteShowText(DialogueEffect effect)
@@ -269,6 +311,12 @@ public class DialogueEffectExecutor
                 effect.type = EffectType.PlaySound;
                 effect.parameters = part.Replace("播放声音:", "").Trim();
             }
+            else if (part.StartsWith("自动移动:"))
+            {
+                Debug.Log("有自动移动");
+                effect.type = EffectType.PlayerAutoMoveto;
+                effect.parameters = part.Replace("自动移动:", "").Trim();
+            }
             Debug.Log("效果+1");
             results.Add(effect);
         }
@@ -298,7 +346,8 @@ public class DialogueEffectExecutor
     {
         return effect.type == EffectType.TimeSkip ||
                effect.type == EffectType.SceneTransition ||
-               effect.type == EffectType.ShowText;
+               effect.type == EffectType.ShowText ||
+               effect.type == EffectType.PlayerAutoMoveto;
     }
 
     private bool IsFinalizationEffect(DialogueEffect effect)

@@ -74,7 +74,8 @@ namespace SchoolD.Dialogue
                 SceneTransition,//场景调整
                 ShowText, // 新增文本显示类型
                 PlaySound,// 新增声音播放类型
-                MultipleEffects // 用于组合多个效果
+                MultipleEffects, // 用于组合多个效果
+                PlayerAutoMoveto
         }
 }
 
