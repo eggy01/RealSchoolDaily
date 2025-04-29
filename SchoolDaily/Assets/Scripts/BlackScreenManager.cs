@@ -53,7 +53,6 @@ public class BlackScreenManager : MonoBehaviour
         while (!Mathf.Approximately(blackScreenCanvasGroup.alpha, targetAlpha))
         {
             blackScreenCanvasGroup.alpha = Mathf.MoveTowards(blackScreenCanvasGroup.alpha, targetAlpha, speed * Time.deltaTime);
-            Debug.Log("dafsf" + blackScreenCanvasGroup.alpha);
             yield return null;
         }
     }

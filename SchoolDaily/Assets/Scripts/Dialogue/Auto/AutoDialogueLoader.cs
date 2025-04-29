@@ -47,7 +47,7 @@ public class AutoDialogueLoader : MonoBehaviour
         foreach (var line in lines)
         {
             totalCount++;
-            Debug.Log(totalCount + line["TimeLimit"]);
+            // Debug.Log(totalCount + line["TimeLimit"]);
             if (ShouldLoadTrigger(line))
             {
                 if (CreateTrigger(line))
@@ -125,6 +125,7 @@ public class AutoDialogueLoader : MonoBehaviour
             // 处理复合条件
             if (line["Condition"].Contains(";"))
             {
+                Debug.Log("处理复合条件");
                 trigger = triggerObj.AddComponent<MultiConditionTrigger>();
                 ((MultiConditionTrigger)trigger).conditions = line["Condition"];
             }
@@ -139,17 +140,17 @@ public class AutoDialogueLoader : MonoBehaviour
                 ((TimeConditionTrigger)trigger).timeCondition = line["Condition"];
             }
 
-            // if (trigger != null)
-            // {
-            //     trigger.dialogueID = line["ID"];
+            if (trigger != null)
+            {
+                trigger.dialogueID = line["ID"];
 
-            //     // // 添加到活跃触发器字典
-            //     // if (!activeTriggers.ContainsKey(line["ID"]))
-            //     //     activeTriggers[line["ID"]] = new List<AutoDialogueTrigger>();
-            //     // activeTriggers[line["ID"]].Add(trigger);
+                // // 添加到活跃触发器字典
+                // if (!activeTriggers.ContainsKey(line["ID"]))
+                //     activeTriggers[line["ID"]] = new List<AutoDialogueTrigger>();
+                // activeTriggers[line["ID"]].Add(trigger);
 
-            //     return true;
-            // }
+                return true;
+            }
         }
         catch (Exception e)
         {

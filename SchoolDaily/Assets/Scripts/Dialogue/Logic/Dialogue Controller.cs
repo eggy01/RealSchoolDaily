@@ -138,38 +138,45 @@ namespace SchoolD.Dialogue
         }
         private IEnumerator DialogueRoutine()
         {
-            istalking = true;
-
-            while (dialogueStack.Count > 0 && !isDialogueSkipping)
+            try
             {
-                var piece = dialogueStack.Peek(); // 先查看但不弹出
+                istalking = true;
 
-                // 条件检查
-                if (!string.IsNullOrEmpty(piece.prerequisites) && !piece.prerequisites.Contains("|") && !piece.IsConditionsMet())
+                while (dialogueStack.Count > 0 && !isDialogueSkipping)
                 {
-                    Debug.Log($"对话终止，条件不满足: {piece.prerequisites}");
-                    canTalkUI.SetActive(false);
-                    istalking = false;
+                    var piece = dialogueStack.Peek(); // 先查看但不弹出
 
-                    yield break; // 直接跳出协程
-                }
+                    // 条件检查
+                    if (!string.IsNullOrEmpty(piece.prerequisites) && !piece.prerequisites.Contains("|") && !piece.IsConditionsMet())
+                    {
+                        Debug.Log($"对话终止，条件不满足: {piece.prerequisites}");
+                        canTalkUI.SetActive(false);
+                        istalking = false;
 
-                // 只有条件满足时才继续
-                piece = dialogueStack.Pop();
-                EventHandler.CallShowDialogueEvent(piece);
-                if (Input.GetKeyDown(KeyCode.P))
-                    break;
+                        yield break; // 直接跳出协程
+                    }
 
-                // 等待对话完成
-                yield return new WaitUntil(() => piece.isDone);
+                    // 只有条件满足时才继续
+                    piece = dialogueStack.Pop();
+                    EventHandler.CallShowDialogueEvent(piece);
+                    if (Input.GetKeyDown(KeyCode.P))
+                        break;
 
-                // 等待玩家输入继续
-                if (piece.hasToPause)
-                {
-                    yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+                    // 等待对话完成
+                    yield return new WaitUntil(() => piece.isDone);
+
+                    // 等待玩家输入继续
+                    if (piece.hasToPause)
+                    {
+                        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+                    }
                 }
             }
-            CleanUpDialogue();
+            finally
+            {
+                CleanUpDialogue();
+            }
+
 
         }
         // 新增：跳过整个对话

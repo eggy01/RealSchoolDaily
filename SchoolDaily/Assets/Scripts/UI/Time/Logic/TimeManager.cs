@@ -60,6 +60,12 @@ public class TimeManager : MonoBehaviour
             SkipToNextDay();
         }
 
+        // 测试专用：按 R 键跳到下一小时（仅在 Unity 编辑器运行时可使用）
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            SkipToNextHour();
+        }
+
         // 测试
         if (Input.GetKeyDown(KeyCode.M))
         {
@@ -210,6 +216,34 @@ public class TimeManager : MonoBehaviour
         }
     }
 
+    // 测试专用：跳到下一小时
+    private void SkipToNextHour()
+    {
+        gameHour++;
+
+        // 处理小时溢出
+        if (gameHour > Settings.hourHold)
+        {
+            gameHour = 0;
+            HandleDayIncrement(); // 如果超过23点，进入下一天
+        }
+        else
+        {
+            // 只更新小时，分钟重置为0
+            gameMinute = 0;
+            minuteTimer = 0;
+            lastUpdatedMinute = 0;
+
+            // 触发事件
+            OnHourChanged?.Invoke(gameHour);
+            EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
+            EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
+                                         gameSeason, gameWeekDay, termCount);
+
+            Debug.Log($"跳到下一小时: {gameHour}:00");
+        }
+    }
+
     private string _lastDate; // 记录上次的日期
     private void CheckDateChange()
     {
@@ -293,6 +327,7 @@ public class TimeManager : MonoBehaviour
             EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
             EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
                                          gameSeason, gameWeekDay, termCount);
+            CheckDateChange();
 
             Debug.Log($"已跳转到时间: {gameYear}年{gameMonth}月{gameDay}日 {gameHour}:{gameMinute:D2}");
         }

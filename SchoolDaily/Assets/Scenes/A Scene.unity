@@ -132119,7 +132119,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: 879647a0e6a950e4b81153a3935c45cb, type: 3}
-    prerequisiteCondition: 
+    prerequisiteCondition: "\u65F6\u95F4.>=.2\u67082\u65E511:00"
     isOnce: 1
     SkipIndex: 0
 --- !u!4 &1827159533

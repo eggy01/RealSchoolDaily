@@ -10,6 +10,8 @@ using SchoolD.Task;
 public class DialogueUI : MonoBehaviour
 {
     public static DialogueUI Instance { get; private set; }
+
+    // public static bool IsDialogueActive { get; private set; } // 全局对话状态标志
     public GameObject dialogueBoxTop;
     public GameObject dialogueBoxBottom;
     public TextMeshProUGUI dialogueText;//对话框文本
@@ -74,6 +76,13 @@ public class DialogueUI : MonoBehaviour
 
     private IEnumerator ShowDialogue(DialoguePiece piece)
     {
+        // if (IsDialogueActive)
+        // {
+        //     Debug.LogWarning("已有对话正在进行，拒绝新对话");
+        //     yield break;
+        // }
+
+        // IsDialogueActive = true;
         player.Instance.SetPause(true);
         if (piece != null)
         {
@@ -159,7 +168,7 @@ public class DialogueUI : MonoBehaviour
                             nameLeft.text = piece.name;
                             faceLeft.sprite = piece.faceImage;
 
-                            if (!faceLeft.sprite.name.Equals("默认2"))
+                            if (faceLeft.sprite != null && !faceLeft.sprite.name.Equals("默认2"))
                                 faceLeft.SetNativeSize();
 
                             if (emotionSprite != null)
@@ -302,7 +311,7 @@ public class DialogueUI : MonoBehaviour
                 // 动态加载下一剧情文件
                 if (!string.IsNullOrEmpty(piece.nextDialogueCSVFileName))
                 {
-                    //Debug.Log("加载下一剧情：" + piece.nextDialogueCSVFileName);
+                    Debug.Log("加载下一剧情：" + piece.nextDialogueCSVFileName);
 
                     BlackScreenManager.Instance.TransionBlackScreenSortOrder(100);
                     yield return BlackScreenManager.Instance.FadeIn(Settings.fadeDuration, false);
@@ -328,6 +337,7 @@ public class DialogueUI : MonoBehaviour
             if (piece.isfinalNotFirst == 1)
             {
                 StoryProgressManager.Instance.MarkStoryAsCompleted(piece.belongToCSVFileName);
+                player.Instance.SetPause(false);
                 yield break;
             }
 
@@ -337,17 +347,13 @@ public class DialogueUI : MonoBehaviour
         {
             SetAllFalse();
             EventHandler.HaveOnFocusCamear();
-
-            if (!string.IsNullOrEmpty(MoveToPosition)) //场景切换，人物移动
-            {
-                EventHandler.CallTransitionEvent(MoveToPosition, SceneToInitialPosition.Instance.GetInitialPosition(MoveToPosition));
-            }
             player.Instance.SetPause(false);
 
         }
     }
     public void SetAllFalse()
     {
+        //IsDialogueActive = false;
         // 隐藏所有UI（无对话时）
         dialogueBoxTop.SetActive(false);
         dialogueBoxBottom.SetActive(false);

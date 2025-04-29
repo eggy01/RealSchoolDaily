@@ -28,7 +28,13 @@ public class StoryProgressManager : MonoBehaviour
     // 存档文件路径
     private string saveFilePath;
 
+    private Coroutine timeCheckCoroutine;
+
     public TextMeshProUGUI storyProgressText; // UI文本框，用于显示剧情进度
+
+    [Header("时间检查设置")]
+    [Tooltip("定期检查时间限制的时间间隔（秒）")]
+    [SerializeField] private float timeCheckInterval = 300f; // 默认5分钟检查一次
 
 
     // 存档数据结构
@@ -37,6 +43,7 @@ public class StoryProgressManager : MonoBehaviour
     {
         public Dictionary<string, bool> progressDict;
         public Dictionary<string, string> unlockConditions;
+        public Dictionary<string, string> timeLimits;
     }
 
     // 确保只有一个实例
@@ -53,66 +60,163 @@ public class StoryProgressManager : MonoBehaviour
 
 
     }
+    private void InitializeProgressData()
+    {
+        if (!LoadProgress())
+        {
+            LoadStoryProgressFromCSV();
+            SaveProgress(); // 初始化后立即保存
+        }
+
+        StartPeriodicTimeCheck();
+    }
+
+    private void StartPeriodicTimeCheck()
+    {
+        if (timeCheckCoroutine != null)
+        {
+            StopCoroutine(timeCheckCoroutine);
+        }
+        timeCheckCoroutine = StartCoroutine(PeriodicTimeCheck());
+    }
+
+    private IEnumerator PeriodicTimeCheck()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(timeCheckInterval);
+            CheckTimeLimitedStories();
+
+            // 同时保存进度，防止游戏崩溃导致数据丢失
+            SaveProgress();
+        }
+    }
+
+    public void CheckTimeLimitedStories()
+    {
+        bool anyChange = false;
+        //string currentTime = TimeManager.Instance.GetCurrentDateTime();
+
+        foreach (var timeLimit in storyTimeLimits)
+        {
+            string storyID = timeLimit.Key;
+            string deadline = timeLimit.Value;
+
+            // 跳过已完成的剧情
+            if (storyProgressDict.TryGetValue(storyID, out bool isCompleted) && isCompleted)
+                continue;
+
+            // 使用ConditionSystem检查时间条件
+            if (ConditionSystem.Check(deadline))
+            {
+                storyProgressDict[storyID] = true;
+                anyChange = true;
+                Debug.Log($"剧情 [{storyID}] 因超过截止时间 {deadline} 被自动标记为已完成");
+
+                // 触发事件通知其他系统
+                //EventHandler.CallStoryAutoCompletedEvent(storyID);
+            }
+        }
+
+        if (anyChange)
+        {
+            SaveProgress();
+        }
+    }
+
     private void LoadStoryProgressFromCSV()
     {
         if (storyListCSV == null)
         {
-            Debug.LogError("Story list CSV file not assigned!");
+            Debug.LogError("剧情清单CSV文件未分配!");
             return;
         }
 
-        // 清空现有数据
         storyProgressDict.Clear();
         storyUnlockConditions.Clear();
         storyTimeLimits.Clear();
 
-        // 解析CSV
-        string[] lines = storyListCSV.text.Split('\n');
-
-        // 跳过标题行（如果有）
-        for (int i = 1; i < lines.Length; i++)
+        try
         {
-            string line = lines[i].Trim();
-            if (string.IsNullOrEmpty(line)) continue;
+            string[] lines = storyListCSV.text.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-            // 分割CSV行
-            string[] parts = line.Split(',');
-            if (parts.Length == 0) continue;
-
-            // 获取剧情ID（第1列）
-            string storyID = parts[0].Trim();
-            if (string.IsNullOrEmpty(storyID)) continue;
-
-            // 添加到进度字典（默认未完成）
-            if (!storyProgressDict.ContainsKey(storyID))
+            for (int i = 1; i < lines.Length; i++) // 跳过标题行
             {
-                storyProgressDict.Add(storyID, false);
-                Debug.Log($"添加剧情: {storyID}");
-            }
+                string[] parts = lines[i].Split(',');
+                if (parts.Length == 0) continue;
 
-            // 如果有解锁条件（第2列），则添加到解锁条件字典
-            if (parts.Length >= 2 && !string.IsNullOrEmpty(parts[1].Trim()))
-            {
-                string previousStoryID = parts[1].Trim();
-                storyUnlockConditions[storyID] = previousStoryID;
-                Debug.Log($"设置解锁条件: {storyID} 需要先完成 {previousStoryID}");
-            }
+                string storyID = parts[0].Trim();
+                if (string.IsNullOrEmpty(storyID)) continue;
 
-            // 如果有时间限制（第3列），则解析并添加到时间限制字典
-            if (parts.Length >= 3 && !string.IsNullOrEmpty(parts[2].Trim()))
-            {
-                string timeLimitStr = parts[2].Trim();
-                try
+                // 初始化进度
+                storyProgressDict[storyID] = false;
+
+                // 解析解锁条件
+                if (parts.Length > 1 && !string.IsNullOrEmpty(parts[1].Trim()))
                 {
-                    storyTimeLimits[storyID] = timeLimitStr;
-                    Debug.Log($"设置时间限制: {storyID} 截止时间 {timeLimitStr}");
+                    storyUnlockConditions[storyID] = parts[1].Trim();
                 }
-                catch (System.Exception e)
+
+                // 解析时间限制
+                if (parts.Length > 2 && !string.IsNullOrEmpty(parts[2].Trim()))
                 {
-                    Debug.LogError($"解析时间限制失败: {timeLimitStr}, 错误: {e.Message}");
+                    storyTimeLimits[storyID] = parts[2].Trim();
                 }
             }
         }
+        catch (Exception e)
+        {
+            Debug.LogError($"解析CSV失败: {e.Message}");
+        }
+    }
+
+    public void SaveProgress()
+    {
+        try
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (FileStream stream = new FileStream(saveFilePath, FileMode.Create))
+            {
+                SaveData data = new SaveData
+                {
+                    progressDict = storyProgressDict,
+                    unlockConditions = storyUnlockConditions,
+                    timeLimits = storyTimeLimits
+                };
+                formatter.Serialize(stream, data);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"存档失败: {e.Message}");
+        }
+    }
+
+    public bool LoadProgress()
+    {
+        if (!File.Exists(saveFilePath)) return false;
+
+        try
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (FileStream stream = new FileStream(saveFilePath, FileMode.Open))
+            {
+                SaveData data = formatter.Deserialize(stream) as SaveData;
+                if (data != null)
+                {
+                    storyProgressDict = data.progressDict ?? new Dictionary<string, bool>();
+                    storyUnlockConditions = data.unlockConditions ?? new Dictionary<string, string>();
+                    storyTimeLimits = data.timeLimits ?? new Dictionary<string, string>();
+                    return true;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"读档失败: {e.Message}");
+            return false;
+        }
+        return false;
     }
 
     // 更新UI显示的剧情进度和解锁条件
@@ -172,25 +276,6 @@ public class StoryProgressManager : MonoBehaviour
 
 
     // 检查并更新所有有时间限制的剧情状态
-    public void CheckTimeLimitedStories()
-    {
-
-        foreach (var timeLimit in storyTimeLimits)
-        {
-
-            string storyID = timeLimit.Key;
-            string deadline = timeLimit.Value;
-
-            // 如果当前时间已经超过截止时间，且剧情尚未完成
-            if (ConditionSystem.Check(deadline) && !storyProgressDict[storyID])
-            {
-                storyProgressDict[storyID] = true;
-                Debug.Log($"剧情 {storyID} 因超过截止时间 {deadline} 被自动标记为已完成");
-            }
-        }
-
-        SaveProgress(); // 自动保存变更
-    }
 
 
     // 添加新的剧情
@@ -241,49 +326,10 @@ public class StoryProgressManager : MonoBehaviour
     }
 
     // 保存进度到文件
-    public void SaveProgress()
-    {
-        BinaryFormatter formatter = new BinaryFormatter();
-        FileStream stream = new FileStream(saveFilePath, FileMode.Create);
 
-        SaveData data = new SaveData();
-        data.progressDict = storyProgressDict;
-        data.unlockConditions = storyUnlockConditions;
-
-        formatter.Serialize(stream, data);
-        stream.Close();
-        Debug.Log("已存档 ");
-    }
 
     // 从文件加载进度
-    public bool LoadProgress()
-    {
-        if (File.Exists(saveFilePath))
-        {
-            Debug.Log("存在路径");
-            BinaryFormatter formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(saveFilePath, FileMode.Open);
 
-            try
-            {
-                SaveData data = formatter.Deserialize(stream) as SaveData;
-                stream.Close();
-
-                if (data != null)
-                {
-                    storyProgressDict = data.progressDict;
-                    storyUnlockConditions = data.unlockConditions;
-                    return true;
-                }
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError("加载存档失败: " + e.Message);
-                stream.Close();
-            }
-        }
-        return false;
-    }
 
     // 删除存档(用于测试)
     public void DeleteSaveFile()

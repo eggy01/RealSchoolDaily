@@ -90719,7 +90719,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: 
+    prerequisiteCondition: "\u65F6\u95F4.>=.2\u67081\u65E510:00"
     isOnce: 1
     SkipIndex: 2
 --- !u!61 &910610750
@@ -156609,7 +156609,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: 
+    prerequisiteCondition: "\u65F6\u95F4.>=.2\u67081\u65E510:00"
     isOnce: 1
     SkipIndex: 2
 --- !u!61 &1567545736
@@ -156823,7 +156823,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: 
+    prerequisiteCondition: "\u65F6\u95F4.>=.2\u67081\u65E510:00"
     isOnce: 1
     SkipIndex: 2
 --- !u!61 &2104949015

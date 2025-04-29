@@ -2,5 +2,5 @@
 GetSword,Item,物品.F005+1,NightTip,Repeatable,
 Midnight,Multi,时间.==.22:00;场景.Dormitory Scene.==.0,NightTip,Repeatable,
 3333,Multi,时间.>=.2月1日22:30;场景.Dormitory Scene.==.1,3333,,2月1日
-Semester_01,Time,时间.==.2月2日7:00,Semester_01,,2月2日
-Semester_05_1,Time,时间.==.13:00;Dormitory Scene.==.1,Semester_05_1,,
+Semester_01,Time,时间.==.2月2日7:05,Semester_01,,2月2日
+Semester_05_1,Time,时间.==.2月2日13:00;场景.Dormitory Scene.==.1,Semester_05_1,,2月2日
