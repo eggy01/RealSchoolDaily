@@ -3,14 +3,20 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+
 public class BagUI : MonoBehaviour
 {
-    [Header("UI Components")]
+    [Header("UI组件")]
     public Transform contentParent; // ScrollView的Content对象
     public GameObject bagItemPrefab; // 物品预制体
 
-    [Header("Settings")]
+    [Header("设置")]
     public Sprite defaultIcon; // 默认图标
+
+    [Header("物品详情")]
+    // 存储物品与对应详情面板的关系
+    private Dictionary<GameObject, GameObject> itemDetailMap = new Dictionary<GameObject, GameObject>();
+    public GameObject detailPanelPrefab;
 
     private void OnEnable()
     {
@@ -54,18 +60,15 @@ public class BagUI : MonoBehaviour
             GameObject newItem = Instantiate(bagItemPrefab, contentParent);
             BagItemUI itemUI = newItem.GetComponent<BagItemUI>();
 
-            // 设置UI显示
-            if (itemUI != null)
-            {
-                itemUI.Setup(itemData, bagItem.Num, defaultIcon);
-            }
-            else
-            {
-                Debug.LogError("预制体缺少 BagItemUI 组件");
-            }
+            // 设置预制体UI
+            itemUI.Setup(itemData, bagItem.Num, defaultIcon);
+
+            // 添加点击监听
+            Button itemBtn = newItem.GetComponent<Button>();
+            if (itemBtn == null) itemBtn = newItem.AddComponent<Button>();
+            itemBtn.onClick.AddListener(() => OnItemClick(newItem));
         }
     }
-
     // 初始化方法（在编辑器绑定预制体）
     private void Start()
     {
@@ -75,4 +78,51 @@ public class BagUI : MonoBehaviour
             enabled = false;
         }
     }
+
+    #region 物品详情
+    public void OnItemClick(GameObject clickedItem)
+    {
+        Debug.Log("点击");
+        // 检查是否已存在该物品的详情面板
+        if (itemDetailMap.TryGetValue(clickedItem, out GameObject existingPanel))
+        {
+            // 已存在则关闭
+            CloseDetailPanel(clickedItem);
+        }
+        else
+        {
+            // 创建新面板
+            CreateDetailPanel(clickedItem);
+        }
+    }
+
+    private void CreateDetailPanel(GameObject item)
+    {
+        // 实例化面板并插入正确位置
+        // 获取 Content 节点的引用
+        Transform contentTransform = transform.Find("Bag/Right/Viewport/Content");
+        // 实例化新面板，并将其父对象设置为 Content
+        GameObject newPanel = Instantiate(detailPanelPrefab, contentTransform);
+        newPanel.transform.SetSiblingIndex(item.transform.GetSiblingIndex() + 1);
+
+        BagItemUI itemUI = item.GetComponent<BagItemUI>();
+        DetailItemUI detailUI = newPanel.GetComponent<DetailItemUI>();
+        if (itemUI && detailUI)
+        {
+            detailUI.Setup(itemUI.GetItemData());
+        }
+
+        // 存储关系
+        itemDetailMap.Add(item, newPanel);
+    }
+
+    public void CloseDetailPanel(GameObject targetItem)
+    {
+        if (itemDetailMap.TryGetValue(targetItem, out GameObject panel))
+        {
+            Destroy(panel);
+            itemDetailMap.Remove(targetItem);
+        }
+    }
+    #endregion
 }

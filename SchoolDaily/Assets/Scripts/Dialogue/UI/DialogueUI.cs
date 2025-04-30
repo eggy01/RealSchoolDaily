@@ -248,7 +248,17 @@ public class DialogueUI : MonoBehaviour
                         {
                             Button optionButton = Instantiate(optionButtonPrefab, optionsPanel.transform);
                             Debug.Log("选项+1：" + piece.option[i]);
+                            // 设置图像为原始尺寸
                             optionButton.image.SetNativeSize();
+                            optionButton.image.type = Image.Type.Sliced;
+                            // 获取 RectTransform
+                            RectTransform rectTransform = optionButton.image.GetComponent<RectTransform>();
+                            // 计算新高度（增加10%）
+                            float newHeight = rectTransform.rect.height * 1.1f;
+                            // 使用 SetSizeWithCurrentAnchors 调整高度，保持宽度不变
+                            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, rectTransform.rect.width);
+                            rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, newHeight);
+
                             optionButton.GetComponentInChildren<TextMeshProUGUI>().text = piece.option[i];
                             int currentOptionIndex = i;
                             optionButton.onClick.AddListener(() => OnOptionSelected(currentOptionIndex));
@@ -433,7 +443,17 @@ public class DialogueUI : MonoBehaviour
             if (shouldShow)
             {
                 Button optionButton = Instantiate(optionButtonPrefab, optionsPanel.transform);
+                // 设置图像为原始尺寸
                 optionButton.image.SetNativeSize();
+                optionButton.image.type = Image.Type.Sliced;
+                // 获取 RectTransform
+                RectTransform rectTransform = optionButton.image.GetComponent<RectTransform>();
+                // 计算新高度（增加10%）
+                float newHeight = rectTransform.rect.height * 1.1f;
+                // 使用 SetSizeWithCurrentAnchors 调整高度，保持宽度不变
+                rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, rectTransform.rect.width);
+                rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, newHeight);
+
                 optionButton.GetComponentInChildren<TextMeshProUGUI>().text = piece.option[i];
                 int currentOptionIndex = i;
                 optionButton.onClick.AddListener(() => OnOptionSelected(currentOptionIndex));

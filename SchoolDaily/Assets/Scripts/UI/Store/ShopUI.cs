@@ -73,6 +73,7 @@ public class ShopUI : MonoBehaviour
         }
 
         titleText.text = shopType;
+        _currentSelectedItem = null;
         shopPanel.SetActive(true);
         PauseManager.Instance.SetPauseState(true);
         RefreshShopItems();
@@ -87,6 +88,8 @@ public class ShopUI : MonoBehaviour
         {
             PauseManager.Instance.SetPauseState(false);
         }
+        _currentSelectedItem = null;
+        UpdateUI();
     }
 
     //刷新商店列表
@@ -237,12 +240,12 @@ public class ShopUI : MonoBehaviour
     #region UI Updates
     private void UpdateUI()
     {
-        UpdateQuantityDisplay();
-        UpdateTotalCost();
         UpdateGoldDisplay();
-        UpdateBuyButtonState();
         Updatecurrenticon();
         Updatecurrentname();
+        UpdateQuantityDisplay();
+        UpdateTotalCost();
+        UpdateBuyButtonState();
     }
 
     private void UpdateQuantityDisplay()
@@ -255,7 +258,9 @@ public class ShopUI : MonoBehaviour
     private void UpdateTotalCost()
     {
         int total = _currentSelectedItem?.Price * _currentQuantity ?? 0;
-        totalCostText.text = $"总价: {total}";
+        totalCostText.text = _currentSelectedItem != null
+            ? $"总价: {total}"
+            : " ";
         totalCostText.color = total > GetCurrentGold() ? insufficientColor : normalColor;
     }
 
@@ -274,14 +279,26 @@ public class ShopUI : MonoBehaviour
     }
     private void Updatecurrenticon()
     {
-        currenticonimage.SetActive(true);
-        Sprite itemIcon = Resources.Load<Sprite>(_currentSelectedItem?.IconPath);
-        currenticon.sprite = itemIcon;
+        bool hasSelected = _currentSelectedItem != null;
+        currenticonimage.SetActive(hasSelected);
+
+        if (hasSelected)
+        {
+            Sprite itemIcon = Resources.Load<Sprite>(_currentSelectedItem.IconPath);
+            currenticon.sprite = itemIcon ?? defaultIcon;
+        }
+        else
+        {
+            currenticon.sprite = defaultIcon; // 重置为默认图标
+        }
     }
+
     private void Updatecurrentname()
     {
-        currentnameimage.SetActive(true);
-        currentname.text = _currentSelectedItem?.Name;
+        bool hasSelected = _currentSelectedItem != null;
+        currentnameimage.SetActive(hasSelected);
+
+        currentname.text = hasSelected ? _currentSelectedItem.Name : "";
     }
     #endregion
 
@@ -316,7 +333,13 @@ public class ShopUI : MonoBehaviour
         if (GoldManager.Instance.TrySpendGold(totalCost))
         {
             PackageLocalData.Instance.AddItem(_currentSelectedItem.ID, _currentQuantity);
+
+            // 购买成功后重置选择状态
+            _currentSelectedItem = null;
+            _currentQuantity = 0;
+
             UpdateUI();
+            UpdateSelectionVisual();
         }
     }
     #endregion

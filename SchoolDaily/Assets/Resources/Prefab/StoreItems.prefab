@@ -371,9 +371,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 0.96981126, g: 0.96658856, b: 0.8618511, a: 1}
+    m_PressedColor: {r: 0.972549, g: 0.96862745, b: 0.8627451, a: 1}
+    m_SelectedColor: {r: 0.972549, g: 0.96862745, b: 0.8627451, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -421,11 +421,6 @@ MonoBehaviour:
   icon: {fileID: 5596757886553552681}
   nameText: {fileID: 5417083302167861892}
   priceText: {fileID: 9106155464007386117}
-  normalNameColor: {r: 0, g: 0, b: 0, a: 1}
-  selectedNameColor: {r: 0.8901961, g: 0.88235295, b: 0.627451, a: 1}
-  normalPriceColor: {r: 0, g: 0, b: 0, a: 1}
-  selectedPriceColor: {r: 0.8901961, g: 0.88235295, b: 0.627451, a: 1}
-  highlightedColor: {r: 0.8901961, g: 0.88235295, b: 0.627451, a: 0}
 --- !u!1 &9020795038129045710
 GameObject:
   m_ObjectHideFlags: 0

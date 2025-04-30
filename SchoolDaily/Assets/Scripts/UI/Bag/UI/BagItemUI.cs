@@ -1,11 +1,11 @@
-// BagItemUI.cs （挂载到预制体上）
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
 public class BagItemUI : MonoBehaviour
 {
-    [Header("UI References")]
+    private ItemData itemData; 
+    [Header("UI组件")]
     public Image iconImage;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI countText;
@@ -14,6 +14,7 @@ public class BagItemUI : MonoBehaviour
 
     public void Setup(ItemData item, int count, Sprite defaultIcon)
     {
+        itemData = item;
         // 加载图标
         Sprite icon = Resources.Load<Sprite>(item.IconPath);
         iconImage.sprite = icon != null ? icon : defaultIcon;
@@ -24,5 +25,9 @@ public class BagItemUI : MonoBehaviour
         // 显示新物品标识
         if(newTag != null) 
             newTag.SetActive(PackageLocalData.Instance.IsItemNew(item.ID));
+    }
+    public ItemData GetItemData()
+    {
+        return itemData;
     }
 }
