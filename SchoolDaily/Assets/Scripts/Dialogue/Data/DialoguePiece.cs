@@ -75,7 +75,8 @@ namespace SchoolD.Dialogue
                 ShowText, // 新增文本显示类型
                 PlaySound,// 新增声音播放类型
                 MultipleEffects, // 用于组合多个效果
-                PlayerAutoMoveto
+                PlayerAutoMoveto,
+                RandomEvent // 随机事件类型
         }
 }
 

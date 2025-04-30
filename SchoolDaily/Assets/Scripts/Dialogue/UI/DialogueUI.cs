@@ -316,22 +316,18 @@ public class DialogueUI : MonoBehaviour
                     BlackScreenManager.Instance.TransionBlackScreenSortOrder(100);
                     yield return BlackScreenManager.Instance.FadeIn(Settings.fadeDuration, false);
                     SetAllFalse();
-                    // if (piece.nextDialogueCSVFileName.Equals("Beginner_02"))
-                    //     EventHandler.callSwitchDormMapEvent();
-
 
                     yield return BlackScreenManager.Instance.FadeOut(Settings.fadeDuration, false);
                     BlackScreenManager.Instance.TransionBlackScreenSortOrder(0);
 
-
                     // 动态加载CSV
-                    TextAsset nextCSV = DialogueCSVReader.LoadCSVFromResources(piece.nextDialogueCSVFileName);
-                    if (nextCSV != null)
-                    {
-                        StoryProgressManager.Instance.MarkStoryAsCompleted(piece.belongToCSVFileName);
-                        var newDialogueList = DialogueCSVReader.Instance.LoadDialogueData(nextCSV);
-                        EventHandler.CallStartNewDialogueEvent(newDialogueList, piece.nextDialogueCSVFileName);
-                    }
+                    //TextAsset nextCSV = DialogueCSVReader.LoadCSVFromResources(piece.nextDialogueCSVFileName);
+                    // if (nextCSV != null)
+                    // {
+                    StoryProgressManager.Instance.MarkStoryAsCompleted(piece.belongToCSVFileName);
+                    //var newDialogueList = DialogueCSVReader.Instance.LoadDialogueData(nextCSV);
+                    EventHandler.CallStartNewDialogueEvent(piece.nextDialogueCSVFileName);
+                    //}
                     yield break;
                 }
             }

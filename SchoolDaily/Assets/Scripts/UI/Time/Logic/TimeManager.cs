@@ -89,8 +89,8 @@ public class TimeManager : MonoBehaviour
     {
         gameMinute = 0;
         gameHour = 7;
-        gameDay = 1;
-        gameMonth = 2; // 直接从2月1日(周一)开始
+        gameDay = 3;
+        gameMonth = 9; // 直接从9月3日(周六)开始
         gameYear = 0;
         gameWeekDay = 1; // 周一
         gameWeekCount = 1;
