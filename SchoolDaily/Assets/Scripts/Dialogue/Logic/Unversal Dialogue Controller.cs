@@ -22,9 +22,11 @@ namespace SchoolD.Dialogue
 
         private void Awake()
         { }
-        private void OnNewDialogueStarted(List<DialoguePiece> newDialogueList, string newDialogueFileName)
+        private void OnNewDialogueStarted(string newDialogueFileName)
         {
-            dialogueList = newDialogueList;
+            TextAsset nextCSV = DialogueCSVReader.LoadCSVFromResources(newDialogueFileName);
+            if (nextCSV == null) return;
+            dialogueList = DialogueCSVReader.Instance.LoadDialogueData(nextCSV);
             FillDialogueStack();
 
             // 2. 重置对话状态

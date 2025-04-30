@@ -77,10 +77,10 @@ public class EventHandler
     }
 
 
-    //开启新对话（一段剧情转另一段剧情）
-    public static event Action<List<DialoguePiece>, string> OnStartNewDialogueEvent;
-    public static void CallStartNewDialogueEvent(List<DialoguePiece> stack, string newDialogueFileName)
-        => OnStartNewDialogueEvent?.Invoke(stack, newDialogueFileName);
+    //开启新对话
+    public static event Action<string> OnStartNewDialogueEvent;
+    public static void CallStartNewDialogueEvent(string newDialogueFileName)
+        => OnStartNewDialogueEvent?.Invoke(newDialogueFileName);
 
 
 

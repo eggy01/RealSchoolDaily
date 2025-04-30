@@ -27,9 +27,12 @@ public class DialogueEffectExecutor : MonoBehaviour
             { EffectType.MultipleEffects, ExecuteMultipleEffects },
             { EffectType.ShowText, ExecuteShowText }, // 新增文本显示效果类型
              { EffectType.PlaySound, ExecutePlaySound }, // 新增声音处理器
-             { EffectType.PlayerAutoMoveto, ExecutePlayerAutoMoveto } // 新增声音处理器
+             { EffectType.PlayerAutoMoveto, ExecutePlayerAutoMoveto }, // 新增声音处理器
+             { EffectType.RandomEvent, ExecuteRandomEvent } // 添加随机事件处理器
         };
     }
+
+
 
     /// <summary>
     /// 执行效果列表
@@ -185,6 +188,13 @@ public class DialogueEffectExecutor : MonoBehaviour
         Debug.Log($"文本显示完成: {effect.parameters}");
     }
 
+    private IEnumerator ExecuteRandomEvent(DialogueEffect effect)
+    {
+        Debug.Log("触发随机事件");
+        RandomEventSystem.Instance.TriggerEvent(effect.parameters);
+        yield return null;
+    }
+
     private IEnumerator ExecuteMultipleEffects(DialogueEffect effect)
     {
         if (!string.IsNullOrEmpty(effect.parameters))
@@ -317,6 +327,12 @@ public class DialogueEffectExecutor : MonoBehaviour
                 effect.type = EffectType.PlayerAutoMoveto;
                 effect.parameters = part.Replace("自动移动:", "").Trim();
             }
+            else if (part.StartsWith("随机事件:"))
+            {
+                Debug.Log("有随机事件");
+                effect.type = EffectType.RandomEvent;
+                effect.parameters = part.Replace("随机事件:", "").Trim();
+            }
             Debug.Log("效果+1");
             results.Add(effect);
         }
@@ -347,7 +363,8 @@ public class DialogueEffectExecutor : MonoBehaviour
         return effect.type == EffectType.TimeSkip ||
                effect.type == EffectType.SceneTransition ||
                effect.type == EffectType.ShowText ||
-               effect.type == EffectType.PlayerAutoMoveto;
+               effect.type == EffectType.PlayerAutoMoveto ||
+               effect.type == EffectType.RandomEvent;
     }
 
     private bool IsFinalizationEffect(DialogueEffect effect)
