@@ -66,7 +66,17 @@ public class BagUI : MonoBehaviour
             // 添加点击监听
             Button itemBtn = newItem.GetComponent<Button>();
             if (itemBtn == null) itemBtn = newItem.AddComponent<Button>();
-            itemBtn.onClick.AddListener(() => OnItemClick(newItem));
+            itemBtn.onClick.AddListener(() =>
+            {
+                OnItemClick(newItem); // 调用物品点击处理方法
+
+                // 调用 MarkAsRead 方法
+                BagItemUI itemUI = newItem.GetComponent<BagItemUI>();
+                if (itemUI != null)
+                {
+                    PackageLocalData.Instance.MarkAsRead(itemUI.GetItemData().ID, itemUI);
+                }
+            });
         }
     }
     // 初始化方法（在编辑器绑定预制体）
@@ -82,7 +92,6 @@ public class BagUI : MonoBehaviour
     #region 物品详情
     public void OnItemClick(GameObject clickedItem)
     {
-        Debug.Log("点击");
         // 检查是否已存在该物品的详情面板
         if (itemDetailMap.TryGetValue(clickedItem, out GameObject existingPanel))
         {

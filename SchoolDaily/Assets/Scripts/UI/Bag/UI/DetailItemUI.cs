@@ -14,11 +14,12 @@ public class DetailItemUI : MonoBehaviour
 
     public void Setup(ItemData data)
     {
+        string ShopTypes = string.Join(" ", data.ShopTypes);
         itemName.text = data.Name;
         itemSize.text = $"存储：{data.Size}kb";
         itemUse.text = $"作用：{data.Use}";
         itemDescription.text = $"描述：{data.Describe}";
-        itemShopTypes.text = $"获取途径：{data.ShopTypes}";
+        itemShopTypes.text = $"获取途径：{ShopTypes}";
 
         // 加载图标
         Sprite icon = Resources.Load<Sprite>(data.IconPath);

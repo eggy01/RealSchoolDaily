@@ -28,7 +28,7 @@ public class DialogueEffectExecutor : MonoBehaviour
             { EffectType.ShowText, ExecuteShowText }, // 新增文本显示效果类型
              { EffectType.PlaySound, ExecutePlaySound }, // 新增声音处理器
              { EffectType.PlayerAutoMoveto, ExecutePlayerAutoMoveto }, // 新增声音处理器
-             { EffectType.RandomEvent, ExecuteRandomEvent } // 添加随机事件处理器
+            // { EffectType.RandomEvent, ExecuteRandomEvent } // 添加随机事件处理器
         };
     }
 
@@ -188,12 +188,12 @@ public class DialogueEffectExecutor : MonoBehaviour
         Debug.Log($"文本显示完成: {effect.parameters}");
     }
 
-    private IEnumerator ExecuteRandomEvent(DialogueEffect effect)
-    {
-        Debug.Log("触发随机事件");
-        RandomEventSystem.Instance.TriggerEvent(effect.parameters);
-        yield return null;
-    }
+    // private IEnumerator ExecuteRandomEvent(DialogueEffect effect)
+    // {
+    //     Debug.Log("触发随机事件");
+    //     RandomEventSystem.Instance.TriggerEvent(effect.parameters);
+    //     yield return null;
+    // }
 
     private IEnumerator ExecuteMultipleEffects(DialogueEffect effect)
     {

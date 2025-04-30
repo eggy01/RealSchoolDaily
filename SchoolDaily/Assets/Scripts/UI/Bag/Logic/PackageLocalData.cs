@@ -44,8 +44,9 @@ public class PackageLocalData
     }
 
     // 标记物品已读（点击后调用）
-    public void MarkAsRead(string itemID)
+    public void MarkAsRead(string itemID, BagItemUI olditem)
     {
+        olditem.newTag.SetActive(false);
         PackageLocalItem item = items.Find(i => i.ID == itemID);
         if (item != null)
         {
