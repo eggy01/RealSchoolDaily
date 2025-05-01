@@ -68,6 +68,7 @@ public class player : MonoBehaviour
         OpenMybag();
     }
 
+    #region 玩家移动
     void HandleMovement()
     {
         if (inputDisable) return;
@@ -110,7 +111,9 @@ public class player : MonoBehaviour
             anim.enabled = true;
         }
     }
+    #endregion
 
+    #region 背包
     public void TogglePause()
     {
         bool newState = !myBag.activeSelf;
@@ -138,4 +141,5 @@ public class player : MonoBehaviour
             TogglePause();
         }
     }
+    #endregion
 }

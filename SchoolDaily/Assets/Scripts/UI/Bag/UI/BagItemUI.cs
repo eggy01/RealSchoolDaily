@@ -11,10 +11,14 @@ public class BagItemUI : MonoBehaviour
     public TextMeshProUGUI countText;
     public TextMeshProUGUI sizeText;
     public GameObject newTag; // 可选的新物品提示
+    
+    [HideInInspector]
+    public string ItemID; // ItemID
 
     public void Setup(ItemData item, int count, Sprite defaultIcon)
     {
         itemData = item;
+        ItemID = item.ID; //存储 ItemID
         // 加载图标
         Sprite icon = Resources.Load<Sprite>(item.IconPath);
         iconImage.sprite = icon != null ? icon : defaultIcon;
