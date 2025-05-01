@@ -106,26 +106,27 @@ public class RandomEventSystem : MonoBehaviour
     /// <param name="eventId">事件ID</param>
     /// <param name="ignoreProbability">是否忽略概率强制触发</param>
     /// <returns>返回对应的剧情key，未触发返回null</returns>
-    // public void TriggerEvent(string eventId, bool ignoreProbability = false)
-    // {
-    //     var eventData = GetEvent(eventId);
-    //     if (eventData == null)
-    //     {
-    //         Debug.LogWarning($"事件ID不存在: {eventId}");
-    //         return;
-    //     }
+    public void TriggerEvent(string eventId, bool ignoreProbability = false)
+    {
+        //var eventData = GetEvent(eventId);
+        var eventData = new RandomEvent();
+        if (eventData == null)
+        {
+            Debug.LogWarning($"事件ID不存在: {eventId}");
+            return;
+        }
 
-    //     bool shouldTrigger = ignoreProbability ||
-    //                        eventData.triggerProbability >= 100 ||
-    //                        Random.Range(0, 100) < eventData.triggerProbability;
+        bool shouldTrigger = ignoreProbability ||
+                           eventData.triggerProbability >= 100 ||
+                           Random.Range(0, 100) < eventData.triggerProbability;
 
-    //     if (shouldTrigger)
-    //     {
-    //         //开启对话
-    //         EventHandler.CallStartNewDialogueEvent(eventData.dialogueName);
-    //         return;
-    //     }
-    // }
+        if (shouldTrigger)
+        {
+            //开启对话
+            EventHandler.CallStartNewDialogueEvent(eventData.dialogueName);
+            return;
+        }
+    }
 
 
     /// <summary>

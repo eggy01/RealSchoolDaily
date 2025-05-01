@@ -107,10 +107,12 @@ public class TipController : MonoBehaviour
 
         // 更新文本
         if (tipText != null) tipText.text = message;
-
         tipAnimator.SetBool("HasNewTip", true);
+
         yield return new WaitForSeconds(2f);
+
         tipAnimator.SetBool("HasNewTip", false);
+
 
         //禁用面板
         //if (tipPanel != null) tipPanel.SetActive(false);

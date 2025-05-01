@@ -118,8 +118,9 @@ public class TimeManager : MonoBehaviour
 
                 HandleDayIncrement();
             }
-
             // 触发小时变更事件
+            //EventHandler.CallOnDayChangedEvent();
+
             OnHourChanged?.Invoke(gameHour);
 
             // 整点强制更新为00
@@ -145,6 +146,7 @@ public class TimeManager : MonoBehaviour
 
     private void HandleDayIncrement()
     {
+
         // 天气相关
         dayChanged = true; // 标记新的一天开始
 
@@ -152,7 +154,12 @@ public class TimeManager : MonoBehaviour
 
         // 天气相关
         Debug.Log($"日期变化！当前天数：{gameDay}"); // 添加调试日志
+
         EventHandler.CallOnDayChangedEvent();
+
+        // 所有日期变更处理完成后重置标志
+        dayChanged = false;
+
         gameWeekDay = gameWeekDay % 7 + 1; // 更新星期
 
         if (isInTerm) gameWeekCount++; // 学期内周数累计
@@ -234,8 +241,10 @@ public class TimeManager : MonoBehaviour
             minuteTimer = 0;
             lastUpdatedMinute = 0;
 
-            // 触发事件
+            // 触发事件(昼夜系统)
+            //EventHandler.CallOnDayChangedEvent();
             OnHourChanged?.Invoke(gameHour);
+
             EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
             EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
                                          gameSeason, gameWeekDay, termCount);
@@ -279,6 +288,7 @@ public class TimeManager : MonoBehaviour
     private void UpdateSeason()
     {
         gameSeason = (Season)((gameMonth - 1) / 3);
+        Debug.Log("Time当前季节:" + gameSeason);
     }
 
     private int GetMonthDays(int month, int year)

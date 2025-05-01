@@ -32,6 +32,14 @@ public class EventHandler
         OnDayChangedEvent?.Invoke();
     }
 
+    //昼夜相关
+    public static event System.Action OnHourChangedEvent;
+    public static void CallOnHourChangedEvent()
+    {
+        OnHourChangedEvent?.Invoke();
+    }
+
+
     //场景转换相关
     public static event Action<String, Vector3> TransitionEvent;
     public static void CallTransitionEvent(String sceneName, Vector3 pos)
