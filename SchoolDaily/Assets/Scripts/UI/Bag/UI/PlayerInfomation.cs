@@ -17,6 +17,7 @@ public class PlayerInformation : MonoBehaviour
 
     void Start()
     {
+        GoldManager.Instance.OnGoldUpdated.AddListener(UpdateGoldUI);
         // 加载玩家数据
         LoadPlayerData();
         // 如果没有加载到数据，则使用初始值
@@ -25,6 +26,15 @@ public class PlayerInformation : MonoBehaviour
             playerData = new PlayerData();
         }
         UpdateUI();
+    }
+
+    void OnDestroy()
+    {
+        // 取消事件监听（防止内存泄漏）
+        if (GoldManager.Instance != null)
+        {
+            GoldManager.Instance.OnGoldUpdated.RemoveListener(UpdateGoldUI);
+        }
     }
 
     // 保存玩家数据到 JSON 文件
@@ -82,6 +92,38 @@ public class PlayerInformation : MonoBehaviour
         SavePlayerData();
     }
 
+    // 增加玩家心情
+    public void AddMood(int value)
+    {
+        playerData.mood += value;
+        UpdateUI();
+        SavePlayerData();
+    }
+
+    // 减少玩家心情
+    public void SubtractMood(int value)
+    {
+        playerData.mood -= value;
+        UpdateUI();
+        SavePlayerData();
+    }
+
+    // 增加玩家失序值
+    public void AddMuddledness(int value)
+    {
+        playerData.muddledness += value;
+        UpdateUI();
+        SavePlayerData();
+    }
+
+    // 减少玩家失序值
+    public void SubtractMuddledness(int value)
+    {
+        playerData.muddledness -= value;
+        UpdateUI();
+        SavePlayerData();
+    }
+
     // 增加玩家仓库容量
     public void AddWarehouse(int value)
     {
@@ -99,6 +141,10 @@ public class PlayerInformation : MonoBehaviour
     }
 
     // 更新 UI 方法
+    private void UpdateGoldUI(int newGold)
+    {
+        GoldUI.text = "低保: ￥" + newGold;
+    }
     void UpdateUI()
     {
         PlayerNameUI.text = "姓名: " + playerData.name;
@@ -106,7 +152,6 @@ public class PlayerInformation : MonoBehaviour
         PlayerStrengthUI.text = "体力上限: " + playerData.strength.ToString();
         PlayerMoodUI.text = "当前心情: " + playerData.mood.ToString();
         PlayerMuddlednessUI.text = "失序值: " + playerData.muddledness.ToString();
-        GoldUI.text = "低保: ￥" + GoldManager.Instance.CurrentGold;
         PlayerWarehouseUI.text = "库容量: " + playerData.warehouse.ToString();
     }
 }

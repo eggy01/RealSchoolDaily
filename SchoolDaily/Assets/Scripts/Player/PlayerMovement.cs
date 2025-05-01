@@ -4,7 +4,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public static PlayerMovement Instance;
     [SerializeField]
-    private float speed = 3;
+    private float speed = 15;
     private Animator anim;
     private bool inputDisable;
     public bool IsPaused { get; private set; }

@@ -23,11 +23,6 @@ public class BagUI : MonoBehaviour
     private Dictionary<GameObject, GameObject> itemDetailMap = new Dictionary<GameObject, GameObject>(); // 存储物品与对应详情面板的关系
     public GameObject detailPanelPrefab;
 
-<<<<<<< Updated upstream
-    // 初始化方法（在编辑器绑定预制体）
-=======
-<<<<<<< Updated upstream
-=======
     // 初始化方法
     private void Awake()
     {
@@ -38,7 +33,7 @@ public class BagUI : MonoBehaviour
         }
         Instance = this;
     }
->>>>>>> Stashed changes
+
     private void Start()
     {
         if (bagItemPrefab == null)
@@ -50,8 +45,6 @@ public class BagUI : MonoBehaviour
         Mask1.SetActive(false);
         Mask2.SetActive(false);
     }
-<<<<<<< Updated upstream
-=======
     public void ForceRefresh()
     {
         // 清理所有详情面板
@@ -64,8 +57,6 @@ public class BagUI : MonoBehaviour
         // 重新生成背包物品
         RefreshBag();
     }
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     private void OnEnable()
     {
         PackageLocalData.onInventoryChanged.AddListener(RefreshBag);
@@ -77,16 +68,8 @@ public class BagUI : MonoBehaviour
         PackageLocalData.onInventoryChanged.RemoveListener(RefreshBag);
         ForceRefresh();
     }
-<<<<<<< Updated upstream
-    #region 刷新背包
-=======
-<<<<<<< Updated upstream
 
-=======
-    
     #region 刷新背包
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     public void RefreshBag()
     {
         //测试

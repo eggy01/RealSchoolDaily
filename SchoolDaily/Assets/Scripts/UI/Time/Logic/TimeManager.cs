@@ -7,9 +7,9 @@ public class TimeManager : MonoBehaviour
     public event Action<int> OnHourChanged; // 小时变更事件 // 小时变更事件
 
     private int gameMinute, gameHour, gameDay, gameMonth, gameYear;
-    private int gameWeekDay = 1; // 1-7表示周一到周日
-    private int gameWeekCount = 1; // 学期周数计数器
-    private int termCount = 1; // 学期计数器
+    private int gameWeekDay;// 1-7表示周一到周日
+    private int gameWeekCount; // 学期周数计数器
+    private int termCount; // 学期计数器
     private bool isInTerm = false; // 是否在学期内
     private Season gameSeason;
     public bool gameClockPause;
@@ -45,38 +45,31 @@ public class TimeManager : MonoBehaviour
     public int GetHour() => gameHour;
     public int GetMinute() => gameMinute;
 
-    private void SkipToNextMonth()
-    {
-        HandleMonthIncrement(); // 直接进入下个月
-        EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
-                                     gameSeason, gameWeekDay, termCount);
-    }
-
     private void Update()
     {
-        // 测试专用：按 D 键跳到下一天（仅在 Unity 编辑器运行时可使用）
+        // 按 D 键跳到下一天
         if (Input.GetKeyDown(KeyCode.R))
         {
             SkipToNextDay();
         }
 
-        // 测试专用：按 R 键跳到下一小时（仅在 Unity 编辑器运行时可使用）
+        // 按 H 键跳到下一小时
         if (Input.GetKeyDown(KeyCode.H))
         {
             SkipToNextHour();
         }
 
-        // 测试
+        // 按 M 跳到下个月
         if (Input.GetKeyDown(KeyCode.M))
         {
-            SkipToNextMonth(); // 按 M 跳到下个月
+            SkipToNextMonth();
         }
 
         if (!gameClockPause)
         {
             minuteTimer += Time.deltaTime;
 
-            // 现实1秒=游戏1分钟
+            // 现实0.1秒=游戏1分钟
             if (minuteTimer >= Settings.minuteThreshold)
             {
                 minuteTimer -= Settings.minuteThreshold;
@@ -87,12 +80,13 @@ public class TimeManager : MonoBehaviour
 
     private void NewGameTime()
     {
+        // 直接从9月1日(周四)开始
+        gameYear = 1;
+        gameMonth = 9;
+        gameDay = 1;
+        gameWeekDay = 4; // 周一
         gameMinute = 0;
         gameHour = 7;
-        gameDay = 3;
-        gameMonth = 9; // 直接从9月3日(周六)开始
-        gameYear = 0;
-        gameWeekDay = 1; // 周一
         gameWeekCount = 1;
         termCount = 1; // 第一学期
         isInTerm = true;
@@ -205,6 +199,14 @@ public class TimeManager : MonoBehaviour
         UpdateSeason();
     }
 
+    #region 快进
+    // 进入下个月
+    private void SkipToNextMonth()
+    {
+        HandleMonthIncrement();
+        EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
+                                     gameSeason, gameWeekDay, termCount);
+    }
     private void SkipToMonth(int targetMonth)
     {
         while (gameMonth != targetMonth)
@@ -219,7 +221,31 @@ public class TimeManager : MonoBehaviour
         }
     }
 
-    // 测试专用：跳到下一小时
+    // 跳到第二天
+    public void SkipToNextDay()
+    {
+        gameHour = 7;  // 强制设置为7点
+        gameMinute = 0;
+        minuteTimer = 0;
+        lastUpdatedMinute = 0;
+
+        gameDay++;
+        gameWeekDay = gameWeekDay % 7 + 1;
+
+        CheckDateChange();
+
+        if (gameDay > GetMonthDays(gameMonth, gameYear))
+        {
+            gameDay = 1;
+            HandleMonthIncrement();
+        }
+
+        EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
+        EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
+                                     gameSeason, gameWeekDay, termCount);
+    }
+
+    // 跳到下一小时
     private void SkipToNextHour()
     {
         gameHour++;
@@ -247,6 +273,7 @@ public class TimeManager : MonoBehaviour
             Debug.Log($"跳到下一小时: {gameHour}:00");
         }
     }
+    #endregion
 
     private string _lastDate; // 记录上次的日期
     private void CheckDateChange()
@@ -259,28 +286,7 @@ public class TimeManager : MonoBehaviour
             Debug.Log("日期已变更: " + currentDate);
         }
     }
-    public void SkipToNextDay()//跳到第二天
-    {
-        gameHour = 7;  // 强制设置为7点
-        gameMinute = 0;
-        minuteTimer = 0;
-        lastUpdatedMinute = 0;
 
-        gameDay++;
-        gameWeekDay = gameWeekDay % 7 + 1;
-
-        CheckDateChange();
-
-        if (gameDay > GetMonthDays(gameMonth, gameYear))
-        {
-            gameDay = 1;
-            HandleMonthIncrement();
-        }
-
-        EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
-        EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
-                                     gameSeason, gameWeekDay, termCount);
-    }
 
     private void UpdateSeason()
     {
@@ -300,6 +306,7 @@ public class TimeManager : MonoBehaviour
         return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
     }
 
+    #region 跳转到指定时间
     /// <summary>
     /// 跳转到指定时间
     /// 支持格式：
@@ -413,10 +420,18 @@ public class TimeManager : MonoBehaviour
         int daysDiff = (targetDate - baseDate).Days;
         gameWeekDay = (baseWeekDay + daysDiff - 1) % 7 + 1;
     }
+    #endregion
 
+    #region 获取时间
     // 添加获取完整日期时间的方法
     public string GetCurrentDateTime()
     {
         return (gameMonth + "月" + gameDay + "日");
     }
+    public DateTime GetCurrentDate()
+    {
+        int actualYear = gameYear;
+        return new DateTime(actualYear, gameMonth, gameDay, gameHour, gameMinute, 0);
+    }
+    #endregion
 }

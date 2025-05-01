@@ -89514,7 +89514,7 @@ GameObject:
   - component: {fileID: 621913986}
   - component: {fileID: 621913992}
   m_Layer: 0
-  m_Name: "\u5F17\u6D1B_1"
+  m_Name: "\u5F17\u6D1B"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -89558,8 +89558,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dailySchedule:
   - startHour: 7
-    endHour: 10
+    endHour: 11
     targetPosition: {x: 27, y: 36}
+    isLoopPath: 0
+  - startHour: 11
+    endHour: 15
+    targetPosition: {x: 10, y: 22}
+    isLoopPath: 0
+  - startHour: 15
+    endHour: 19
+    targetPosition: {x: 34, y: 5}
     isLoopPath: 0
   specialSchedule: []
 --- !u!50 &621913988
