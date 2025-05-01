@@ -108,7 +108,8 @@ public class RandomEventSystem : MonoBehaviour
     /// <returns>返回对应的剧情key，未触发返回null</returns>
     public void TriggerEvent(string eventId, bool ignoreProbability = false)
     {
-        var eventData = GetEvent(eventId);
+        //var eventData = GetEvent(eventId);
+        var eventData = new RandomEvent();
         if (eventData == null)
         {
             Debug.LogWarning($"事件ID不存在: {eventId}");
@@ -131,11 +132,11 @@ public class RandomEventSystem : MonoBehaviour
     /// <summary>
     /// 获取事件完整数据
     /// </summary>
-    public RandomEvent GetEvent(string eventId)
-    {
-        //return System.Array.Find(eventDatabase, e => e.eventId == eventId);
-        return;
-    }
+    // public RandomEvent GetEvent(string eventId)
+    // {
+    //     //return System.Array.Find(eventDatabase, e => e.eventId == eventId);
+    //     return;
+    // }
 
 
     /// <summary>

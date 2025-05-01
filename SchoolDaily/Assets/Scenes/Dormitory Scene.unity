@@ -752,7 +752,7 @@ MonoBehaviour:
     isOnce: 1
     SkipIndex: 0
   - dialogueCSV: {fileID: 4900000, guid: 1b10601b67c4857408a29c44f26b4ef3, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.2\u67082\u65E517:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E517:00"
     isOnce: 1
     SkipIndex: 0
 --- !u!61 &308755413
@@ -9693,11 +9693,11 @@ MonoBehaviour:
     isOnce: 1
     SkipIndex: 0
   - dialogueCSV: {fileID: 4900000, guid: 8d1d67398adcded499689ad900a3d20b, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.2\u67081\u65E519:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E519:00"
     isOnce: 1
     SkipIndex: 0
   - dialogueCSV: {fileID: 4900000, guid: 4248adb8bbc054b44ae5975788fd530d, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.==.2\u67082\u65E513:00"
+    prerequisiteCondition: "\u65F6\u95F4.==.9\u67084\u65E513:00"
     isOnce: 1
     SkipIndex: 0
 --- !u!1 &1797119050
