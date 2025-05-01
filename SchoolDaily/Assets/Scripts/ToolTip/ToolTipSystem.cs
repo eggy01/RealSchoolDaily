@@ -6,6 +6,7 @@ public class ToolTipSystem : MonoBehaviour
 {
     private static ToolTipSystem current;
     public ToolTip tooltip;
+    public static GameObject SleepTip;//睡觉提示框
 
     private void Awake()
     {

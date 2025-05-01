@@ -101,9 +101,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 13
-        y: 68
-        width: 78
-        height: 109
+        y: 67
+        width: 79
+        height: 110
       alignment: 9
       pivot: {x: 0.55069906, y: 0.0646377}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -170,6 +170,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
+      7022583639DCEC1E27710A18F76E1E92_0: 1397993970
       tree01: -966116478
       tree02: -1350627569
       tree03: 1364253000

@@ -133,6 +133,7 @@ public class EventHandler
         OnItemAdded?.Invoke(item);
     }
 
+    //天气变化和剧情筛选
     public static event Action<string> OnDateChanged; // 新增日期变化事件
     public static void CallDateChangedEvent(string currentDate)
     {

@@ -22,14 +22,27 @@ public class DayNightSystem : MonoBehaviour
     public float winterMaxIntensity = 0.8f;
     public float baseMinIntensity = 0.1f;
 
+    [Header("路灯设置")]
+
+    public float lightActivationThreshold = 0.2f; // 光照强度阈值
+
     private TimeManager timeManager;
     private WeatherManager weatherManager;
+    private SceneLightController lightController;
+
     private float seasonLerpFactor; // 季节过渡因子(0=冬季,1=夏季)
 
     private void Awake()
     {
         timeManager = FindObjectOfType<TimeManager>();
         weatherManager = FindObjectOfType<WeatherManager>();
+
+        lightController = FindObjectOfType<SceneLightController>();
+        if (lightController == null)
+        {
+            GameObject controllerObj = new GameObject("SceneLightController");
+            lightController = controllerObj.AddComponent<SceneLightController>();
+        }
     }
 
     private void OnEnable()
@@ -50,7 +63,6 @@ public class DayNightSystem : MonoBehaviour
     private void Start()
     {
         //CheckCurrentScene();
-
         // 强制重置曲线（仅调试用）
         lightIntensityCurve = new AnimationCurve(
             new Keyframe(0f, 0.1f),    // 午夜
@@ -62,20 +74,8 @@ public class DayNightSystem : MonoBehaviour
         UpdateTimeOfDay(); // 添加这行初始化时间
         UpdateSeasonalParameters();
         UpdateLighting();
+
     }
-
-    // private void OnSceneChanged(Scene oldScene, Scene newScene)
-    // {
-    //     CheckCurrentScene();
-    //     UpdateLighting();
-    // }
-    // private void CheckCurrentScene()
-    // {
-    //     string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
-    //     isOutdoorScene = outdoorScenes.Contains(currentScene);
-    //     Debug.Log($"当前场景: {currentScene}, 是室外场景: {isOutdoorScene}");
-    // }
-
     private void OnHourChanged(int hour)
     {
         UpdateTimeOfDay();
@@ -90,11 +90,6 @@ public class DayNightSystem : MonoBehaviour
         float minute = timeManager.GetMinute();
 
         currentTimeOfDay = (hour + minute / 60f) / 24f;
-
-
-        // // 调试输出初始状态
-        // Debug.Log($"初始时间: {timeManager.GetHour():00}:{timeManager.GetMinute():00}, " +
-        //           $"时间比例: {currentTimeOfDay:F2}");
     }
 
     private void UpdateSeasonalParameters()
@@ -141,11 +136,6 @@ public class DayNightSystem : MonoBehaviour
 
         UpdateSeasonalParameters();
 
-        // // 调试输出当前时间信息
-        // Debug.Log($"当前时间: {timeManager.GetHour():00}:{timeManager.GetMinute():00}, " +
-        //           $"时间比例: {currentTimeOfDay:F2}, " +
-        //           $"季节因子: {seasonLerpFactor:F2}");
-
 
         // 计算当前季节的昼夜参数
         float currentDayLength = Mathf.Lerp(winterDayLength, summerDayLength, seasonLerpFactor);
@@ -183,21 +173,6 @@ public class DayNightSystem : MonoBehaviour
             // 白天
             intensity = currentMaxIntensity;
         }
-        // //Debug.Log($"时间判定: 当前={currentTimeOfDay:F3}, 黎明={dawnTime:F3}, 黄昏={duskTime:F3}, 分支={GetLightingBranch(currentTimeOfDay, dawnTime, duskTime)}");
-
-        // string GetLightingBranch(float time, float dawn, float dusk)
-        // {
-        //     if (time < dawn || time > dusk) return "夜晚";
-        //     if (time < dawn + 0.05f) return "黎明过渡";
-        //     if (time > dusk - 0.05f) return "黄昏过渡";
-        //     return "白天";
-        // }
-
-        // 调试输出计算结果
-        // Debug.Log($"黎明时间: {dawnTime:F2}, 黄昏时间: {duskTime:F2}, 计算强度: {intensity:F2}");
-
-
-        //globalLight.intensity = intensity * lightIntensityCurve.Evaluate(currentTimeOfDay);
 
         // 应用光照设置
         globalLight.color = lightColorGradient.Evaluate(currentTimeOfDay);
@@ -210,16 +185,16 @@ public class DayNightSystem : MonoBehaviour
             Debug.LogWarning("光照曲线返回异常值，已强制修复");
         }
 
-        //globalLight.intensity = intensity * curveValue;
-        //Debug.Log($"设置前强度: {globalLight.intensity}");
-
-        // 强制验证
-        // yield return new WaitForEndOfFrame();
-        // Debug.Log($"实际显示强度: {globalLight.intensity}");
-
-        // Debug.Log($"最终强度: {globalLight.intensity:F2}");
-        globalLight.intensity = Mathf.Clamp(intensity * curveValue, 0.01f, 1f);
+        globalLight.intensity = Mathf.Clamp(intensity * curveValue, 0.03f, 1f);
         //Debug.Log("当前灯光强度：" + globalLight.intensity);
+
+        // 新增：根据光照强度控制路灯
+        // 控制所有灯光（光照≤0.2时开启）
+        bool shouldLightsBeOn = globalLight.intensity <= lightActivationThreshold;
+        lightController.SetAllLights(shouldLightsBeOn);
+
+        Debug.Log($"全局光照: {globalLight.intensity:F2} | " +
+                 $"灯光状态: {(shouldLightsBeOn ? "开启" : "关闭")}");
     }
 
     private void AdjustWeatherLightIntensity(float seasonMaxIntensity)
@@ -230,7 +205,7 @@ public class DayNightSystem : MonoBehaviour
             weatherManager.sunnyLightColor *= seasonMaxIntensity;
             weatherManager.rainyLightColor *= seasonMaxIntensity;
             weatherManager.snowyLightColor *= seasonMaxIntensity;
-            weatherManager.windyLightColor *= seasonMaxIntensity;
+            //weatherManager.windyLightColor *= seasonMaxIntensity;
             weatherManager.cloudyLightColor *= seasonMaxIntensity;
         }
     }

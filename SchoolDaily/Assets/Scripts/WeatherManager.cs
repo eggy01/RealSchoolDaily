@@ -13,7 +13,7 @@ public class WeatherManager : MonoBehaviour
         Sunny,
         Rainy,
         Snowy,
-        Windy,
+        // Windy,
         Cloudy
     }
 
@@ -32,8 +32,8 @@ public class WeatherManager : MonoBehaviour
     public Color sunnyLightColor = new Color(1f, 1f, 0.95f);
     public Color rainyLightColor = new Color(0.7f, 0.7f, 0.8f);
     public Color snowyLightColor = new Color(0.9f, 0.9f, 1f);
-    public Color windyLightColor = new Color(0.85f, 0.85f, 0.75f);
-    public Color cloudyLightColor = new Color(0.8f, 0.8f, 0.8f);
+    //public Color windyLightColor = new Color(0.85f, 0.85f, 0.75f);
+    public Color cloudyLightColor = new Color(0.6f, 0.6f, 0.6f);
 
 
     [Header("天气UI")]
@@ -51,7 +51,7 @@ public class WeatherManager : MonoBehaviour
     public ParticleSystem rainParticleSystem;
     public ParticleSystem snowParticleSystem;
     //public ParticleSystem windParticleSystem;
-    public ParticleSystem cloudParticleSystem;
+    //public ParticleSystem cloudParticleSystem;
 
     private WeatherType currentWeather;
     private TimeManager timeManager;
@@ -72,13 +72,13 @@ public class WeatherManager : MonoBehaviour
 
     private void OnEnable()
     {
-        EventHandler.OnDayChangedEvent += OnDayChanged;
+        EventHandler.OnDateChanged += OnDayChanged;
         SceneManager.activeSceneChanged += OnSceneChanged;
     }
 
     private void OnDisable()
     {
-        EventHandler.OnDayChangedEvent -= OnDayChanged;
+        EventHandler.OnDateChanged -= OnDayChanged;
         SceneManager.activeSceneChanged -= OnSceneChanged;
     }
 
@@ -95,11 +95,11 @@ public class WeatherManager : MonoBehaviour
         Debug.Log($"当前场景: {currentScene}, 是室外场景: {isOutdoorScene}");
     }
 
-    private void OnDayChanged()
+    private void OnDayChanged(string date)
     {
         Debug.Log($"天气系统收到日期变更通知");
 
-        if (!timeManager.gameClockPause && timeManager.GetdayChanged())
+        if (!timeManager.gameClockPause)
         {
             daysPassedWithCurrentWeather++;
             Debug.Log($"天气已持续: {daysPassedWithCurrentWeather}天");
@@ -117,33 +117,25 @@ public class WeatherManager : MonoBehaviour
     //更新天气UI
     private void UpdateWeatherIcon(WeatherType weather)
     {
-        if (WeatherUI != null)
+        if (WeatherUI == null || WeatherSprites == null || WeatherSprites.Length < 4)
         {
-            try
-            {
-                //Debug.Log("图标序号：" + InconNo);
-                switch (weather)
-                {
-                    case WeatherType.Cloudy:
-                        WeatherUI.sprite = WeatherSprites[0];
-                        break;
-                    case WeatherType.Rainy:
-                        WeatherUI.sprite = WeatherSprites[1];
-                        break;
-                    case WeatherType.Snowy:
-                        WeatherUI.sprite = WeatherSprites[2];
-                        break;
-                    case WeatherType.Sunny:
-                        WeatherUI.sprite = WeatherSprites[3];
-                        break;
-                }
-                Debug.Log("weather" + weather);
-                Debug.Log("更换图标" + WeatherUI.sprite.name);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"图标: {e.Message}");
-            }
+            Debug.LogWarning("天气UI配置不完整");
+            return;
+        }
+
+        int index = weather switch
+        {
+            WeatherType.Cloudy => 0,
+            WeatherType.Rainy => 1,
+            WeatherType.Snowy => 2,
+            WeatherType.Sunny => 3,
+            _ => 2 // 默认返回Sunny
+        };
+
+        if (index < WeatherSprites.Length && WeatherSprites[index] != null)
+        {
+            WeatherUI.sprite = WeatherSprites[index];
+            Debug.Log($"设置天气图标: {weather} (索引:{index})");
         }
     }
 
@@ -204,13 +196,13 @@ public class WeatherManager : MonoBehaviour
             case Season.秋天: // 9-11月
                 if (month == 9) // 初秋
                 {
-                    if (rand < 0.5f) return WeatherType.Windy;
+                    if (rand < 0.5f) return WeatherType.Rainy;
                     if (rand < 0.7f) return WeatherType.Cloudy;
                     return WeatherType.Sunny;
                 }
                 else // 深秋
                 {
-                    if (rand < 0.6f) return WeatherType.Windy;
+                    if (rand < 0.6f) return WeatherType.Sunny;
                     if (rand < 0.8f) return WeatherType.Cloudy;
                     return WeatherType.Rainy;
                 }
@@ -220,13 +212,13 @@ public class WeatherManager : MonoBehaviour
                 {
                     if (rand < 0.6f) return WeatherType.Snowy;
                     if (rand < 0.8f) return WeatherType.Cloudy;
-                    return WeatherType.Windy;
+                    return WeatherType.Sunny;
                 }
                 else // 深冬
                 {
                     if (rand < 0.7f) return WeatherType.Snowy;
                     if (rand < 0.85f) return WeatherType.Cloudy;
-                    return WeatherType.Windy;
+                    return WeatherType.Sunny;
                 }
 
             default:
@@ -274,10 +266,10 @@ public class WeatherManager : MonoBehaviour
                 sunLight2D.color = snowyLightColor;
                 //sunLight2D.intensity = 0.8f;
                 break;
-            case WeatherType.Windy:
-                sunLight2D.color = windyLightColor;
-                //sunLight2D.intensity = 0.9f;
-                break;
+            // case WeatherType.Windy:
+            //     sunLight2D.color = windyLightColor;
+            //     //sunLight2D.intensity = 0.9f;
+            //     break;
             case WeatherType.Cloudy:
                 sunLight2D.color = cloudyLightColor;
                 //sunLight2D.intensity = 0.7f;
@@ -296,12 +288,12 @@ public class WeatherManager : MonoBehaviour
             case WeatherType.Snowy:
                 snowParticleSystem.Play();
                 break;
-            // case WeatherType.Windy:
-            //     windParticleSystem.Play();
-            //     break;
-            case WeatherType.Cloudy:
-                cloudParticleSystem.Play();
-                break;
+                // case WeatherType.Windy:
+                //     windParticleSystem.Play();
+                //     break;
+                // case WeatherType.Cloudy:
+                //     cloudParticleSystem.Play();
+                //     break;
         }
     }
 
@@ -310,6 +302,6 @@ public class WeatherManager : MonoBehaviour
         rainParticleSystem.Stop();
         snowParticleSystem.Stop();
         //windParticleSystem.Stop();
-        cloudParticleSystem.Stop();
+        // cloudParticleSystem.Stop();
     }
 }
