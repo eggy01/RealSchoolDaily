@@ -140,8 +140,4 @@ public class PackageLocalData
         //     Debug.Log(item.ToString());
         // }
     }
-    public void ForceRefresh()
-    {
-        onInventoryChanged.Invoke();
-    }
 }

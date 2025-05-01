@@ -67,9 +67,9 @@ public class ShopUI : MonoBehaviour
     public void ShowShop(string shopType = "超市")
     {
         // 关闭背包
-        if (InventoryUIHandler.Instance != null)
+        if (player.Instance.myBag.activeSelf)
         {
-            InventoryUIHandler.Instance.CloseInventory();
+            player.Instance.TogglePause();
         }
 
         titleText.text = shopType;
@@ -83,13 +83,11 @@ public class ShopUI : MonoBehaviour
     public void CloseShop()
     {
         shopPanel.SetActive(false);
-
-        // 检查背包是否打开
-        if (!InventoryUIHandler.Instance.myBag.activeSelf)
+        // 检查是否还有其他界面打开
+        if (!player.Instance.myBag.activeSelf)
         {
             PauseManager.Instance.SetPauseState(false);
         }
-
         _currentSelectedItem = null;
         UpdateUI();
     }

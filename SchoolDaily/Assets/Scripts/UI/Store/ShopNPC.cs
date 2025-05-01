@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class ShopNPC : MonoBehaviour
 {
@@ -10,25 +12,16 @@ public class ShopNPC : MonoBehaviour
     {
         // 当玩家在范围内且按下E键时
         if (isInRange && Input.GetKeyDown(KeyCode.E))
+    {
+        if (ShopUI.Instance.shopPanel.activeSelf)
         {
-            if (ShopUI.Instance.shopPanel.activeSelf)
-            {
-                ShopUI.Instance.CloseShop();
-            }
-            else
-            {
-                ShopUI.Instance.ShowShop(shopType);
-            }
+            ShopUI.Instance.CloseShop();
         }
-
-        // 当按下ESC键时关闭商店界面
-        if (Input.GetKeyDown(KeyCode.Escape))
+        else
         {
-            if (ShopUI.Instance.shopPanel.activeSelf)
-            {
-                ShopUI.Instance.CloseShop();
-            }
+            ShopUI.Instance.ShowShop(shopType);
         }
+    }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -45,9 +38,10 @@ public class ShopNPC : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("玩家离开超市触发器");
             isInRange = false;
             talkUI.SetActive(false);
+            // 可以在这里关闭UI提示
+            ShopUI.Instance.CloseShop(); // 可选：离开时自动关闭商店
         }
     }
 }

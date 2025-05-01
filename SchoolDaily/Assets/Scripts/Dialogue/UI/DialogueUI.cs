@@ -83,7 +83,7 @@ public class DialogueUI : MonoBehaviour
         // }
 
         // IsDialogueActive = true;
-        PlayerMovement.Instance.SetPause(true);
+        player.Instance.SetPause(true);
         if (piece != null)
         {
             if (string.IsNullOrEmpty(piece.name) && piece.effects != null && piece.effects.Count > 0)
@@ -345,7 +345,7 @@ public class DialogueUI : MonoBehaviour
             if (piece.isfinalNotFirst == 1)
             {
                 StoryProgressManager.Instance.MarkStoryAsCompleted(piece.belongToCSVFileName);
-                PlayerMovement.Instance.SetPause(false);
+                player.Instance.SetPause(false);
                 yield break;
             }
 
@@ -355,7 +355,7 @@ public class DialogueUI : MonoBehaviour
         {
             SetAllFalse();
             EventHandler.HaveOnFocusCamear();
-            PlayerMovement.Instance.SetPause(false);
+            player.Instance.SetPause(false);
 
         }
     }
