@@ -65,7 +65,7 @@ public class TutorialSystem : MonoBehaviour
         Debug.Log("存储按钮被点击");
         PackageLocalData.Instance.AddItem("F001");
 
-        player.Instance.TogglePause();
+        InventoryUIHandler.Instance.ToggleInventory();
 
         CompleteTutorial();
     }
@@ -76,7 +76,7 @@ public class TutorialSystem : MonoBehaviour
         {
             Debug.Log("B键被按下");
 
-            player.Instance.TogglePause();
+            InventoryUIHandler.Instance.ToggleInventory();
 
             CompleteTutorial();
         }
