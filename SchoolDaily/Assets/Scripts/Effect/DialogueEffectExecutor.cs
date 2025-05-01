@@ -140,38 +140,16 @@ public class DialogueEffectExecutor : MonoBehaviour
 
     private IEnumerator ExecutePlayerAutoMoveto(DialogueEffect effect)
     {
-        // // 1. 解析目标位置
-        // string[] PositionStr = effect.parameters.Split(':');
-        // var targetPosition = ParsePosition(PositionStr[1]);
+        Vector2 targetPos = ParsePosition(effect.parameters);
 
-        // // 2. 获取或添加移动控制器
-        // var movement = Player.GetComponent<NPCMovementController>();
-        // if (movement == null)
-        // {
-        //     movement = Player.AddComponent<NPCMovementController>();
+        // 单行调用（无需获取组件）
+        PlayerAutoMovement.MoveToPosition(targetPos);
 
-        //     // 确保有NPCScheduleData组件
-        //     var scheduleData = Player.GetComponent<NPCScheduleData>();
-        //     if (scheduleData == null)
-        //     {
-        //         scheduleData = Player.AddComponent<NPCScheduleData>();
-        //         scheduleData.dailySchedule = new List<ScheduleEntry>();  // 去掉 "new" 后面的多余点号
-        //         scheduleData.dailySchedule.Add(new ScheduleEntry());
-        //     }
-        // }
-
-        // // 3. 设置移动时段 (当前时间到24点)
-        // int currentHour = TimeManager.Instance.GetHour();
-        // var schedule = Player.GetComponent<NPCScheduleData>().dailySchedule[0];
-        // schedule.startHour = currentHour;
-        // schedule.endHour = 24; // 确保结束时间大于开始时间
-        // schedule.targetPosition = targetPosition;
-
-        // // 6. 清理组件
-        // Destroy(Player.GetComponent<NPCMovementController>());
-        // Destroy(Player.GetComponent<NPCScheduleData>());
-
-        yield return null;
+        // 等待移动完成
+        while (PlayerAutoMovement.FindPlayer()?.GetComponent<PlayerAutoMovement>().IsMoving() ?? false)
+        {
+            yield return null;
+        }
 
     }
 

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 74e900362bf87f442b60cde389bfca92
+guid: 24b16788c2d1974459ccab7d7c14129b
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -95,70 +95,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: tree01
-      rect:
-        serializedVersion: 2
-        x: 13
-        y: 67
-        width: 79
-        height: 110
-      alignment: 9
-      pivot: {x: 0.55069906, y: 0.0646377}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 1a4afac38881aed4b860907a06d3fd1c
-      internalID: -966116478
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tree02
-      rect:
-        serializedVersion: 2
-        x: 98
-        y: 76
-        width: 80
-        height: 82
-      alignment: 9
-      pivot: {x: 0.7754055, y: 0.03151796}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 89fe38d7770fbc643b30b99fffb6ecf7
-      internalID: -1350627569
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: tree03
-      rect:
-        serializedVersion: 2
-        x: 179
-        y: 72
-        width: 77
-        height: 109
-      alignment: 9
-      pivot: {x: 0.5660315, y: 0.04131485}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: b62f664f1f85bfa469fcc79089f0c983
-      internalID: 1364253000
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
     physicsShape: []
     bones: []
@@ -169,11 +106,7 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable:
-      7022583639DCEC1E27710A18F76E1E92_0: 1397993970
-      tree01: -966116478
-      tree02: -1350627569
-      tree03: 1364253000
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

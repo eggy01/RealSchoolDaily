@@ -118,9 +118,8 @@ public class TimeManager : MonoBehaviour
 
                 HandleDayIncrement();
             }
-            // 触发小时变更事件
-            //EventHandler.CallOnDayChangedEvent();
 
+            // 触发小时变更事件    
             OnHourChanged?.Invoke(gameHour);
 
             // 整点强制更新为00
@@ -155,9 +154,6 @@ public class TimeManager : MonoBehaviour
         // 天气相关
         Debug.Log($"日期变化！当前天数：{gameDay}"); // 添加调试日志
 
-        EventHandler.CallOnDayChangedEvent();
-
-        // 所有日期变更处理完成后重置标志
         dayChanged = false;
 
         gameWeekDay = gameWeekDay % 7 + 1; // 更新星期
@@ -242,7 +238,6 @@ public class TimeManager : MonoBehaviour
             lastUpdatedMinute = 0;
 
             // 触发事件(昼夜系统)
-            //EventHandler.CallOnDayChangedEvent();
             OnHourChanged?.Invoke(gameHour);
 
             EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
@@ -273,6 +268,8 @@ public class TimeManager : MonoBehaviour
 
         gameDay++;
         gameWeekDay = gameWeekDay % 7 + 1;
+
+        CheckDateChange();
 
         if (gameDay > GetMonthDays(gameMonth, gameYear))
         {
