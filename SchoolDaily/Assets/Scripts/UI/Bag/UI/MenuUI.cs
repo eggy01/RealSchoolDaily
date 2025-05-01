@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class MenuUI : MonoBehaviour
 {
+<<<<<<< Updated upstream
     public GameObject[] panels; // 存放所有界面
     public Button[] buttons;    // 存放所有按钮
 
@@ -12,10 +13,25 @@ public class MenuUI : MonoBehaviour
     void Start()
     {
         // 初始隐藏所有界面
+=======
+    public GameObject[] panels;
+    public Button[] buttons;
+    private int currentIndex = -1;
+
+    private void Start()
+    {
+        InitializePanels();
+        SetupButtonListeners();
+    }
+
+    private void InitializePanels()
+    {
+>>>>>>> Stashed changes
         foreach (GameObject panel in panels)
         {
             panel.SetActive(false);
         }
+<<<<<<< Updated upstream
 
         // 显示初始界面
         if (initialPanelIndex >= 0 && initialPanelIndex < panels.Length)
@@ -48,12 +64,37 @@ public class MenuUI : MonoBehaviour
         }
 
         // 隐藏当前界面
+=======
+        ShowPanel(2);
+    }
+
+    private void SetupButtonListeners()
+    {
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            int index = i;
+            buttons[i].onClick.AddListener(() => 
+            {
+                ShowPanel(index);
+                InventoryUIHandler.Instance.CloseAllDetails();
+            });
+        }
+    }
+
+    private void ShowPanel(int index)
+    {
+        if (currentIndex == index) return;
+
+>>>>>>> Stashed changes
         if (currentIndex != -1)
         {
             panels[currentIndex].SetActive(false);
         }
 
+<<<<<<< Updated upstream
         // 显示新界面
+=======
+>>>>>>> Stashed changes
         panels[index].SetActive(true);
         currentIndex = index;
     }
