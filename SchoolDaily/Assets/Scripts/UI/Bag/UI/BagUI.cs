@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 public class BagUI : MonoBehaviour
 {
+    public static BagUI Instance;
     [Header("UI组件")]
     public Transform contentParent; // ScrollView的Content对象
     public GameObject bagItemPrefab; // 物品预制体
@@ -14,22 +15,62 @@ public class BagUI : MonoBehaviour
     public Sprite defaultIcon; // 默认图标
 
     [Header("物品详情")]
-    // 存储物品与对应详情面板的关系
-    private Dictionary<GameObject, GameObject> itemDetailMap = new Dictionary<GameObject, GameObject>();
+    private Dictionary<GameObject, GameObject> itemDetailMap = new Dictionary<GameObject, GameObject>(); // 存储物品与对应详情面板的关系
     public GameObject detailPanelPrefab;
 
+<<<<<<< Updated upstream
+=======
+    // 初始化方法
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+    private void Start()
+    {
+        if (bagItemPrefab == null)
+        {
+            Debug.LogError("未绑定物品预制体！");
+            enabled = false;
+        }
+        detelePrefab.SetActive(false);
+        Mask1.SetActive(false);
+        Mask2.SetActive(false);
+    }
+    public void ForceRefresh()
+    {
+        // 清理所有详情面板
+        foreach (var pair in itemDetailMap)
+        {
+            Destroy(pair.Value);
+        }
+        itemDetailMap.Clear();
+
+        // 重新生成背包物品
+        RefreshBag();
+    }
+>>>>>>> Stashed changes
     private void OnEnable()
     {
-        // 注册数据变更事件
         PackageLocalData.onInventoryChanged.AddListener(RefreshBag);
-        RefreshBag();
+        ForceRefresh();
     }
 
     private void OnDisable()
     {
         PackageLocalData.onInventoryChanged.RemoveListener(RefreshBag);
+        ForceRefresh();
     }
+<<<<<<< Updated upstream
 
+=======
+    
+    #region 刷新背包
+>>>>>>> Stashed changes
     public void RefreshBag()
     {
         //测试
