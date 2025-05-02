@@ -140,24 +140,4 @@ public class EventHandler
         OnDateChanged?.Invoke(currentDate);
     }
 
-    //新
-    /// <summary>
-    /// 对话结束事件
-    /// 参数：string - 结束的对话图表名称
-    /// </summary>
-    public static event Action<string> OnDialogueEnd;
-
-    /// <summary>
-    /// 触发对话结束事件
-    /// </summary>
-    /// <param name="graphName">结束的对话图表名称</param>
-    public static void CallOnDialogueEnd(string graphName)
-    {
-        OnDialogueEnd?.Invoke(graphName);
-    }
-
-    // 其他可能用到的事件（示例）
-    public static event Action<string> OnDialogueStart; // 对话开始事件
-    public static event Action<string, int> OnChoiceSelected; // 选项选择事件
-
 }
