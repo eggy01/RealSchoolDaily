@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using SchoolD.Dialogue;
+//using SchoolD.Dialogue;
 using UnityEngine.UIElements;
 using System;
 using static ScheduleEntry;
+using static SchoolD.NewDialogue.DialogueData;
 
 public class DialogueEffectExecutor : MonoBehaviour
 {

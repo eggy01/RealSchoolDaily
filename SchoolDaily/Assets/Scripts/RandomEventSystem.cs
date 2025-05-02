@@ -100,6 +100,9 @@ public class RandomEventSystem : MonoBehaviour
 
         return fields.ToArray();
     }
+
+
+
     /// <summary>
     /// 通过事件ID触发随机事件
     /// </summary>
