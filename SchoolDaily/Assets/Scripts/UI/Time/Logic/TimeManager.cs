@@ -4,7 +4,7 @@ using UnityEngine;
 public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance; // 单例实例
-    public event Action<int> OnHourChanged; // 小时变更事件 // 小时变更事件
+    public event Action<int> OnHourChanged; // 小时变更事件
 
     private int gameMinute, gameHour, gameDay, gameMonth, gameYear;
     private int gameWeekDay;// 1-7表示周一到周日
@@ -430,8 +430,16 @@ public class TimeManager : MonoBehaviour
     }
     public DateTime GetCurrentDate()
     {
-        int actualYear = gameYear;
-        return new DateTime(actualYear, gameMonth, gameDay, gameHour, gameMinute, 0);
+        return new DateTime(gameYear, gameMonth, gameDay, gameHour, gameMinute, 0);
+    }
+
+    public float GetCurrentTimeInHours()
+    {
+        // 将分钟转换为小时的小数部分（例如30分钟=0.5小时）
+        float minuteFraction = gameMinute / 60.0f;
+
+        // 组合成精确时间（例如8:30 → 8.5）
+        return gameHour + minuteFraction;
     }
     #endregion
 }

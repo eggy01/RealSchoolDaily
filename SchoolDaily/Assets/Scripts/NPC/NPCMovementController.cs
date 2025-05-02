@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+
 [RequireComponent(typeof(NPCScheduleData))]
 public class NPCMovementController : MonoBehaviour
 {
@@ -29,44 +30,18 @@ public class NPCMovementController : MonoBehaviour
     private Coroutine moveCoroutine;
     private Vector2 lastTargetPosition;
 
-    // 用于存储路径信息
-    private float initialPathTotalTime; // 初始路径的总时间
-    private DateTime pathStartTime;     // 路径开始时间
+    private ScheduleEntry currentDailyEntry; // 当前日常日程条目
+    private SpecialScheduleEntry currentSpecialEntry; // 当前特殊日程条目
+    private bool useSpecialSchedule; // 是否使用特殊日程
 
     public UnityEvent OnReachedDestination;
+
 
     void Awake()
     {
         scheduleData = GetComponent<NPCScheduleData>();
         InitializeTimeManager();
         animator = GetComponent<Animator>();
-    }
-
-    void Start()
-    {
-        SubscribeToSceneLoadEvent();
-        if (TimeManager.Instance != null)
-        {
-            CheckSchedule(TimeManager.Instance.GetHour());
-        }
-    }
-
-    void OnDestroy()
-    {
-        if (TimeManager.Instance != null)
-        {
-            TimeManager.Instance.OnHourChanged -= CheckSchedule;
-        }
-    }
-
-    public void SubscribeToSceneLoadEvent()
-    {
-        EventHandler.AfterScenLoadEvent += InitializeNpcPositionOnLoad;
-    }
-
-    public void UnsubscribeToSceneLoadEvent()
-    {
-        EventHandler.AfterScenLoadEvent -= InitializeNpcPositionOnLoad;
     }
 
     void InitializeTimeManager()
@@ -81,20 +56,78 @@ public class NPCMovementController : MonoBehaviour
         }
     }
 
+    void OnDestroy()
+    {
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.OnHourChanged -= CheckSchedule;
+        }
+    }
+
+    void Start()
+    {
+        scheduleData = GetComponent<NPCScheduleData>();
+        animator = GetComponent<Animator>();
+
+        if (TimeManager.Instance != null)
+        {
+            CalculateInitialPosition();
+            CheckSchedule(TimeManager.Instance.GetHour());
+        }
+    }
+
     private void CheckSchedule(int currentHour)
     {
+        // 强制传送检查
+        if (useSpecialSchedule)
+        {
+            if (currentHour >= currentSpecialEntry.endHour)
+                ForceFinalizeMovement(currentSpecialEntry.targetPosition);
+        }
+        else if (currentDailyEntry != null)
+        {
+            if (currentHour >= currentDailyEntry.endHour)
+                ForceFinalizeMovement(currentDailyEntry.targetPosition);
+        }
+
+        // 正常日程检查
         var specialEntry = FindMatchingSpecialSchedule();
         if (HandleSpecialSchedule(specialEntry, currentHour)) return;
 
+        bool isInSchedule = false;
         foreach (var entry in scheduleData.dailySchedule)
         {
             if (currentHour >= entry.startHour && currentHour < entry.endHour)
             {
-                MoveTo(entry.targetPosition);
+                isInSchedule = true;
+                if (currentDailyEntry == null || entry.startHour != currentDailyEntry.startHour)
+                {
+                    StopMovement();
+                    transform.position = entry.startPosition;
+                    MoveTo(entry.targetPosition);
+                    currentDailyEntry = entry;
+                    useSpecialSchedule = false;
+                }
                 return;
             }
         }
+
+        // 如果不在任何日程时间段内
+        if (!isInSchedule)
+        {
+            StopMovement();
+            // 销毁NPC对象
+            Destroy(gameObject);
+            return;
+        }
         StopMovement();
+    }
+    private void ForceFinalizeMovement(Vector2 targetPosition)
+    {
+        StopMovement();
+        transform.position = targetPosition;
+        animator.SetBool(movingAnimParam, false);
+        OnReachedDestination?.Invoke();
     }
 
     private bool HandleSpecialSchedule(SpecialScheduleEntry entry, int currentHour)
@@ -121,7 +154,10 @@ public class NPCMovementController : MonoBehaviour
         currentPathIndex = 0;
         lastTargetPosition = currentPath[^1];
 
-        while (currentPathIndex < currentPath.Count)
+        float startTime = Time.time;
+        float maxDuration = CalculateMaxDuration();
+
+        while (currentPathIndex < currentPath.Count && (Time.time - startTime) < maxDuration)
         {
             Vector2 targetPoint = currentPath[currentPathIndex];
 
@@ -142,10 +178,26 @@ public class NPCMovementController : MonoBehaviour
 
             yield return null;
         }
+
+        if ((Time.time - startTime) >= maxDuration)
+        {
+            transform.position = currentPath[^1];
+            FinalizeMovement();
+        }
         // 到达目的地后停止动画
         animator.SetBool(movingAnimParam, false);
         isRecalculating = false;
         FinalizeMovement();
+    }
+    private float CalculateMaxDuration()
+    {
+        if (useSpecialSchedule)
+            return (currentSpecialEntry.endHour - currentSpecialEntry.startHour) * 3600f;
+
+        if (currentDailyEntry != null)
+            return (currentDailyEntry.endHour - currentDailyEntry.startHour) * 3600f;
+
+        return float.MaxValue;
     }
 
     private void UpdateAnimationParameters(Vector2 moveDirection)
@@ -222,16 +274,6 @@ public class NPCMovementController : MonoBehaviour
             Debug.LogWarning("路径计算失败，目标可能不可达");
             return;
         }
-
-        // 计算路径的总时间和初始时间
-        float totalDistance = 0f;
-        for (int i = 1; i < currentPath.Count; i++)
-        {
-            totalDistance += Vector2.Distance(currentPath[i - 1], currentPath[i]);
-        }
-        initialPathTotalTime = (totalDistance / moveSpeed) * (60f / Settings.minuteThreshold);
-        pathStartTime = TimeManager.Instance.GetCurrentDate();
-
         ValidatePath(targetPosition);
     }
 
@@ -256,51 +298,76 @@ public class NPCMovementController : MonoBehaviour
         currentPath = null;
     }
 
-    // 在场景加载后初始化NPC的位置
-    public void InitializeNpcPositionOnLoad()
+    private void CalculateInitialPosition()
     {
-        if (!currentPath.IsNullOrEmpty())
-        {
-            DateTime currentTime = TimeManager.Instance.GetCurrentDate();
-            TimeSpan timeSincePathStart = currentTime - pathStartTime;
+        float currentTime = TimeManager.Instance.GetCurrentTimeInHours();
 
-            if (timeSincePathStart.TotalSeconds > 0)
+        // 检查特殊日程
+        var specialEntry = FindMatchingSpecialSchedule();
+        if (specialEntry != null && currentTime >= specialEntry.startHour && currentTime < specialEntry.endHour)
+        {
+            HandleSpecialInitialPosition(specialEntry, currentTime);
+            useSpecialSchedule = true;
+            return;
+        }
+
+        // 检查日常日程
+        foreach (var entry in scheduleData.dailySchedule)
+        {
+            if (currentTime >= entry.startHour && currentTime < entry.endHour)
             {
-                float completionPercentage = Mathf.Clamp01((float)(timeSincePathStart.TotalSeconds / initialPathTotalTime));
-                Vector2 startPosition = FindPositionOnPathAtTime(completionPercentage);
-                transform.position = startPosition;
+                HandleDailyInitialPosition(entry, currentTime);
+                useSpecialSchedule = false;
+                return;
             }
         }
     }
 
-    // 根据完成比例在路径上找到位置
-    private Vector2 FindPositionOnPathAtTime(float timePercentage)
+    private void HandleSpecialInitialPosition(SpecialScheduleEntry entry, float currentTime)
     {
-        if (currentPath.IsNullOrEmpty()) return transform.position;
-
-        if (timePercentage >= 1f) return currentPath[currentPath.Count - 1];
-        if (timePercentage <= 0f) return currentPath[0];
-
-        float remainingTime = initialPathTotalTime * timePercentage;
-        float distanceTraveled = moveSpeed * remainingTime * (60f / Settings.minuteThreshold);
-
-        float totalDistance = 0f;
-        for (int i = 1; i < currentPath.Count; i++)
-        {
-            float currentSegmentDistance = Vector2.Distance(currentPath[i - 1], currentPath[i]);
-            if (totalDistance + currentSegmentDistance >= distanceTraveled)
-            {
-                float remainingDistance = distanceTraveled - totalDistance;
-                Vector2 direction = (currentPath[i] - currentPath[i - 1]).normalized;
-                return currentPath[i - 1] + direction * remainingDistance;
-            }
-            totalDistance += currentSegmentDistance;
-        }
-
-        return currentPath[currentPath.Count - 1];
+        float elapsedTime = (currentTime - entry.startHour) * 3600f;
+        CalculateAndSetPosition(entry.startPosition, entry.targetPosition, elapsedTime);
+        currentSpecialEntry = entry;
     }
 
-    // 视觉化调试显示
+    private void HandleDailyInitialPosition(ScheduleEntry entry, float currentTime)
+    {
+        float elapsedTime = (currentTime - entry.startHour) * 3600f;
+        CalculateAndSetPosition(entry.startPosition, entry.targetPosition, elapsedTime);
+        currentDailyEntry = entry;
+    }
+
+    private void CalculateAndSetPosition(Vector2 startPos, Vector2 targetPos, float elapsedSeconds)
+    {
+        // 生成原始路径
+        List<Vector2> path = Pathfinding2D.Instance.FindPath(startPos, targetPos);
+        if (path == null || path.Count == 0) return;
+
+        // 计算应移动距离
+        float distanceToMove = moveSpeed * elapsedSeconds;
+        Vector2 initialPos = GetPositionAlongPath(path, distanceToMove);
+
+        // 设置初始位置并重新生成路径
+        transform.position = initialPos;
+        MoveTo(targetPos);
+    }
+
+    private Vector2 GetPositionAlongPath(List<Vector2> path, float distance)
+    {
+        float remaining = distance;
+        for (int i = 1; i < path.Count; i++)
+        {
+            float segmentLength = Vector2.Distance(path[i - 1], path[i]);
+            if (remaining <= segmentLength)
+            {
+                Vector2 dir = (path[i] - path[i - 1]).normalized;
+                return path[i - 1] + dir * remaining;
+            }
+            remaining -= segmentLength;
+        }
+        return path[path.Count - 1];
+    }
+
     void OnDrawGizmos()
     {
         if (!showPathGizmos || currentPath == null) return;
@@ -314,21 +381,5 @@ public class NPCMovementController : MonoBehaviour
             if (i > 0)
                 Gizmos.DrawLine(currentPath[i - 1], currentPath[i]);
         }
-
-        // 显示NPC的初始位置
-        if (Application.isPlaying)
-        {
-            Gizmos.color = Color.green;
-            Vector2 startPosition = FindPositionOnPathAtTime(Mathf.Clamp01(initialPathTotalTime));
-            Gizmos.DrawSphere(startPosition, 0.5f);
-        }
-    }
-}
-
-public static class PathExtensions
-{
-    public static bool IsNullOrEmpty<T>(this IEnumerable<T> enumerable)
-    {
-        return enumerable == null || !enumerable.GetEnumerator().MoveNext();
     }
 }

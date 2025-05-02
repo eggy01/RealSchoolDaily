@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ff77868b64e06a841a1820fcd529b195
+guid: 9fa070a16c7427743997c1ed82b5bcf9
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -97,34 +97,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bag_1
-      rect:
-        serializedVersion: 2
-        x: 621
-        y: 517
-        width: 46
-        height: 8
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 202e8f47470e67f4697471b6a2ab26d4
-      internalID: 2034282026
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: Bag_2
       rect:
         serializedVersion: 2
-        x: 114
-        y: 272
-        width: 458
-        height: 241
+        x: 624
+        y: 1497
+        width: 22
+        height: 14
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -132,8 +111,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cfa6154c18b052c47b214e86906b1cc7
-      internalID: -1814404529
+      spriteID: ee67a6ac96377c647865795879177be4
+      internalID: 836735091
       vertices: []
       indices: 
       edges: []
@@ -142,176 +121,29 @@ TextureImporter:
       name: Bag_3
       rect:
         serializedVersion: 2
-        x: 621
-        y: 500
-        width: 46
-        height: 9
+        x: 99
+        y: 1319
+        width: 507
+        height: 75
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      border: {x: 4, y: 5, z: 4, w: 3}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0f598ad9252426f469fab20fa9a46203
-      internalID: 62810854
+      spriteID: de2bc9c686c1b2c4e8e6861067c03b8a
+      internalID: 1811717361
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Bag_5
+      name: Bag_4
       rect:
         serializedVersion: 2
-        x: 602
-        y: 190
-        width: 3
-        height: 290
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2cc4a0a587e32934a9e55339a62296ad
-      internalID: -1794371254
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Bag_6
-      rect:
-        serializedVersion: 2
-        x: 41
-        y: 461
-        width: 13
-        height: 13
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 99fa1c2af2bf3e34d9f590108d2f06b1
-      internalID: 1814582699
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Bag_9
-      rect:
-        serializedVersion: 2
-        x: 41
-        y: 445
-        width: 13
-        height: 10
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 90e8aafcfed38984db0ddfc808b7f2c0
-      internalID: -1786756317
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Bag_11
-      rect:
-        serializedVersion: 2
-        x: 42
-        y: 428
-        width: 11
-        height: 11
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 8468b778ac6a72b4693a5643c320b3bd
-      internalID: 273054272
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Bag_13
-      rect:
-        serializedVersion: 2
-        x: 44
-        y: 411
-        width: 8
-        height: 11
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 8d0be6fc66a114b40939f1c6b52bb2cd
-      internalID: 1289603269
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Bag_17
-      rect:
-        serializedVersion: 2
-        x: 35
-        y: 141
-        width: 57
-        height: 73
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: e7fdd00376497d94f95aa331692294ec
-      internalID: 1706484604
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Bag_18
-      rect:
-        serializedVersion: 2
-        x: 114
-        y: 21
-        width: 458
-        height: 241
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 3, y: 4, z: 3, w: 22}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: c69fd7a2186cd994e8e6a4e2f2c23884
-      internalID: -1712435900
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Bag_19
-      rect:
-        serializedVersion: 2
-        x: 35
-        y: 45
+        x: 622
+        y: 1332
         width: 57
         height: 57
       alignment: 0
@@ -321,8 +153,260 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cf7e55692cfdc174d92094a703ca543d
-      internalID: -528929889
+      spriteID: 39e21e32d00d221419e760e4496b866c
+      internalID: 1074795219
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_5
+      rect:
+        serializedVersion: 2
+        x: 709
+        y: 1378
+        width: 13
+        height: 14
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 40d8e632a2749d94291e3a04f20567a1
+      internalID: -41903573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_6
+      rect:
+        serializedVersion: 2
+        x: 711
+        y: 1331
+        width: 9
+        height: 6
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 830e84aa1554e094cb5f3600e5295621
+      internalID: 884633579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_7
+      rect:
+        serializedVersion: 2
+        x: 52
+        y: 750
+        width: 878
+        height: 536
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1632ad8522237b347935f4b3f91cf6ba
+      internalID: 1407308955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_8
+      rect:
+        serializedVersion: 2
+        x: 115
+        y: 661
+        width: 48
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 11be21a979f0c2a40acc7396c92583ae
+      internalID: 634945510
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_9
+      rect:
+        serializedVersion: 2
+        x: 179
+        y: 662
+        width: 80
+        height: 36
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cc0e6471f3352b943ae4e070b105fd63
+      internalID: 2093986255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_10
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 663
+        width: 80
+        height: 36
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5e54a9fda3fd9d44fb74bf023ef42b78
+      internalID: 346617859
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_11
+      rect:
+        serializedVersion: 2
+        x: 443
+        y: 663
+        width: 202
+        height: 28
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 545a12a7e6928394096d99a731766a22
+      internalID: -1608903804
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_12
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 667
+        width: 62
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 513bc6be06121ac46b21a9d218bacfba
+      internalID: -281201266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_13
+      rect:
+        serializedVersion: 2
+        x: 544
+        y: 667
+        width: 97
+        height: 15
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 73bde1ddfaf753b44a809ab4a265ef18
+      internalID: -1465404326
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_14
+      rect:
+        serializedVersion: 2
+        x: 145
+        y: 601
+        width: 505
+        height: 49
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 52741b6127d33aa409e1a36264115f08
+      internalID: -471174275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_15
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 82
+        width: 657
+        height: 402
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d8d3ad4b566d15c4ba04dd8bb707a759
+      internalID: 967297136
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Bag_16
+      rect:
+        serializedVersion: 2
+        x: 864
+        y: 152
+        width: 5
+        height: 449
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7e00d1d29ab0ce548b2bb1393d216f45
+      internalID: 910252153
       vertices: []
       indices: 
       edges: []
@@ -331,10 +415,10 @@ TextureImporter:
       name: Bag_0
       rect:
         serializedVersion: 2
-        x: 621
-        y: 439
-        width: 46
-        height: 54
+        x: 885
+        y: 1245
+        width: 39
+        height: 37
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -342,29 +426,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 25b5fd40d690f1e40abc65484492b01f
-      internalID: -1811651909
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Bag_4
-      rect:
-        serializedVersion: 2
-        x: 553
-        y: 243
-        width: 18
-        height: 18
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 04f09dac61e29cc47bd3d9be11816d49
-      internalID: 551320704
+      spriteID: cd2656938846a8a4d948acb96989d33b
+      internalID: -1890036701
       vertices: []
       indices: 
       edges: []
@@ -380,26 +443,23 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Bag_0: -1811651909
-      Bag_1: 2034282026
-      Bag_10: -854157783
-      Bag_11: 273054272
-      Bag_12: -908151974
-      Bag_13: 1289603269
-      Bag_14: -1041542421
-      Bag_15: 601036334
-      Bag_16: -2143413138
-      Bag_17: 1706484604
-      Bag_18: -1712435900
-      Bag_19: -528929889
-      Bag_2: -1814404529
-      Bag_3: 62810854
-      Bag_4: 551320704
-      Bag_5: -1794371254
-      Bag_6: 1814582699
-      Bag_7: -68995891
-      Bag_8: -660300850
-      Bag_9: -1786756317
+      Bag_0: -1890036701
+      Bag_1: 879454383
+      Bag_10: 346617859
+      Bag_11: -1608903804
+      Bag_12: -281201266
+      Bag_13: -1465404326
+      Bag_14: -471174275
+      Bag_15: 967297136
+      Bag_16: 910252153
+      Bag_2: 836735091
+      Bag_3: 1811717361
+      Bag_4: 1074795219
+      Bag_5: -41903573
+      Bag_6: 884633579
+      Bag_7: 1407308955
+      Bag_8: 634945510
+      Bag_9: 2093986255
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
