@@ -150,6 +150,7 @@ public class BagUI : MonoBehaviour
         DetailItemUI detailUI = newPanel.GetComponent<DetailItemUI>();
         if (itemUI && detailUI)
         {
+            itemUI.imageName.sprite = itemUI.selectName;
             detailUI.Setup(itemUI.GetItemData());
         }
 
@@ -167,6 +168,9 @@ public class BagUI : MonoBehaviour
     {
         if (itemDetailMap.TryGetValue(targetItem, out GameObject panel))
         {
+            BagItemUI itemUI = targetItem.GetComponent<BagItemUI>();
+            itemUI.imageName.sprite = itemUI.normlName;
+
             Destroy(panel);
             itemDetailMap.Remove(targetItem);
         }

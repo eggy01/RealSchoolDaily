@@ -7,9 +7,13 @@ public class BagItemUI : MonoBehaviour
     private ItemData itemData; 
     [Header("UI组件")]
     public Image iconImage;
+    public Image imageName;
+    public Sprite normlName;
+    public Sprite selectName;
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI countText;
     public TextMeshProUGUI sizeText;
+    public TextMeshProUGUI idText;
     public GameObject newTag; // 可选的新物品提示
     
     [HideInInspector]
@@ -24,8 +28,9 @@ public class BagItemUI : MonoBehaviour
         iconImage.sprite = icon != null ? icon : defaultIcon;
 
         nameText.text = item.Name;
-        countText.text = $"{count}";
-        sizeText.text = $"{item.Size}kb";
+        countText.text = $"× {count}";
+        sizeText.text = $"{item.Size} kb";
+        idText.text = ItemID;
         // 显示新物品标识
         if(newTag != null) 
             newTag.SetActive(PackageLocalData.Instance.IsItemNew(item.ID));

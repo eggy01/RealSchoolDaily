@@ -205,7 +205,7 @@ Animator:
   m_GameObject: {fileID: 4285394241668873767}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b34ec58f958a9c74a992bb67d941df27, type: 2}
+  m_Controller: {fileID: 9100000, guid: 4717aefdcd0033a448bd6130c2b54db0, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -286,6 +286,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dailySchedule: []
   specialSchedule: []
+  moveSpeed: 0
 --- !u!114 &-5855482066681118722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302,7 +303,8 @@ MonoBehaviour:
   pathUpdateThreshold: 0.1
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
+  npcPrefab: {fileID: 0}
   showPathGizmos: 1
   horizontalAnimParam: horizontal
   verticalAnimParam: vertical

@@ -10,15 +10,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2243151867572723924, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: m_Name
-      value: "\u7EAA\u8FDC\u884C"
+      value: "\u7EAA\u8FDC\u884C life"
       objectReference: {fileID: 0}
+    - target: {fileID: 6043198564570640313, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
+      propertyPath: npcPrefab
+      value: 
+      objectReference: {fileID: 7299713801552733129}
     - target: {fileID: 6174514986243192369, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 10.5956335
       objectReference: {fileID: 0}
     - target: {fileID: 6174514986243192369, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 10.031778
       objectReference: {fileID: 0}
     - target: {fileID: 6174514986243192369, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: m_LocalPosition.z
@@ -57,3 +61,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
+--- !u!1 &7299713801552733129 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2243151867572723924, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
+  m_PrefabInstance: {fileID: 8821581607706821405}
+  m_PrefabAsset: {fileID: 0}
