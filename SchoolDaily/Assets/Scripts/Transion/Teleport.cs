@@ -14,6 +14,7 @@ namespace SchoolD.Transition
             if (other.CompareTag("Player"))
             {
                 Debug.Log("目标场景：" + sceneToGo);
+                Debug.Log("目标位置：" + positionToGo);
                 EventHandler.CallTransitionEvent(sceneToGo, positionToGo);
 
             }

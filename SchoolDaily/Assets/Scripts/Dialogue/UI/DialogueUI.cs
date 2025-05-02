@@ -76,14 +76,8 @@ public class DialogueUI : MonoBehaviour
 
     private IEnumerator ShowDialogue(DialoguePiece piece)
     {
-        // if (IsDialogueActive)
-        // {
-        //     Debug.LogWarning("已有对话正在进行，拒绝新对话");
-        //     yield break;
-        // }
 
-        // IsDialogueActive = true;
-        PlayerMovement.Instance.SetPause(true);
+        PlayerController.Instance.movement.SetPause(true);
         if (piece != null)
         {
             if (string.IsNullOrEmpty(piece.name) && piece.effects != null && piece.effects.Count > 0)
@@ -230,7 +224,6 @@ public class DialogueUI : MonoBehaviour
                     // 检查是否有前置条件
                     bool hasPreconditions = !string.IsNullOrEmpty(piece.prerequisites);
                     string[] preconditions = hasPreconditions ? piece.prerequisites.Split('|') : new string[0];
-                    Debug.Log("选项数量：" + piece.option.Count);
                     //Debug.Log($"所有选项内容: {string.Join("|", piece.option.Select(opt => $"'{opt}'"))}");
                     for (int i = 0; i < piece.option.Count; i++)
                     {
@@ -241,13 +234,11 @@ public class DialogueUI : MonoBehaviour
                         {
                             Debug.Log(preconditions[i]);
                             shouldShow = ConditionSystem.Check(preconditions[i]);
-                            Debug.Log("满足：" + shouldShow);
                         }
 
                         if (shouldShow)
                         {
                             Button optionButton = Instantiate(optionButtonPrefab, optionsPanel.transform);
-                            Debug.Log("选项+1：" + piece.option[i]);
                             // 设置图像为原始尺寸
                             optionButton.image.SetNativeSize();
                             optionButton.image.type = Image.Type.Sliced;
@@ -345,7 +336,7 @@ public class DialogueUI : MonoBehaviour
             if (piece.isfinalNotFirst == 1)
             {
                 StoryProgressManager.Instance.MarkStoryAsCompleted(piece.belongToCSVFileName);
-                PlayerMovement.Instance.SetPause(false);
+                PlayerController.Instance.movement.SetPause(false);
                 yield break;
             }
 
@@ -355,8 +346,7 @@ public class DialogueUI : MonoBehaviour
         {
             SetAllFalse();
             EventHandler.HaveOnFocusCamear();
-            PlayerMovement.Instance.SetPause(false);
-
+            PlayerController.Instance.movement.SetPause(false);
         }
     }
     public void SetAllFalse()

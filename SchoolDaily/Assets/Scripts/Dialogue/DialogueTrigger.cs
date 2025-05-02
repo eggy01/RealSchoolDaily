@@ -12,22 +12,25 @@ namespace SchoolD.Dialogue
             public string prerequisiteCondition;
             public bool isOnce = true;
             public int SkipIndex = 0;
+            public int dialogueID; // 新增：唯一对话ID
 
-            // 改进的持久化方案
             public bool HasTriggered
             {
                 get
                 {
-                    // 如果剧情已完成，则视为已触发
-                    if (StoryProgressManager.Instance.IsStoryCompleted(dialogueCSV.name))
-                        return true;
-
-                    return PlayerPrefs.GetInt($"DialogueTriggered_{dialogueCSV.name}", 0) == 1;
+                    // 三重检查机制
+                    return PlayerPrefs.GetInt($"DialogueTriggered_{dialogueID}", 0) == 1 ||
+                           StoryProgressManager.Instance.IsDialogueCompleted(dialogueID) ||
+                           DialogueManager.Instance.IsDialogueCompleted(dialogueID);
                 }
                 set
                 {
-                    PlayerPrefs.SetInt($"DialogueTriggered_{dialogueCSV.name}", value ? 1 : 0);
-                    PlayerPrefs.Save(); // 确保立即保存
+                    PlayerPrefs.SetInt($"DialogueTriggered_{dialogueID}", value ? 1 : 0);
+                    PlayerPrefs.Save();
+                    StoryProgressManager.Instance.MarkDialogueCompleted(dialogueID);
+#if UNITY_EDITOR
+                    Debug.Log($"标记对话{dialogueID}为已触发");
+#endif
                 }
             }
         }
@@ -35,31 +38,33 @@ namespace SchoolD.Dialogue
         [Header("基础设置")]
         public bool requireKeyPress = false;
         public List<DialogueOption> dialogueOptions = new List<DialogueOption>();
+
         private void Start()
         {
-            CheckAndRegisterDialogues();
             ResetTriggerStates();
+            // 移除ResetTriggerStates调用，只在需要时手动调用
+            CheckAndRegisterDialogues();
         }
 
         private void CheckAndRegisterDialogues()
         {
-            bool allCompleted = true;
+            bool shouldDestroy = true;
 
             foreach (var option in dialogueOptions)
             {
-                bool isCompleted = StoryProgressManager.Instance.IsStoryCompleted(option.dialogueCSV.name);
-                if (!isCompleted)
+                if (!option.HasTriggered)
                 {
-                    allCompleted = false;
-                    DialogueManager.Instance.RegisterDialogue(option.dialogueCSV);
+                    DialogueManager.Instance.RegisterDialogue(option.dialogueCSV, option.dialogueID);
+                    shouldDestroy = false;
                 }
             }
 
-            if (allCompleted)
+            if (shouldDestroy)
             {
                 Destroy(gameObject);
             }
         }
+
 
         private void OnTriggerEnter2D(Collider2D other)
         {
@@ -119,13 +124,10 @@ namespace SchoolD.Dialogue
             }
             else
             {
-                DialogueManager.Instance.TriggerDialogue(option.dialogueCSV.name);
+                DialogueManager.Instance.TriggerDialogue(option.dialogueCSV.name, option.dialogueID);
             }
 
-            // 标记为已触发
             option.HasTriggered = true;
-
-            // 立即检查是否所有对话都完成了
             CheckAllDialoguesCompleted();
         }
 

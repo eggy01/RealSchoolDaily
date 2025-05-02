@@ -13,6 +13,18 @@ public class PlayerMovement : MonoBehaviour
     {
         anim = GetComponent<Animator>();
     }
+    void OnEnable()
+    {
+        EventHandler.MoveToPositionEvent += moveToPosition;
+    }
+    void Disable()
+    {
+        EventHandler.MoveToPositionEvent -= moveToPosition;
+    }
+    void moveToPosition(Vector3 targetPosition)
+    {
+        transform.position = targetPosition;
+    }
 
     public void HandleMovement()
     {

@@ -5616,7 +5616,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!61 &1030870522
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -9744,7 +9744,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: f67e858574655144c9c02680bc1a73ba, type: 3}
-    prerequisiteCondition: 
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E57:00"
     isOnce: 1
     SkipIndex: 0
   - dialogueCSV: {fileID: 4900000, guid: 8d1d67398adcded499689ad900a3d20b, type: 3}
