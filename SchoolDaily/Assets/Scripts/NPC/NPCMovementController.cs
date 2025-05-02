@@ -8,6 +8,13 @@ using UnityEngine.Events;
 [RequireComponent(typeof(NPCScheduleData))]
 public class NPCMovementController : MonoBehaviour
 {
+    [Header("显示控制")]
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Collider2D npcCollider;
+    // 可以添加渐变效果
+    [SerializeField] private float fadeDuration = 0.5f;
+    private Coroutine fadeCoroutine;
+
     [Header("移动设置")]
     public float moveSpeed = 3f;
     public float pathUpdateThreshold = 0.1f;
@@ -66,6 +73,10 @@ public class NPCMovementController : MonoBehaviour
 
     void Start()
     {
+        // 确保获取组件引用
+        if (!spriteRenderer) spriteRenderer = GetComponent<SpriteRenderer>();
+        if (!npcCollider) npcCollider = GetComponent<Collider2D>();
+
         scheduleData = GetComponent<NPCScheduleData>();
         animator = GetComponent<Animator>();
 
@@ -78,7 +89,9 @@ public class NPCMovementController : MonoBehaviour
 
     private void CheckSchedule(int currentHour)
     {
-        // 强制传送检查
+        bool shouldShow = false;
+
+        // 强制传送检查（保留原有逻辑）
         if (useSpecialSchedule)
         {
             if (currentHour >= currentSpecialEntry.endHour)
@@ -90,54 +103,89 @@ public class NPCMovementController : MonoBehaviour
                 ForceFinalizeMovement(currentDailyEntry.targetPosition);
         }
 
-        // 正常日程检查
+        // 特殊日程检查
         var specialEntry = FindMatchingSpecialSchedule();
-        if (HandleSpecialSchedule(specialEntry, currentHour)) return;
-
-        bool isInSchedule = false;
-        foreach (var entry in scheduleData.dailySchedule)
+        if (specialEntry != null && currentHour >= specialEntry.startHour && currentHour < specialEntry.endHour)
         {
-            if (currentHour >= entry.startHour && currentHour < entry.endHour)
+            shouldShow = true;
+            if (!useSpecialSchedule || currentSpecialEntry != specialEntry)
             {
-                isInSchedule = true;
-                if (currentDailyEntry == null || entry.startHour != currentDailyEntry.startHour)
+                StopMovement();
+                transform.position = specialEntry.startPosition;
+                MoveTo(specialEntry.targetPosition);
+                currentSpecialEntry = specialEntry;
+                useSpecialSchedule = true;
+            }
+        }
+        else
+        {
+            // 日常日程检查
+            foreach (var entry in scheduleData.dailySchedule)
+            {
+                if (currentHour >= entry.startHour && currentHour < entry.endHour)
                 {
-                    StopMovement();
-                    transform.position = entry.startPosition;
-                    MoveTo(entry.targetPosition);
-                    currentDailyEntry = entry;
-                    useSpecialSchedule = false;
+                    shouldShow = true;
+                    if (currentDailyEntry == null || entry.startHour != currentDailyEntry.startHour)
+                    {
+                        StopMovement();
+                        transform.position = entry.startPosition;
+                        MoveTo(entry.targetPosition);
+                        currentDailyEntry = entry;
+                        useSpecialSchedule = false;
+                    }
+                    break;
                 }
-                return;
             }
         }
 
-        // 如果不在任何日程时间段内
-        if (!isInSchedule)
+        // 控制可见性（新增的核心逻辑）
+        SetNPCVisibility(shouldShow);
+
+        // 当需要显示时确保启用对象（安全措施）
+        if (shouldShow && !gameObject.activeSelf)
         {
-            StopMovement();
-            // 销毁NPC对象
-            Destroy(gameObject);
-            return;
+            gameObject.SetActive(true);
         }
-        StopMovement();
     }
+
+    private void SetNPCVisibility(bool visible)
+    {
+        // 删除直接设置 enabled 的代码，改由协程处理
+        if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
+        fadeCoroutine = StartCoroutine(FadeNPC(visible ? 1 : 0));
+
+        if (!visible) StopMovement();
+    }
+
+    private IEnumerator FadeNPC(float targetAlpha)
+    {
+        // 确保渲染器在渐变期间启用
+        spriteRenderer.enabled = true;
+        npcCollider.enabled = true;
+
+        float currentAlpha = spriteRenderer.color.a;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < fadeDuration)
+        {
+            float newAlpha = Mathf.Lerp(currentAlpha, targetAlpha, elapsedTime / fadeDuration);
+            spriteRenderer.color = new Color(1, 1, 1, newAlpha);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // 最终设置
+        spriteRenderer.color = new Color(1, 1, 1, targetAlpha);
+        spriteRenderer.enabled = targetAlpha > 0.1f;
+        npcCollider.enabled = targetAlpha > 0.1f;
+    }
+
     private void ForceFinalizeMovement(Vector2 targetPosition)
     {
         StopMovement();
         transform.position = targetPosition;
         animator.SetBool(movingAnimParam, false);
         OnReachedDestination?.Invoke();
-    }
-
-    private bool HandleSpecialSchedule(SpecialScheduleEntry entry, int currentHour)
-    {
-        if (entry != null && currentHour >= entry.startHour && currentHour < entry.endHour)
-        {
-            MoveTo(entry.targetPosition);
-            return true;
-        }
-        return false;
     }
 
     private SpecialScheduleEntry FindMatchingSpecialSchedule()
