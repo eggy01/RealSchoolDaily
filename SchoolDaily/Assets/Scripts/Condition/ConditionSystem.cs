@@ -109,14 +109,14 @@ public static class ConditionSystem
     }
 
     // 数据获取方法（需根据你的游戏系统实现）--------------------------
-    private static int GetFavorability(string npcName)
+    public static int GetFavorability(string npcName)
     {
         // 实际接入你的好感度系统
         return FavorabilityManager.Instance?.Get(npcName) ?? 0;
     }
 
     // 新增场景判断方法
-    private static int GetSceneIndex(string sceneName)
+    public static int GetSceneIndex(string sceneName)
     {
         // 方法1：使用场景名称判断
         return UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == sceneName ? 1 : 0;
@@ -131,7 +131,7 @@ public static class ConditionSystem
         return UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
     }
 
-    private static int GetTimeValue(string timeStr)
+    public static int GetTimeValue(string timeStr)
     {
         try
         {
@@ -152,7 +152,7 @@ public static class ConditionSystem
         }
     }
 
-    private static int CalculateTimeWeight(string timeStr)
+    public static int CalculateTimeWeight(string timeStr)
     {
         try
         {
