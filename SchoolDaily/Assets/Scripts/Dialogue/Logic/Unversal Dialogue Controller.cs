@@ -24,7 +24,7 @@ namespace SchoolD.Dialogue
         { }
         private void OnNewDialogueStarted(string newDialogueFileName)
         {
-            TextAsset nextCSV = DialogueCSVReader.LoadCSVFromResources(newDialogueFileName);
+            TextAsset nextCSV = DialogueLoader.Instance.LoadCSVFromResources(newDialogueFileName);
             if (nextCSV == null) return;
             dialogueList = DialogueCSVReader.Instance.LoadDialogueData(nextCSV);
             FillDialogueStack();
@@ -55,7 +55,7 @@ namespace SchoolD.Dialogue
         private void LoadNextDialogueByIndex(string indexStr, string dialogueID)
         {
             SkipIndex = true;
-            dialogueList = DialogueCSVReader.Instance.LoadDialogueData(DialogueCSVReader.LoadCSVFromResources(dialogueID));
+            dialogueList = DialogueCSVReader.Instance.LoadDialogueData(DialogueLoader.Instance.LoadCSVFromResources(dialogueID));
             Debug.Log($"LoadNextDialogueByIndex被调用，indexStr:{indexStr} 当前对话列表长度:{dialogueList.Count}");
             if (int.TryParse(indexStr, out int targetIndex))
             {

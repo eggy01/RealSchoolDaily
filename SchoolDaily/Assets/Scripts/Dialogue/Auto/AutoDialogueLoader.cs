@@ -18,6 +18,7 @@ public class AutoDialogueLoader : MonoBehaviour
     void Start()
     {
         currentDate = TimeManager.Instance.GetCurrentDateTime();
+        DialogueLoader.Instance.UpdateActiveFolder(DialogueLoader.Instance.ParseDateString(currentDate));
         ClearAllTriggers();
         LoadTriggersForCurrentDay(currentDate);
     }
@@ -33,12 +34,14 @@ public class AutoDialogueLoader : MonoBehaviour
 
     private void OnDateChangedHandler(string newDate)
     {
+        DialogueLoader.Instance.UpdateActiveFolder(DialogueLoader.Instance.ParseDateString(newDate));
         currentDate = newDate;
+
         ClearTimeLimitedTriggers();
         LoadTriggersForCurrentDay(currentDate);
     }
 
-    private void LoadTriggersForCurrentDay(string currentDate)
+    public void LoadTriggersForCurrentDay(string currentDate)
     {
 
         var lines = SimpleCSVParser.Parse(autoDialogueConfig);
@@ -66,7 +69,7 @@ public class AutoDialogueLoader : MonoBehaviour
     }
 
     // 只清理有时间限制的触发器
-    private void ClearTimeLimitedTriggers()
+    public void ClearTimeLimitedTriggers()
     {
         List<string> toRemove = new List<string>();
 
@@ -165,7 +168,7 @@ public class AutoDialogueLoader : MonoBehaviour
         try
         {
             bool isRepeatable = line["Type"] == "Repeatable";
-            var dialogueData = DialogueCSVReader.LoadCSVFromResources(line["DialogueFile"]);
+            var dialogueData = DialogueLoader.Instance.LoadCSVFromResources(line["DialogueFile"]);
 
             DialogueManager.Instance.RegisterAutoTrigger(
                 line["ID"],

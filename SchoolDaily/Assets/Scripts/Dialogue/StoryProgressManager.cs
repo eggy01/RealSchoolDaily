@@ -309,6 +309,18 @@ public class StoryProgressManager : MonoBehaviour
             }
         }
     }
+
+    public bool IsDialogueCompleted(int dialogueID)
+    {
+        return PlayerPrefs.GetInt($"DialogueCompleted_{dialogueID}", 0) == 1;
+    }
+
+    public void MarkDialogueCompleted(int dialogueID)
+    {
+        PlayerPrefs.SetInt($"DialogueCompleted_{dialogueID}", 1);
+        PlayerPrefs.Save();
+    }
+
     // 打印剧情进度和解锁条件到控制台
     public void PrintStoryProgress()
     {

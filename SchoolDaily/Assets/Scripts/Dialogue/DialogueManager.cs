@@ -27,17 +27,6 @@ namespace SchoolD.Dialogue
             Instance = this;
         }
 
-        // 修改后的注册方法（增加shouldMarkComplete参数）
-        // // 常规对话（完成后会标记）
-        // DialogueManager.Instance.RegisterDialogue(normalDialogueCSV);
-
-        // // 特殊对话（不标记完成）
-        // DialogueManager.Instance.RegisterDialogue(
-        //     specialDialogueCSV, 
-        //     shouldMarkComplete: false,
-        //     dialogueID: "RepeatableDialogue"
-        // );
-
         public void RegisterDialogue(TextAsset csvFile, bool shouldMarkComplete = true, string dialogueID = "")
         {
             string id = string.IsNullOrEmpty(dialogueID) ? csvFile.name : dialogueID;
@@ -59,20 +48,22 @@ namespace SchoolD.Dialogue
             RegisterDialogue(csv, shouldMarkComplete, id);
         }
 
-        public void TriggerDialogue(string dialogueID)
+        public void TriggerDialogue(string dialoguename, int dialogueID = -1)
         {
             if (Time.time < lastDialogueTime + dialogueCooldown) return;
-            if (dialogueID == currentDialogueID) return;
+            if (dialoguename == currentDialogueID) return;
+            if (dialogueID != -1)
+                completedDialogues[dialogueID] = true;
 
-            if (registeredDialogue.TryGetValue(dialogueID, out DialogueInfo info))
+            if (registeredDialogue.TryGetValue(dialoguename, out DialogueInfo info))
             {
-                StartCoroutine(DialogueRoutine(info.csvFile, dialogueID, info.shouldMarkComplete));
+                StartCoroutine(DialogueRoutine(info.csvFile, dialoguename, info.shouldMarkComplete));
                 lastDialogueTime = Time.time;
-                currentDialogueID = dialogueID;
+                currentDialogueID = dialoguename;
             }
             else
             {
-                Debug.LogWarning($"未注册的对话ID: {dialogueID}");
+                Debug.LogWarning($"未注册的对话ID: {dialoguename}");
             }
         }
 
@@ -112,5 +103,21 @@ namespace SchoolD.Dialogue
 
             currentDialogueID = null;
         }
+
+        private Dictionary<int, bool> completedDialogues = new Dictionary<int, bool>();
+
+        public void RegisterDialogue(TextAsset csv, int dialogueID)
+        {
+            if (!completedDialogues.ContainsKey(dialogueID))
+            {
+                completedDialogues[dialogueID] = false;
+            }
+        }
+
+        public bool IsDialogueCompleted(int dialogueID)
+        {
+            return completedDialogues.TryGetValue(dialogueID, out bool completed) && completed;
+        }
+
     }
 }

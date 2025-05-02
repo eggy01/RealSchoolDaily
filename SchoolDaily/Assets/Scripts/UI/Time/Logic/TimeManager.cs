@@ -83,7 +83,7 @@ public class TimeManager : MonoBehaviour
         // 直接从9月1日(周四)开始
         gameYear = 1;
         gameMonth = 9;
-        gameDay = 1;
+        gameDay = 3;
         gameWeekDay = 4; // 周一
         gameMinute = 0;
         gameHour = 7;
@@ -426,6 +426,7 @@ public class TimeManager : MonoBehaviour
     // 添加获取完整日期时间的方法
     public string GetCurrentDateTime()
     {
+        Debug.LogWarning("TimeManager" + gameMonth + gameDay);
         return (gameMonth + "月" + gameDay + "日");
     }
     public DateTime GetCurrentDate()

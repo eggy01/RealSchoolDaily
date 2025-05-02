@@ -133,41 +133,6 @@ public class DialogueCSVReader : MonoBehaviour
             if (fields.Length > 8 && !fields[7].Equals(string.Empty))
             {
                 piece.effects = DialogueEffectExecutor.Instance.ParseSubEffects(fields[7]);
-                // // 支持多种效果组合，用 | 分隔
-                // string[] effects = fields[7].Split('|');
-
-                // foreach (string effect in effects)
-                // {
-                //     DialogueEffect de = new DialogueEffect();
-
-                //     if (effect.StartsWith("黑屏"))
-                //     {
-                //         de.type = EffectType.BlackScreen;
-                //         // 支持带参数：黑屏,2.0（2秒持续时间）
-                //         if (effect.Contains("，"))
-                //         {
-                //             string[] parts = effect.Split('，');
-                //             de.parameters = parts[0].Replace("黑屏", "");
-
-                //             if (float.TryParse(parts[1], out float dur))
-                //                 de.duration = dur;
-                //             // if (string.IsNullOrEmpty(parts[2]))
-                //             //     de.showText = parts[2].Replace("显示文本=", "");
-                //         }
-                //     }
-                //     else if (effect.StartsWith("跳转时间:"))
-                //     {
-                //         de.type = EffectType.TimeSkip;
-                //         de.parameters = effect.Replace("跳转时间:", "");
-                //     }
-                //     else if (effect.StartsWith("场景切换:"))
-                //     {
-                //         de.type = EffectType.SceneTransition;
-                //         de.parameters = effect.Replace("场景切换:", "");
-                //     }
-                //     Debug.Log("效果+1");
-
-                //     piece.effects.Add(de);
             }
 
 
@@ -255,12 +220,12 @@ public class DialogueCSVReader : MonoBehaviour
         return fields.ToArray();
     }
 
-    public static TextAsset LoadCSVFromResources(string fileName)
-    {
-        if (string.IsNullOrEmpty(fileName)) return null;
+    // public static TextAsset LoadCSVFromResources(string fileName)
+    // {
+    //     if (string.IsNullOrEmpty(fileName)) return null;
 
-        TextAsset csv = Resources.Load<TextAsset>($"DialogueCSV/{fileName}");
-        if (csv == null) Debug.LogError($"CSV文件加载失败: {fileName}");
-        return csv;
-    }
+    //     TextAsset csv = Resources.Load<TextAsset>($"DialogueCSV/{fileName}");
+    //     if (csv == null) Debug.LogError($"CSV文件加载失败: {fileName}");
+    //     return csv;
+    // }
 }
