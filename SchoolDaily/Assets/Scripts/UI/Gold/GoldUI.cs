@@ -13,15 +13,15 @@ public class GoldUI : MonoBehaviour
 
     void Start()
     {
-        GoldManager.Instance.OnGoldUpdated.AddListener(UpdateGoldDisplay);
-        UpdateGoldDisplay(GoldManager.Instance.CurrentGold);
+        PlayerInformation.Instance.OnGoldUpdated.AddListener(UpdateGoldDisplay);
+        UpdateGoldDisplay(PlayerInformation.Instance.CurrentGold);
     }
 
     void OnDestroy()
     {
-        if (GoldManager.Instance != null)
+        if (PlayerInformation.Instance != null)
         {
-            GoldManager.Instance.OnGoldUpdated.RemoveListener(UpdateGoldDisplay);
+            PlayerInformation.Instance.OnGoldUpdated.RemoveListener(UpdateGoldDisplay);
         }
     }
 

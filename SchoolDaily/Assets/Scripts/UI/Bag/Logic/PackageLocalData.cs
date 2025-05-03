@@ -22,6 +22,7 @@ public class PackageLocalData
     public List<PackageLocalItem> items = new List<PackageLocalItem>(); // 直接初始化
     public static UnityEvent onInventoryChanged = new UnityEvent();
     private static PackageLocalData _instance;
+    public int MaxCapacity = 6400; // 初始背包容量
 
     public static PackageLocalData Instance
     {
@@ -60,6 +61,7 @@ public class PackageLocalData
     {
         string inventoryJson = JsonUtility.ToJson(this);
         PlayerPrefs.SetString("PackageLocalData", inventoryJson);
+        PlayerPrefs.SetInt("MaxCapacity", MaxCapacity); // 存储背包容量
         PlayerPrefs.Save();
     }
 
@@ -72,6 +74,12 @@ public class PackageLocalData
             string inventoryJson = PlayerPrefs.GetString("PackageLocalData");
             PackageLocalData packageLocalData = JsonUtility.FromJson<PackageLocalData>(inventoryJson);
             items = packageLocalData.items ?? new List<PackageLocalItem>(); // 空值保护
+
+            // 加载背包容量
+            if (PlayerPrefs.HasKey("MaxCapacity"))
+            {
+                MaxCapacity = PlayerPrefs.GetInt("MaxCapacity");
+            }
         }
         else
         {
@@ -81,9 +89,31 @@ public class PackageLocalData
         return items;
     }
 
-    // 添加物品到背包
-    public void AddItem(string itemID, int amount = 1)
+    // 计算当前已用容量
+    public int CalculateTotalUsed()
     {
+        int total = 0;
+        foreach (var item in items)
+        {
+            ItemData data = InventoryManager.Instance.GetItemByID(item.ID);
+            if (data != null) total += item.Num * data.Size;
+        }
+        return total;
+    }
+
+    // 添加物品到背包
+    public bool AddItem(string itemID, int amount = 1)
+    {
+        ItemData itemData = InventoryManager.Instance.GetItemByID(itemID);
+        if (itemData == null) return false;
+
+        int addedSize = itemData.Size * amount;
+        if (CalculateTotalUsed() + addedSize > MaxCapacity)
+        {
+            Debug.Log("背包容量不足！");
+            return false;
+        }
+
         var existingItem = items.Find(i => i.ID == itemID);
         if (existingItem != null)
         {
@@ -100,6 +130,7 @@ public class PackageLocalData
         }
         SavePackage();
         onInventoryChanged.Invoke(); // 触发全局事件
+        return true;
     }
 
     // 从背包移除物品
