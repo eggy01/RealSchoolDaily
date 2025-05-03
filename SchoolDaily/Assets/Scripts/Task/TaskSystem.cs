@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.IO;
 
 namespace SchoolD.Task
 {
@@ -46,6 +47,13 @@ namespace SchoolD.Task
         private Dictionary<string, Task> taskDict = new Dictionary<string, Task>();//存所有的任务，pid:task
         private Dictionary<string, List<Task>> parentChildMap = new Dictionary<string, List<Task>>();//parent PID:task
         public TextAsset taskCsvFile;
+
+        [System.Serializable]//存档
+        private class TaskSaveData
+        {
+            public List<Task> savedTasks = new List<Task>();
+        }
+
         private void Awake()
         {
             Instance = this;
@@ -62,43 +70,8 @@ namespace SchoolD.Task
 
         private void Initialize()
         {
-            LoadTasksFromCSV(taskCsvFile);
-            //     // 示例数据 - 实际应从CSV/JSON加载
-            //     allTasks = new List<Task>
-            // {
-            //     // 父任务
-            //     new Task {
-            //         PID = "0001",
-            //         parentPID = "",
-            //         location = "寝室",
-            //         title = "开学日",
-            //         description = "开学第一天的系列任务",
-            //         time = "9月3日",
-            //         state = TaskState.Suspended
-            //     },
-            //     // 子任务
-            //     new Task {
-            //         PID = "000101",
-            //         parentPID = "0001",
-            //         location = "寝室",
-            //         title = "开学日-1",
-            //         description = "今天是开学第一天。",
-            //         time = "9月3日 8:00",
-            //         state = TaskState.Active
-            //     },
-            //     new Task {
-            //         PID = "000102",
-            //         parentPID = "0001",
-            //         location = "寝室",
-            //         title = "开学日-2",
-            //         description = "林风好感度+5。林风的课本不见了，帮她找找吧。",
-            //         time = "9月3日 10:00",
-            //         state = TaskState.Active
-            //     }
-            // };
+            LoadTasks();
 
-            //     // 建立索引
-            //     RebuildDictionaries();
         }
 
         private void RebuildDictionaries()
@@ -193,6 +166,7 @@ namespace SchoolD.Task
 
                     // 更新父任务状态为已挂起
                     UpdateParentTaskState(task.parentPID, true);
+                    SaveTasks(); // 新增
                 }
                 else
                 {
@@ -218,6 +192,7 @@ namespace SchoolD.Task
 
                     TipController.Instance.ShowTaskTip(false);
                     //EventHandler.CallUpdateTaskUI(pid);
+                    SaveTasks(); // 新增
                 }
                 else
                 {
@@ -454,5 +429,36 @@ namespace SchoolD.Task
             }
         }
 
+        //存档
+        private string savePath => Path.Combine(Application.persistentDataPath, "tasksave.dat");
+
+        public void SaveTasks()
+        {
+            TaskSaveData data = new TaskSaveData();
+            data.savedTasks = new List<Task>(allTasks);
+
+            string json = JsonUtility.ToJson(data);
+            File.WriteAllText(savePath, json);
+        }
+
+        public void LoadTasks()
+        {
+            if (File.Exists(savePath))
+            {
+                string json = File.ReadAllText(savePath);
+                TaskSaveData data = JsonUtility.FromJson<TaskSaveData>(json);
+                allTasks = new List<Task>(data.savedTasks);
+                RebuildDictionaries();
+            }
+            else
+            {
+                LoadTasksFromCSV(taskCsvFile); // 如果没有存档，从CSV初始化
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            SaveTasks();
+        }
     }
 }

@@ -76,10 +76,24 @@ public class DialogueUI : MonoBehaviour
 
     private IEnumerator ShowDialogue(DialoguePiece piece)
     {
+        Debug.Log("处理剧情");
 
         PlayerController.Instance.movement.SetPause(true);
         if (piece != null)
         {
+            Debug.Log("地点" + piece.Loaction);
+            // 检查是否是手机屏幕消息
+            if (!string.IsNullOrEmpty(piece.Loaction) && piece.Loaction.Contains("手机屏幕"))
+            {
+                Debug.Log("手机屏幕");
+                // 显示手机聊天弹窗
+                yield return ChatSystem.Instance.ShowPhoneMessage(piece);
+
+                piece.isDone = true;
+                continueButton.gameObject.SetActive(piece.hasToPause && piece.isDone);
+                yield break;
+            }
+
             if (string.IsNullOrEmpty(piece.name) && piece.effects != null && piece.effects.Count > 0)
             {
                 {//处理效果：黑屏，场景跳转，时间跳转
@@ -89,6 +103,7 @@ public class DialogueUI : MonoBehaviour
             }
             else
             {
+                Debug.Log("处理普通剧情");
                 piece.hasToPause = true;
                 piece.isDone = false;
                 dialogueText.text = "";
@@ -333,6 +348,7 @@ public class DialogueUI : MonoBehaviour
                 }
             }
             piece.isDone = true;
+
             if (piece.isfinalNotFirst == 1)
             {
                 StoryProgressManager.Instance.MarkStoryAsCompleted(piece.belongToCSVFileName);
@@ -348,6 +364,12 @@ public class DialogueUI : MonoBehaviour
             EventHandler.HaveOnFocusCamear();
             PlayerController.Instance.movement.SetPause(false);
         }
+    }
+
+    //手机屏幕显示
+    void ShowNQChart()
+    {
+
     }
     public void SetAllFalse()
     {
@@ -484,27 +506,6 @@ public class DialogueUI : MonoBehaviour
 
     private bool ProcessOption(int optionIndex, List<string> options)
     {
-        // 新增：检查是否需要记录成就进度
-        if (!string.IsNullOrEmpty(currentPiece.Achieve))
-        {
-            Debug.Log("有成就");
-            string[] achievementInfo = currentPiece.Achieve.Split('，');
-            if (achievementInfo.Length >= 2)
-            {
-                string achievementID = achievementInfo[0].Trim();
-                int requiredCount = int.Parse(achievementInfo[1].Trim());
-
-                // 增加成就进度
-                AchievementSystem.Instance.IncrementAchievementProgress(achievementID);
-
-                // 检查是否达成成就
-                if (AchievementSystem.Instance.CheckAchievement(achievementID, requiredCount))
-                {
-                    AchievementSystem.Instance.UnlockAchievement(achievementID);
-                    return true;
-                }
-            }
-        }
         if (string.IsNullOrEmpty(currentPiece.nextIndex))
         {
             dialogueText.text = options[optionIndex];
@@ -541,5 +542,4 @@ public class DialogueUI : MonoBehaviour
         }
 
     }
-
 }

@@ -18,7 +18,7 @@ namespace SchoolD.Dialogue
         private string CurrentcsvFileName;//当前剧情文件的名字
 
         public bool hasActiveDialogue = false;//是否存在激活剧情
-        public bool SkipIndex;
+        public int SkipIndex = -1;
 
         private void Awake()
         { }
@@ -54,13 +54,14 @@ namespace SchoolD.Dialogue
         // 通过索引跳转
         private void LoadNextDialogueByIndex(string indexStr, string dialogueID)
         {
-            SkipIndex = true;
+
             dialogueList = DialogueCSVReader.Instance.LoadDialogueData(DialogueLoader.Instance.LoadCSVFromResources(dialogueID));
             Debug.Log($"LoadNextDialogueByIndex被调用，indexStr:{indexStr} 当前对话列表长度:{dialogueList.Count}");
             if (int.TryParse(indexStr, out int targetIndex))
             {
                 if (targetIndex == -1)//跳转序号为-1时，关闭对话
                     EventHandler.CallShowDialogueEvent(null);
+                SkipIndex = targetIndex;
                 // 1. 找到所有匹配的对话片段
                 var matchedPieces = dialogueList.FindAll(p => p.index == targetIndex);
 
@@ -133,13 +134,17 @@ namespace SchoolD.Dialogue
             dialogueList.Clear();
             dialogueStack.Clear();
             Debug.Log("Skip" + SkipIndex);
-            if (!SkipIndex)
+            if (SkipIndex == -1)
             {
                 StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);
             }
+            else
+            {
+                StoryProgressManager.Instance.MarkDialogueLineCompleted(CurrentcsvFileName, SkipIndex);
+            }
 
             hasActiveDialogue = false;
-            SkipIndex = false; // 重置标志
+            SkipIndex = -1; // 重置标志
         }
         private void FillDialogueStack()
         {

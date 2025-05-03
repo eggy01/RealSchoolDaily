@@ -107,7 +107,7 @@ public class DialogueEffectExecutor : MonoBehaviour
         if (isFadeIn)
         {
             // 黑屏淡入
-            BlackScreenManager.Instance.TransionBlackScreenSortOrder(100);
+            BlackScreenManager.Instance.TransionBlackScreenSortOrder(1000);
             yield return BlackScreenManager.Instance.FadeIn(effect.duration, false);
 
             // 隐藏所有UI
@@ -151,14 +151,13 @@ public class DialogueEffectExecutor : MonoBehaviour
         {
             yield return null;
         }
-
     }
 
     private IEnumerator ExecuteShowText(DialogueEffect effect)
     {
         // 在黑屏状态下显示文本
         // 使用 yield return 等待动画完成
-        yield return BlackScreenManager.Instance.AnimateText(effect.parameters, 1f);
+        yield return BlackScreenManager.Instance.AnimateText(effect.parameters);
 
         // 等待文本显示完成（假设每个字符显示0.05秒）
         float displayTime = effect.parameters.Length * 0.05f + 1f; // 额外5秒阅读时间
@@ -167,12 +166,12 @@ public class DialogueEffectExecutor : MonoBehaviour
         Debug.Log($"文本显示完成: {effect.parameters}");
     }
 
-    // private IEnumerator ExecuteRandomEvent(DialogueEffect effect)
-    // {
-    //     Debug.Log("触发随机事件");
-    //     RandomEventSystem.Instance.TriggerEvent(effect.parameters);
-    //     yield return null;
-    // }
+    private IEnumerator ExecuteRandomEvent(DialogueEffect effect)
+    {
+        Debug.Log("触发随机事件");
+        RandomEventSystem.Instance.TriggerEvent(effect.parameters);
+        yield return null;
+    }
 
     private IEnumerator ExecuteMultipleEffects(DialogueEffect effect)
     {

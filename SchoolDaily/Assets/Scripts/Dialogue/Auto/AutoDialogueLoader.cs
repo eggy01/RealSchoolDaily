@@ -169,12 +169,13 @@ public class AutoDialogueLoader : MonoBehaviour
         {
             bool isRepeatable = line["Type"] == "Repeatable";
             var dialogueData = DialogueLoader.Instance.LoadCSVFromResources(line["DialogueFile"]);
+            if (dialogueData)
 
-            DialogueManager.Instance.RegisterAutoTrigger(
-                line["ID"],
-                dialogueData,
-                shouldMarkComplete: !isRepeatable
-            );
+                DialogueManager.Instance.RegisterAutoTrigger(
+                    line["ID"],
+                    dialogueData,
+                    shouldMarkComplete: !isRepeatable
+                );
 
             if (showFilterLogs)
                 Debug.Log($"已加载剧情 [{line["ID"]}]，文件: {line["DialogueFile"]}，类型: {(isRepeatable ? "可重复" : "一次性")}");

@@ -14,6 +14,11 @@ public class BlackScreenManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        if (blackScreenCanvasGroup == null)
+        {
+            blackScreenCanvasGroup = GetComponent<CanvasGroup>();
+            Debug.LogError("未分配blackScreenCanvasGroup，已自动获取");
+        }
     }
     public void SetText(string str)
     {
@@ -82,11 +87,11 @@ public class BlackScreenManager : MonoBehaviour
             textElement.gameObject.SetActive(show);
     }
 
-    public IEnumerator AnimateText(string text, float duration)
+    public IEnumerator AnimateText(string text)
     {
         SetTextVisibility(true);
-        Debug.Log("打字机输出");
-        float lettersPerSecond = text.Length / duration;
+
+        float lettersPerSecond = text.Length / 0.5f;
 
         for (int i = 0; i <= text.Length; i++)
         {
@@ -100,7 +105,9 @@ public class BlackScreenManager : MonoBehaviour
             textElement.text = text.Substring(0, i);
             yield return new WaitForSeconds(1f / lettersPerSecond);
         }
-        yield return new WaitForSeconds(3f);
+
+        // 短暂停留后隐藏
+        yield return new WaitForSeconds(0.5f);
         SetTextVisibility(false);
     }
 }

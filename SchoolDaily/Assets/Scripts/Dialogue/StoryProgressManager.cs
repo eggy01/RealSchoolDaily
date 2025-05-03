@@ -44,6 +44,7 @@ public class StoryProgressManager : MonoBehaviour
         public Dictionary<string, bool> progressDict;
         public Dictionary<string, string> unlockConditions;
         public Dictionary<string, string> timeLimits;
+        public Dictionary<string, bool> dialogueLineProgress;  // 新增：对话行标记（键格式："文件名_行
     }
 
     // 确保只有一个实例
@@ -170,6 +171,54 @@ public class StoryProgressManager : MonoBehaviour
         }
     }
 
+    // public void SaveProgress()
+    // {
+    //     try
+    //     {
+    //         BinaryFormatter formatter = new BinaryFormatter();
+    //         using (FileStream stream = new FileStream(saveFilePath, FileMode.Create))
+    //         {
+    //             SaveData data = new SaveData
+    //             {
+    //                 progressDict = storyProgressDict,
+    //                 unlockConditions = storyUnlockConditions,
+    //                 timeLimits = storyTimeLimits
+    //             };
+    //             formatter.Serialize(stream, data);
+    //         }
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         Debug.LogError($"存档失败: {e.Message}");
+    //     }
+    // }
+    // public bool LoadProgress()
+    // {
+    //     if (!File.Exists(saveFilePath)) return false;
+
+    //     try
+    //     {
+    //         BinaryFormatter formatter = new BinaryFormatter();
+    //         using (FileStream stream = new FileStream(saveFilePath, FileMode.Open))
+    //         {
+    //             SaveData data = formatter.Deserialize(stream) as SaveData;
+    //             if (data != null)
+    //             {
+    //                 storyProgressDict = data.progressDict ?? new Dictionary<string, bool>();
+    //                 storyUnlockConditions = data.unlockConditions ?? new Dictionary<string, string>();
+    //                 storyTimeLimits = data.timeLimits ?? new Dictionary<string, string>();
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         Debug.LogError($"读档失败: {e.Message}");
+    //         return false;
+    //     }
+    //     return false;
+    // }
+
     public void SaveProgress()
     {
         try
@@ -181,7 +230,8 @@ public class StoryProgressManager : MonoBehaviour
                 {
                     progressDict = storyProgressDict,
                     unlockConditions = storyUnlockConditions,
-                    timeLimits = storyTimeLimits
+                    timeLimits = storyTimeLimits,
+                    dialogueLineProgress = dialogueLineProgress // 新增
                 };
                 formatter.Serialize(stream, data);
             }
@@ -207,6 +257,7 @@ public class StoryProgressManager : MonoBehaviour
                     storyProgressDict = data.progressDict ?? new Dictionary<string, bool>();
                     storyUnlockConditions = data.unlockConditions ?? new Dictionary<string, string>();
                     storyTimeLimits = data.timeLimits ?? new Dictionary<string, string>();
+                    dialogueLineProgress = data.dialogueLineProgress ?? new Dictionary<string, bool>(); // 新增
                     return true;
                 }
             }
@@ -214,10 +265,10 @@ public class StoryProgressManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"读档失败: {e.Message}");
-            return false;
         }
         return false;
     }
+
 
     // 更新UI显示的剧情进度和解锁条件
     public void UpdateStoryProgressUI()
@@ -337,10 +388,47 @@ public class StoryProgressManager : MonoBehaviour
         }
     }
 
-    // 保存进度到文件
+    // 存储对话行完成状态的字典
+    private Dictionary<string, bool> dialogueLineProgress = new Dictionary<string, bool>();
 
+    // 生成对话行的唯一键（格式：文件名_行号）
+    private string GetDialogueLineKey(string storyFileName, int lineNumber)
+    {
+        return $"{storyFileName}_{lineNumber}";
+    }
 
-    // 从文件加载进度
+    // 检查某行是否已完成
+    public bool IsDialogueLineCompleted(string storyFileName, int lineNumber)
+    {
+        string key = GetDialogueLineKey(storyFileName, lineNumber);
+        return dialogueLineProgress.TryGetValue(key, out bool completed) && completed;
+    }
+
+    // 标记某行为已完成
+    public void MarkDialogueLineCompleted(string storyFileName, int lineNumber)
+    {
+        string key = GetDialogueLineKey(storyFileName, lineNumber);
+        dialogueLineProgress[key] = true;
+        SaveProgress(); // 自动保存到二进制文件
+
+#if UNITY_EDITOR
+        Debug.Log($"标记对话行完成: {key}");
+#endif
+    }
+
+    // 重置某文件的所有行标记
+    public void ResetDialogueLines(string storyFileName)
+    {
+        var keysToRemove = dialogueLineProgress.Keys
+            .Where(k => k.StartsWith(storyFileName + "_"))
+            .ToList();
+
+        foreach (var key in keysToRemove)
+        {
+            dialogueLineProgress.Remove(key);
+        }
+        SaveProgress();
+    }
 
 
     // 删除存档(用于测试)

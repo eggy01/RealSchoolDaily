@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using SchoolD.Dialogue;
 using System;
+using System.Text.RegularExpressions;
 public class DialogueCSVReader : MonoBehaviour
 {
     public static DialogueCSVReader Instance { get; private set; }
@@ -17,6 +18,11 @@ public class DialogueCSVReader : MonoBehaviour
     {
         Instance = this;
         InitalSpriteDict();
+    }
+    void Start()
+    {
+        Debug.Log($"Start() 被调用，调用者: {gameObject.name}", this);
+        Debug.Log($"字典初始化完成，包含{spriteDict.Count}个角色");
     }
 
     // 初始化头像字典
@@ -69,18 +75,18 @@ public class DialogueCSVReader : MonoBehaviour
 
             piece.name = fields[2].Trim();
 
-
+            if (!string.IsNullOrEmpty(fields[2]) && fields[2].Contains("手机屏幕"))
+            {
+                piece.Loaction = "手机屏幕";
+                //piece.name = Regex.Replace(fields[2], @"手机屏幕|（[^）]*）", ""); ;//提取名字
+            }
 
 
             if (spriteDict.TryGetValue(piece.name, out Sprite sprite))
             {
                 piece.faceImage = sprite;
             }
-            else if (piece.name == "???" || piece.name.Equals("男主持人") || piece.name.Equals("女主持人"))
-            {
-                piece.faceImage = spriteDict["默认2"];
-            }
-            else if (piece.name.Equals("负责分发图书的学生"))
+            else if (piece.name.Equals("负责分发图书的学生") || piece.name.Equals("女主持人"))
             {
                 piece.faceImage = spriteDict["女学生"];
             }

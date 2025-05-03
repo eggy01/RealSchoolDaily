@@ -12,9 +12,7 @@ public class SceneLightController : MonoBehaviour
     public class LightGroup
     {
         public string groupName;
-        [Tooltip("留空将自动查找当前场景的灯光父对象")]
-        public Transform manualLightParent;
-        public float fadeDuration = 2f;
+        public float fadeDuration = 1f;
 
         [NonSerialized] public List<Light2D> lights = new List<Light2D>();
         [NonSerialized] public bool isOn;
@@ -23,25 +21,31 @@ public class SceneLightController : MonoBehaviour
     [Header("灯光配置")]
     public List<LightGroup> lightGroups = new List<LightGroup>();
 
-    [Header("持久场景灯光")]
-    public List<Light2D> persistentLights = new List<Light2D>();
-
     [Header("设置")]
-    public float checkInterval = 0.5f;
+    public float checkInterval = 0.3f;
+    public float activationRadius = 20f;
 
-    private Scene currentActiveScene;
+    private Dictionary<Light2D, bool> lightPool = new Dictionary<Light2D, bool>();
+    private List<Light2D> activeLights = new List<Light2D>();
+    private Transform playerTransform;
     private Coroutine checkCoroutine;
 
     private void Awake()
     {
-        currentActiveScene = SceneManager.GetActiveScene();
+        // 单例模式
+        if (FindObjectsOfType<SceneLightController>().Length > 1)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        DontDestroyOnLoad(gameObject);
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
     }
 
     private void Start()
     {
-        RefreshSceneLights();
-        StartLightCheck();
+        InitializeSystem();
     }
 
     private void OnDestroy()
@@ -49,111 +53,117 @@ public class SceneLightController : MonoBehaviour
         SceneManager.activeSceneChanged -= OnActiveSceneChanged;
     }
 
-    private void OnActiveSceneChanged(Scene oldScene, Scene newScene)
+    private void InitializeSystem()
     {
-        currentActiveScene = newScene;
+        FindPlayer();
         RefreshSceneLights();
+        InitializeLightPool();
+        StartLightCheck();
     }
 
-    public void RefreshSceneLights()
+    private void FindPlayer()
     {
-        // 1. 清理持久场景灯光中的无效引用
-        persistentLights = persistentLights.Where(light => light != null).ToList();
+        playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
+        if (playerTransform == null)
+        {
+            Debug.LogWarning("未找到玩家对象，将使用默认位置");
+            playerTransform = transform; // 使用控制器自身作为回退位置
+        }
+    }
 
-        // 2. 处理动态场景灯光
+    private void OnActiveSceneChanged(Scene oldScene, Scene newScene)
+    {
+        // 延迟处理以确保SceneLightAnchor已完成注册
+        StartCoroutine(DelayedSceneChange());
+    }
+
+    private IEnumerator DelayedSceneChange()
+    {
+        yield return null; // 等待一帧
+        InitializeSystem();
+    }
+
+    private void RefreshSceneLights()
+    {
+        // 归还所有当前激活的灯光
+        ReturnAllLightsToPool();
+
+        // 收集新场景的灯光
         foreach (var group in lightGroups)
         {
             group.lights.Clear();
 
-            Transform lightParent = group.manualLightParent;
+            // 通过SceneLightManager获取灯光父对象
+            Transform lightParent = SceneLightManager.Instance?.GetLightParentForScene(SceneManager.GetActiveScene().name);
 
-            // 自动查找逻辑
-            if (lightParent == null && SceneLightManager.Instance != null)
-            {
-                lightParent = SceneLightManager.Instance.GetLightParentForScene(currentActiveScene.name);
-            }
-
-            if (lightParent != null && lightParent.gameObject.scene == currentActiveScene)
+            if (lightParent != null)
             {
                 group.lights = lightParent.GetComponentsInChildren<Light2D>(true)
                     .Where(light => light != null)
                     .ToList();
 
-                Debug.Log($"收集到 {currentActiveScene.name} 的 {group.groupName} 灯光: {group.lights.Count}个",
-                    lightParent);
+                Debug.Log($"收集到 {SceneManager.GetActiveScene().name} 的 {group.groupName} 灯光: {group.lights.Count}个");
             }
         }
     }
 
-    public void SetAllLights(bool turnOn)
+    private void InitializeLightPool()
     {
-        // 控制持久场景灯光
-        SetLightsImmediate(persistentLights, turnOn);
+        lightPool.Clear();
 
-        // 控制当前场景灯光
         foreach (var group in lightGroups)
         {
-            if (group.lights.Count > 0)
-            {
-                StartCoroutine(FadeLightGroup(group, turnOn));
-            }
-        }
-    }
-
-    private IEnumerator FadeLightGroup(LightGroup group, bool fadeIn)
-    {
-        group.lights = group.lights.Where(light => light != null).ToList();
-        group.isOn = fadeIn;
-
-        float end = fadeIn ? 0 : 1;
-        float start = fadeIn ? 1 : 0;
-        float timer = 0;
-
-        // 初始化状态
-        foreach (var light in group.lights)
-        {
-            if (light != null)
-            {
-                light.gameObject.SetActive(true);
-                light.intensity = start;
-            }
-        }
-
-        // 淡入淡出
-        while (timer < group.fadeDuration)
-        {
-            timer += Time.deltaTime;
-            float t = Mathf.Clamp01(timer / group.fadeDuration);
-
             foreach (var light in group.lights)
             {
-                if (light != null)
+                if (!lightPool.ContainsKey(light))
                 {
-                    light.intensity = Mathf.Lerp(start, end, t);
-                }
-            }
-            yield return null;
-        }
-
-        // 淡出时禁用灯光
-        if (!fadeIn)
-        {
-            foreach (var light in group.lights)
-            {
-                if (light != null)
-                {
+                    lightPool.Add(light, false);
                     light.gameObject.SetActive(false);
                 }
             }
         }
     }
 
-    private void SetLightsImmediate(List<Light2D> lights, bool on)
+    private Light2D GetPooledLight(Vector2 position)
     {
-        foreach (var light in lights.Where(light => light != null))
+        var availableLight = lightPool.FirstOrDefault(x => !x.Value).Key;
+        if (availableLight != null)
         {
-            light.intensity = on ? 1 : 0;
-            light.gameObject.SetActive(on);
+            lightPool[availableLight] = true;
+            availableLight.transform.position = position;
+            availableLight.gameObject.SetActive(true);
+            return availableLight;
+        }
+        return null;
+    }
+
+    private void ReturnLightToPool(Light2D light)
+    {
+        if (light != null && lightPool.ContainsKey(light))
+        {
+            lightPool[light] = false;
+            light.gameObject.SetActive(false);
+        }
+    }
+
+    private void ReturnAllLightsToPool()
+    {
+        foreach (var light in activeLights)
+        {
+            ReturnLightToPool(light);
+        }
+        activeLights.Clear();
+    }
+
+    public void SetAllLights(bool turnOn)
+    {
+        if (turnOn)
+        {
+            UpdateActiveLightsAroundPlayer();
+        }
+        else
+        {
+            ReturnAllLightsToPool();
         }
     }
 
@@ -171,7 +181,44 @@ public class SceneLightController : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(checkInterval);
-            // 这里可以添加定期检查逻辑
+            UpdateActiveLightsAroundPlayer();
+        }
+    }
+
+    private void UpdateActiveLightsAroundPlayer()
+    {
+        if (playerTransform == null)
+        {
+            FindPlayer();
+            if (playerTransform == null) return;
+        }
+
+        Vector2 playerPos = playerTransform.position;
+        List<Light2D> neededLights = new List<Light2D>();
+
+        // 确定需要哪些灯光
+        foreach (var group in lightGroups)
+        {
+            neededLights.AddRange(group.lights
+                .Where(light => Vector2.Distance(playerPos, light.transform.position) <= activationRadius));
+        }
+
+        // 归还不再需要的灯光
+        List<Light2D> toRemove = activeLights.Where(light => !neededLights.Contains(light)).ToList();
+        foreach (var light in toRemove)
+        {
+            ReturnLightToPool(light);
+        }
+        activeLights.RemoveAll(light => toRemove.Contains(light));
+
+        // 激活新需要的灯光
+        foreach (var neededLight in neededLights.Where(light => !activeLights.Contains(light)))
+        {
+            var light = GetPooledLight(neededLight.transform.position);
+            if (light != null)
+            {
+                activeLights.Add(light);
+            }
         }
     }
 
@@ -179,5 +226,15 @@ public class SceneLightController : MonoBehaviour
     public void ManualRefreshLights()
     {
         RefreshSceneLights();
+        InitializeLightPool();
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (playerTransform != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(playerTransform.position, activationRadius);
+        }
     }
 }

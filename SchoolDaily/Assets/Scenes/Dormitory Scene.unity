@@ -755,7 +755,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &308755412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -774,12 +774,6 @@ MonoBehaviour:
     prerequisiteCondition: 
     isOnce: 1
     SkipIndex: 0
-    dialogueID: 0
-  - dialogueCSV: {fileID: 4900000, guid: 1b10601b67c4857408a29c44f26b4ef3, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E517:00"
-    isOnce: 1
-    SkipIndex: 0
-    dialogueID: 0
 --- !u!61 &308755413
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -9815,17 +9809,14 @@ MonoBehaviour:
     prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E57:00"
     isOnce: 1
     SkipIndex: 0
-    dialogueID: 0
   - dialogueCSV: {fileID: 4900000, guid: 8d1d67398adcded499689ad900a3d20b, type: 3}
     prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E519:00"
     isOnce: 1
     SkipIndex: 0
-    dialogueID: 0
   - dialogueCSV: {fileID: 4900000, guid: 4248adb8bbc054b44ae5975788fd530d, type: 3}
     prerequisiteCondition: "\u65F6\u95F4.==.9\u67084\u65E513:00"
     isOnce: 1
     SkipIndex: 0
-    dialogueID: 0
 --- !u!1 &1797119050
 GameObject:
   m_ObjectHideFlags: 0

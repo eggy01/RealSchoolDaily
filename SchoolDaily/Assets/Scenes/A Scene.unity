@@ -57422,7 +57422,6 @@ MonoBehaviour:
     prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
     isOnce: 1
     SkipIndex: 12
-    dialogueID: 0
 --- !u!61 &125945503
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -71903,7 +71902,6 @@ MonoBehaviour:
     prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
     isOnce: 1
     SkipIndex: 11
-    dialogueID: 0
 --- !u!61 &504276642
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -72000,7 +71998,6 @@ MonoBehaviour:
     prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
     isOnce: 1
     SkipIndex: 14
-    dialogueID: 0
 --- !u!61 &789015295
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -72281,7 +72278,6 @@ MonoBehaviour:
     prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
     isOnce: 1
     SkipIndex: 13
-    dialogueID: 0
 --- !u!61 &1005668670
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -132646,10 +132642,9 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: 879647a0e6a950e4b81153a3935c45cb, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.2\u67082\u65E511:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67085\u65E511:00"
     isOnce: 1
     SkipIndex: 0
-    dialogueID: 0
 --- !u!4 &1827159533
 Transform:
   m_ObjectHideFlags: 0
@@ -132809,7 +132804,6 @@ MonoBehaviour:
     prerequisiteCondition: 
     isOnce: 1
     SkipIndex: 0
-    dialogueID: 0
 --- !u!1 &2005663343
 GameObject:
   m_ObjectHideFlags: 0
@@ -133109,7 +133103,6 @@ MonoBehaviour:
     prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
     isOnce: 1
     SkipIndex: 10
-    dialogueID: 0
 --- !u!61 &2042515645
 BoxCollider2D:
   m_ObjectHideFlags: 0

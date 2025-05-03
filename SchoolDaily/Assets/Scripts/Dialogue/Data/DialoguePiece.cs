@@ -34,6 +34,7 @@ namespace SchoolD.Dialogue
 
                 public string MoveToPosition;
                 public string SkipToTime;
+                public string Loaction;//对话地点
 
                 [Header("触发条件")]
                 public string prerequisites; // 示例："Favorability.林风.>=.30;ItemOwned.门票.>=.1"

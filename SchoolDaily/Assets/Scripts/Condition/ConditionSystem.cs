@@ -29,7 +29,6 @@ public static class ConditionSystem
     /// </summary>
     public static bool Check(string condition)
     {
-        //Debug.Log($"=== 开始处理条件: {condition} ===");
         if (string.IsNullOrWhiteSpace(condition))
         {
             Debug.Log("条件为空，默认通过");

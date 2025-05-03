@@ -29,16 +29,18 @@ namespace SchoolD.Dialogue
 
         public void RegisterDialogue(TextAsset csvFile, bool shouldMarkComplete = true, string dialogueID = "")
         {
-            string id = string.IsNullOrEmpty(dialogueID) ? csvFile.name : dialogueID;
 
-            if (!registeredDialogue.ContainsKey(id))
+            string dialogueid = string.IsNullOrEmpty(dialogueID) && !dialogueID.Equals("0") ? csvFile.name : csvFile.name + dialogueID;
+
+            if (!registeredDialogue.ContainsKey(dialogueid))
             {
-                registeredDialogue.Add(id, new DialogueInfo
+                Debug.Log("注册序号:" + dialogueid);
+                registeredDialogue.Add(dialogueid, new DialogueInfo
                 {
                     csvFile = csvFile,
                     shouldMarkComplete = shouldMarkComplete
                 });
-                Debug.Log($"注册对话: {id} ({(shouldMarkComplete ? "可标记完成" : "不标记完成")})");
+                Debug.Log($"注册对话: {dialogueid} ({(shouldMarkComplete ? "可标记完成" : "不标记完成")})");
             }
         }
 
@@ -48,12 +50,10 @@ namespace SchoolD.Dialogue
             RegisterDialogue(csv, shouldMarkComplete, id);
         }
 
-        public void TriggerDialogue(string dialoguename, int dialogueID = -1)
+        public void TriggerDialogue(string dialoguename)
         {
             if (Time.time < lastDialogueTime + dialogueCooldown) return;
             if (dialoguename == currentDialogueID) return;
-            if (dialogueID != -1)
-                completedDialogues[dialogueID] = true;
 
             if (registeredDialogue.TryGetValue(dialoguename, out DialogueInfo info))
             {
@@ -102,21 +102,6 @@ namespace SchoolD.Dialogue
             }
 
             currentDialogueID = null;
-        }
-
-        private Dictionary<int, bool> completedDialogues = new Dictionary<int, bool>();
-
-        public void RegisterDialogue(TextAsset csv, int dialogueID)
-        {
-            if (!completedDialogues.ContainsKey(dialogueID))
-            {
-                completedDialogues[dialogueID] = false;
-            }
-        }
-
-        public bool IsDialogueCompleted(int dialogueID)
-        {
-            return completedDialogues.TryGetValue(dialogueID, out bool completed) && completed;
         }
 
     }

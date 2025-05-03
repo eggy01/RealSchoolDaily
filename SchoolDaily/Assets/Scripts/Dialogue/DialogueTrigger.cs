@@ -12,27 +12,6 @@ namespace SchoolD.Dialogue
             public string prerequisiteCondition;
             public bool isOnce = true;
             public int SkipIndex = 0;
-            public int dialogueID; // 新增：唯一对话ID
-
-            public bool HasTriggered
-            {
-                get
-                {
-                    // 三重检查机制
-                    return PlayerPrefs.GetInt($"DialogueTriggered_{dialogueID}", 0) == 1 ||
-                           StoryProgressManager.Instance.IsDialogueCompleted(dialogueID) ||
-                           DialogueManager.Instance.IsDialogueCompleted(dialogueID);
-                }
-                set
-                {
-                    PlayerPrefs.SetInt($"DialogueTriggered_{dialogueID}", value ? 1 : 0);
-                    PlayerPrefs.Save();
-                    StoryProgressManager.Instance.MarkDialogueCompleted(dialogueID);
-#if UNITY_EDITOR
-                    Debug.Log($"标记对话{dialogueID}为已触发");
-#endif
-                }
-            }
         }
 
         [Header("基础设置")]
@@ -41,7 +20,6 @@ namespace SchoolD.Dialogue
 
         private void Start()
         {
-            ResetTriggerStates();
             // 移除ResetTriggerStates调用，只在需要时手动调用
             CheckAndRegisterDialogues();
         }
@@ -52,39 +30,55 @@ namespace SchoolD.Dialogue
 
             foreach (var option in dialogueOptions)
             {
-                if (!option.HasTriggered)
+                bool isCompleted = option.SkipIndex > 0
+                    ? StoryProgressManager.Instance.IsDialogueLineCompleted(option.dialogueCSV.name, option.SkipIndex)
+                    : StoryProgressManager.Instance.IsStoryCompleted(option.dialogueCSV.name);
+
+                if (!isCompleted)
                 {
-                    DialogueManager.Instance.RegisterDialogue(option.dialogueCSV, option.dialogueID);
+                    // 只注册一次
+                    if (option.SkipIndex > 0)
+                    {
+                        DialogueManager.Instance.RegisterDialogue(option.dialogueCSV, true, option.SkipIndex.ToString());
+                    }
+                    else
+                    {
+                        DialogueManager.Instance.RegisterDialogue(option.dialogueCSV);
+                    }
                     shouldDestroy = false;
                 }
             }
 
-            if (shouldDestroy)
-            {
-                Destroy(gameObject);
-            }
+            if (shouldDestroy) Destroy(gameObject);
         }
+
 
 
         private void OnTriggerEnter2D(Collider2D other)
         {
+            Debug.Log("进入触发器");
             if (other.CompareTag("Player") && !requireKeyPress)
             {
+                Debug.Log("触发");
                 TryTriggerDialogue();
             }
+
         }
 
         private void TryTriggerDialogue()
         {
             foreach (var option in dialogueOptions)
             {
+                Debug.Log("尝试触发");
                 if (ShouldSkipDialogue(option))
                 {
+                    Debug.Log("应该跳过" + option.dialogueCSV.name);
                     continue;
                 }
 
                 if (CanTriggerDialogue(option))
                 {
+                    Debug.Log("触发成功：" + option.dialogueCSV.name);
                     TriggerDialogue(option);
                     return;
                 }
@@ -95,12 +89,26 @@ namespace SchoolD.Dialogue
 
         private bool ShouldSkipDialogue(DialogueOption option)
         {
-            // 如果是一次性对话且已触发，则跳过
-            return option.isOnce && option.HasTriggered;
+            // 如果是可重复对话，永不跳过
+            if (!option.isOnce) return false;
+            Debug.Log(option.dialogueCSV.name + "完成状态：" + StoryProgressManager.Instance.IsDialogueLineCompleted(option.dialogueCSV.name, option.SkipIndex));
+            Debug.Log(option.dialogueCSV.name + "序号完成状态：" + StoryProgressManager.Instance.IsStoryCompleted(option.dialogueCSV.name));
+            // 一次性对话检查完成状态
+            return !StoryProgressManager.Instance.IsDialogueLineCompleted(option.dialogueCSV.name, option.SkipIndex) && StoryProgressManager.Instance.IsStoryCompleted(option.dialogueCSV.name);
         }
 
         private bool CanTriggerDialogue(DialogueOption option)
         {
+            Debug.Log("进入CantriggerDialogue:" + option.dialogueCSV.name);
+            if (!string.IsNullOrEmpty(option.prerequisiteCondition))
+            {
+                bool conditionMet = ConditionSystem.CheckAll(option.prerequisiteCondition);
+                Debug.Log($"对话:{option.dialogueCSV.name} 条件:{option.prerequisiteCondition} 满足:{conditionMet}");
+                if (!conditionMet) return false;
+            }
+
+            bool canUnlock = StoryProgressManager.Instance.CanUnlockStory(option.dialogueCSV.name);
+            Debug.Log($"对话:{option.dialogueCSV.name} 可解锁:{canUnlock}");
             // 检查条件是否满足
             if (!string.IsNullOrEmpty(option.prerequisiteCondition) &&
                 !ConditionSystem.Check(option.prerequisiteCondition))
@@ -115,19 +123,20 @@ namespace SchoolD.Dialogue
             }
             return true;
         }
-
         private void TriggerDialogue(DialogueOption option)
         {
             if (option.SkipIndex > 0)
             {
                 EventHandler.CallLoadDialogueByIndex(option.SkipIndex.ToString(), option.dialogueCSV.name);
+                // 正确标记完成
+                StoryProgressManager.Instance.MarkDialogueLineCompleted(option.dialogueCSV.name, option.SkipIndex);
             }
             else
             {
-                DialogueManager.Instance.TriggerDialogue(option.dialogueCSV.name, option.dialogueID);
+                DialogueManager.Instance.TriggerDialogue(option.dialogueCSV.name);
+                //StoryProgressManager.Instance.MarkStoryAsCompleted(option.dialogueCSV.name);
             }
 
-            option.HasTriggered = true;
             CheckAllDialoguesCompleted();
         }
 
@@ -135,7 +144,7 @@ namespace SchoolD.Dialogue
         {
             foreach (var option in dialogueOptions)
             {
-                if (!option.HasTriggered && !StoryProgressManager.Instance.IsStoryCompleted(option.dialogueCSV.name))
+                if (!StoryProgressManager.Instance.IsDialogueLineCompleted(option.dialogueCSV.name, option.SkipIndex) && !StoryProgressManager.Instance.IsStoryCompleted(option.dialogueCSV.name))
                 {
                     return;
                 }
@@ -150,14 +159,5 @@ namespace SchoolD.Dialogue
             Gizmos.DrawCube(transform.position, GetComponent<Collider2D>().bounds.size);
         }
 
-        // 只在需要时手动调用重置
-        public void ResetTriggerStates()
-        {
-            foreach (var option in dialogueOptions)
-            {
-                PlayerPrefs.DeleteKey($"DialogueTriggered_{option.dialogueCSV.name}");
-            }
-            PlayerPrefs.Save();
-        }
     }
 }
