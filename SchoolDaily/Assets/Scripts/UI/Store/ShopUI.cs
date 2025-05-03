@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 
 public class ShopUI : MonoBehaviour
@@ -25,6 +24,7 @@ public class ShopUI : MonoBehaviour
     #region Public Variables
     [Header("UI组件")]
     public GameObject shopPanel;
+    public GameObject SurePanel; //提示框
     public TextMeshProUGUI titleText;
     public TextMeshProUGUI goldText;
     public TextMeshProUGUI totalCostText;
@@ -75,6 +75,7 @@ public class ShopUI : MonoBehaviour
         titleText.text = shopType;
         _currentSelectedItem = null;
         shopPanel.SetActive(true);
+        SurePanel.SetActive(false);
         PauseManager.Instance.SetPauseState(true);
         RefreshShopItems();
         UpdateUI();
@@ -305,7 +306,7 @@ public class ShopUI : MonoBehaviour
     #endregion
 
     #region Utility Methods
-    private int GetCurrentGold() => GoldManager.Instance.CurrentGold;
+    private int GetCurrentGold() => PlayerInformation.Instance.CurrentGold;
 
     private void ClearItemContainer()
     {
@@ -331,18 +332,28 @@ public class ShopUI : MonoBehaviour
     {
         if (_currentSelectedItem == null || _currentQuantity <= 0) return;
 
-        int totalCost = _currentSelectedItem.Price * _currentQuantity;
-        if (GoldManager.Instance.TrySpendGold(totalCost))
+        // 首先尝试将物品添加到背包
+        bool capacityAvailable = PackageLocalData.Instance.AddItem(_currentSelectedItem.ID, _currentQuantity);
+
+        // 如果背包容量足够
+        if (capacityAvailable)
         {
-            PackageLocalData.Instance.AddItem(_currentSelectedItem.ID, _currentQuantity);
-
-            // 购买成功后重置选择状态
-            _currentSelectedItem = null;
-            _currentQuantity = 0;
-
-            UpdateUI();
-            UpdateSelectionVisual();
+            int totalCost = _currentSelectedItem.Price * _currentQuantity;
+            // 扣除金币
+            PlayerInformation.Instance.TrySpendGold(totalCost);
         }
+        else
+        {
+            // 如果背包容量不足，显示确认面板
+            SurePanel.SetActive(true);
+        }
+
+        // 重置选择状态
+        _currentSelectedItem = null;
+        _currentQuantity = 0;
+
+        UpdateUI();
+        UpdateSelectionVisual();
     }
     #endregion
 }
