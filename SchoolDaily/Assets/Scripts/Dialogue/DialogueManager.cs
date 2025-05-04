@@ -47,13 +47,14 @@ namespace SchoolD.Dialogue
         // 修改后的自动注册方法
         public void RegisterAutoTrigger(string id, TextAsset csv, bool shouldMarkComplete = true)
         {
-            RegisterDialogue(csv, shouldMarkComplete, id);
+            RegisterDialogue(csv, shouldMarkComplete);
         }
 
         public void TriggerDialogue(string dialoguename)
         {
             if (Time.time < lastDialogueTime + dialogueCooldown) return;
             if (dialoguename == currentDialogueID) return;
+            if (StoryProgressManager.Instance.IsStoryCompleted(dialoguename)) return;
 
             if (registeredDialogue.TryGetValue(dialoguename, out DialogueInfo info))
             {

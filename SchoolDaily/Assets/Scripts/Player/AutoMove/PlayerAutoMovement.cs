@@ -24,7 +24,6 @@ public class PlayerAutoMovement : MonoBehaviour
 
 
 
-
     // 事件系统
     public UnityEvent OnMovementStart;
     public UnityEvent OnMovementComplete;
@@ -55,52 +54,66 @@ public class PlayerAutoMovement : MonoBehaviour
     private IEnumerator AutoMoveRoutine(Vector2 targetPosition)
     {
         isAutoMoving = true;
-        if (movementController) movementController.IsInputEnabled = false;
+        Debug.Log($"开始自动移动到: {targetPosition}");
+
+        // 禁用物理自动减速
+        rb.drag = 0;
 
         while (Vector2.Distance(transform.position, targetPosition) > stopDistance)
         {
-            Vector2 dir = (targetPosition - (Vector2)transform.position).normalized;
-            rb.velocity = dir * moveSpeed;
+            Vector2 currentPos = transform.position;
+            Vector2 rawDirection = targetPosition - currentPos;
+            Vector2 direction = rawDirection.normalized;
 
-            // 更新动画参数
-            UpdateAnimationParameters(dir);
+            // 直接修改位置而不是使用速度（测试用）
+            // transform.position = Vector2.MoveTowards(currentPos, targetPosition, moveSpeed * Time.deltaTime);
 
-            if (Physics2D.Linecast(transform.position, targetPosition, obstacleMask))
+            // 使用速度移动
+            rb.velocity = direction * moveSpeed;
+
+            UpdateAnimationParameters(direction);
+
+            // 可视化调试线
+            Debug.DrawLine(currentPos, targetPosition, Color.red);
+
+            // 障碍物检测（更精确的检测方式）
+            RaycastHit2D hit = Physics2D.Raycast(currentPos, direction, rawDirection.magnitude, obstacleMask);
+            if (hit.collider != null)
+            {
+                Debug.Log($"检测到障碍物: {hit.collider.name}", hit.collider.gameObject);
                 break;
+            }
 
             yield return null;
         }
 
         rb.velocity = Vector2.zero;
-        UpdateAnimationParameters(Vector2.zero); // 停止动画
+        UpdateAnimationParameters(Vector2.zero);
         isAutoMoving = false;
-        if (movementController) movementController.IsInputEnabled = true;
+        Debug.Log("自动移动完成");
     }
 
-    private void UpdateAnimationParameters(Vector2 moveDirection)
+    private void UpdateAnimationParameters(Vector2 direction)
     {
-        if (animator == null) return;
+        // 调试输出原始方向值
+        Debug.Log($"原始移动方向: {direction}");
 
-        // 优先使用较大绝对值的方向
-        if (Mathf.Abs(moveDirection.x) > Mathf.Abs(moveDirection.y))
-        {
-            animator.SetFloat(horizontalAnimParam, Mathf.Sign(moveDirection.x));
-            animator.SetFloat(verticalAnimParam, 0);
-        }
-        else
-        {
-            animator.SetFloat(verticalAnimParam, Mathf.Sign(moveDirection.y));
-            animator.SetFloat(horizontalAnimParam, 0);
-        }
+        // 标准化方向向量
+        direction = direction.normalized;
 
-        // 更新移动状态
-        animator.SetBool(movingAnimParam, moveDirection.magnitude > 0.1f);
+        // 调试输出标准化后的方向
+        Debug.Log($"标准化后方向: {direction}");
 
-        // 记录最后移动方向（用于Idle状态）
-        if (moveDirection.magnitude > 0.1f)
-        {
-            lastMoveDirection = moveDirection;
-        }
+        // 确保参数名正确（注意大小写）
+        animator.SetFloat(horizontalAnimParam, direction.x);
+        animator.SetFloat(verticalAnimParam, direction.y);
+
+        // 设置移动状态（使用更小的阈值）
+        bool isMoving = direction.sqrMagnitude > 0.01f;
+        animator.SetBool(movingAnimParam, isMoving);
+
+        // 调试输出动画参数值
+        Debug.Log($"动画参数 - 水平: {direction.x}, 垂直: {direction.y}, 移动中: {isMoving}");
     }
 
     // 私有启动方法

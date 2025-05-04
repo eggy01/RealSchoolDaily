@@ -19,10 +19,10 @@ public static class ConditionSystem
             ["好感度"] = GetFavorability,
             ["时间"] = GetTimeValue,  // 时间类型不需要目标参数
             ["场景"] = GetSceneIndex,  // 新增场景判断
-                                     // ["QuestProgress"] = GetQuestProgress,
-                                     // ["ItemOwned"] = GetItemCount,
-                                     //["FlagSet"] = GetFlagState
+            ["剧情"] = GetStoryState,     // ["QuestProgress"] = GetQuestProgress,
+            ["才艺"] = GetTalent,           //               //["FlagSet"] = GetFlagState
         };
+
 
     /// <summary>
     /// 检查单个条件字符串
@@ -51,9 +51,6 @@ public static class ConditionSystem
                 timeValueStr = parts[2];
                 currentTimeValue = GetTimeValue(timeValueStr);
                 requiredTimeValue = CalculateTimeWeight(timeValueStr);
-                //         Debug.Log($"比较详情: 当前值={currentTimeValue}({TimeManager.Instance.GetMonth()}月{TimeManager.Instance.GetDay()}日 " +
-                //   $"{TimeManager.Instance.GetHour()}:{TimeManager.Instance.GetMinute()}), " +
-                //   $"条件值={timeValueStr}+ :::={requiredTimeValue}, 操作符={op}, 结果={Compare(currentTimeValue, op, requiredTimeValue)}");
 
                 return Compare(currentTimeValue, op, requiredTimeValue);
             }
@@ -113,6 +110,10 @@ public static class ConditionSystem
         // 实际接入你的好感度系统
         return FavorabilityManager.Instance?.Get(npcName) ?? 0;
     }
+    private static int GetTalent(string arg)
+    {
+        return PlayerInformation.Instance.playerData.talent;
+    }
 
     // 新增场景判断方法
     public static int GetSceneIndex(string sceneName)
@@ -122,6 +123,11 @@ public static class ConditionSystem
 
         // 方法2：或者使用构建索引判断（如果你有固定的场景索引）
         // return UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+    }
+
+    public static int GetStoryState(string stroyname)
+    {
+        return StoryProgressManager.Instance.IsStoryCompleted(stroyname) ? 1 : 0;
     }
 
     // 在CalculateTimeWeight方法前添加场景相关方法

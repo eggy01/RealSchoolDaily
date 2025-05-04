@@ -125,7 +125,8 @@ namespace SchoolD.NewDialogue
             PlaySound,// 新增声音播放类型
             MultipleEffects, // 用于组合多个效果
             PlayerAutoMoveto,
-            RandomEvent // 随机事件类型
+            RandomEvent, // 随机事件类型
+            AddNewChat // 新增聊天效果类型
         }
 
         [System.Serializable]

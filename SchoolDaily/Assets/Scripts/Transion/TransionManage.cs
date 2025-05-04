@@ -47,12 +47,15 @@ namespace SchoolD.Transition
         /// <param name="targetPosition">目标位置</param>
         private IEnumerator Transition(String sceneName, Vector3 targetPosition)
         {
-            Canvas parentCanvas = fadeCanvaGroup.GetComponentInParent<Canvas>();
-            parentCanvas.sortingOrder = 100;
+            // Canvas parentCanvas = fadeCanvaGroup.GetComponentInParent<Canvas>();
+            // parentCanvas.sortingOrder = 100;
+            BlackScreenManager.Instance.TransionBlackScreenSortOrder(100);
 
             EventHandler.CallBeforeSceneUnLoadEvent();
+            BlackScreenManager.Instance.SetText("Loading");
+            yield return BlackScreenManager.Instance.FadeIn(0.5f, false);
 
-            yield return Fade(1);
+            // yield return Fade(1);
 
             yield return SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
             Debug.Log("加载：" + sceneName);
@@ -63,9 +66,11 @@ namespace SchoolD.Transition
 
             yield return new WaitForSeconds(Settings.blackoutDuration); //黑屏停留时间
 
-            yield return Fade(0);
+            yield return BlackScreenManager.Instance.FadeOut(0.5f, false);
+            //yield return Fade(0);
 
-            parentCanvas.sortingOrder = 0;
+            //parentCanvas.sortingOrder = 0;
+            BlackScreenManager.Instance.TransionBlackScreenSortOrder(0);
 
             EventHandler.CallAfterScenLoadEvent();
 

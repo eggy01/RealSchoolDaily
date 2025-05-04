@@ -79,13 +79,21 @@ namespace SchoolD.Dialogue
             {
                 for (int i = 0; i < csvFiles.Length; i++)
                 {
+                    Debug.Log("能被解锁：" + csvFiles[i].name + StoryProgressManager.Instance.CanUnlockStory(csvFiles[i].name));
+                    Debug.Log("完成状态" + csvFiles[i].name + StoryProgressManager.Instance.IsStoryCompleted(csvFiles[i].name));
                     if (!StoryProgressManager.Instance.IsStoryCompleted(csvFiles[i].name) && StoryProgressManager.Instance.CanUnlockStory(csvFiles[i].name)) // 再结合玩家获得的属性
                     {
                         dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[i]);
-                        hasActiveDialogue = true;
-                        CurrentcsvFileName = csvFiles[i].name;
-                        Debug.Log("当前剧情：" + CurrentcsvFileName);
-                        break;
+                        if (dialogueList != null)
+                            if (!string.IsNullOrEmpty(dialogueList[0].prerequisites)
+                            && dialogueList[0].prerequisites.Contains(";")
+                            && ConditionSystem.CheckAll(dialogueList[0].prerequisites))
+                            {
+                                hasActiveDialogue = true;
+                                CurrentcsvFileName = csvFiles[i].name;
+                                Debug.Log("当前剧情：" + CurrentcsvFileName);
+                                break;
+                            }
                     }
                 }
 

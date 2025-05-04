@@ -80,11 +80,11 @@ public class TimeManager : MonoBehaviour
 
     private void NewGameTime()
     {
-        // 直接从9月1日(周四)开始
+        // 直接从9月4日(周日)开始
         gameYear = 1;
         gameMonth = 9;
-        gameDay = 3;
-        gameWeekDay = 4; // 周一
+        gameDay = 4;
+        gameWeekDay = 7; // 周日
         gameMinute = 0;
         gameHour = 7;
         gameWeekCount = 1;

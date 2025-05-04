@@ -68,6 +68,9 @@ public class TipController : MonoBehaviour
                 case 4:
                     TipIcon.sprite = IconSprites[3];
                     break;
+                default:
+                    TipIcon.sprite = null;
+                    break;
             }
         }
         catch (Exception e)

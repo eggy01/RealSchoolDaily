@@ -7,6 +7,10 @@ using TMPro;
 using System.Text.RegularExpressions;
 using System;
 using SchoolD.Dialogue;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using Unity.VisualScripting;
+using SchoolD.Task;
 
 public class ChatSystem : MonoBehaviour
 {
@@ -66,14 +70,43 @@ public class ChatSystem : MonoBehaviour
         }
     }
 
+
+    [System.Serializable]
+    public class DeferredMessage
+    {
+        public DialoguePiece piece;
+        public string groupName;
+        public string senderName;
+        public bool hasOptions;
+        public string storyID;
+        public bool isCompleted;
+        public int pieceIndex; // 新增：片段在剧情中的索引
+        public int totalPieces; // 新增：剧情总片段数
+    }
+    bool isProcessingDeferredMessages = false;
+
+    private List<DeferredMessage> deferredMessages = new List<DeferredMessage>();
+    //存档
+    [System.Serializable]
+    private class ChatSaveData
+    {
+        public Dictionary<string, List<ChatRecord>> conversations;
+        public Dictionary<string, bool> unreadMessages;
+        public List<DeferredMessage> deferredMessages; // 新增
+    }
+
+    private string chatSavePath;
+
     private void Awake()
     {
+        chatSavePath = Path.Combine(Application.persistentDataPath, "chat_save.dat");
+        Debug.Log("聊天存档路径: " + chatSavePath);
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
-
+        LoadChatData();//加载存档
         Instance = this;
 
         InitializeUI();
@@ -88,7 +121,6 @@ public class ChatSystem : MonoBehaviour
 
         newMessageButton.onClick.AddListener(ShowNewMessagesView);
         friendsButton.onClick.AddListener(ShowFriendsView);
-        backButton.onClick.AddListener(ReturnToMainView);
     }
 
     private void Update()//
@@ -100,7 +132,7 @@ public class ChatSystem : MonoBehaviour
     }
 
     #region Public Interface Methods
-    public void ToggleMainInterface()
+    public void ToggleMainInterface()//按键弹出
     {
         if (mainPanel.activeSelf)
         {
@@ -112,7 +144,7 @@ public class ChatSystem : MonoBehaviour
         }
     }
 
-    public void ShowMainInterface()
+    public void ShowMainInterface()//
     {
         isInPhoneMode = false;
         mainPanel.SetActive(true);
@@ -123,7 +155,7 @@ public class ChatSystem : MonoBehaviour
     public void HideAll()
     {
         mainPanel.SetActive(false);
-        phoneChatPopup.SetActive(false);
+        //phoneChatPopup.SetActive(false);
     }
 
     public IEnumerator ShowPhoneMessage(DialoguePiece piece)
@@ -138,11 +170,12 @@ public class ChatSystem : MonoBehaviour
 
         // Parse message info
         ParseMessageInfo(piece, out string groupName, out string senderName);
-        Debug.Log("群名");
-        Debug.Log("说话人名字");
+
         // Setup chat header
+        if (groupName.Equals("NQChat"))
+            groupName = senderName;
         currentChattingGroup = groupName;//组群名字
-        chatNameText.text = senderName;//说话人名字
+        //chatNameText.text = senderName;//说话人名字
         chatGroupNameText.text = groupName;
 
         // Load chat history
@@ -178,6 +211,9 @@ public class ChatSystem : MonoBehaviour
     private void ShowNewMessagesView()
     {
         chatPanel.SetActive(false);//关闭聊天框
+        friendsContainer.gameObject.SetActive(false);
+        newMessagesContainer.gameObject.SetActive(true);
+
         ClearContainer(newMessagesContainer);//清理
 
         foreach (var entry in unreadMessages.Where(e => e.Value))
@@ -195,6 +231,8 @@ public class ChatSystem : MonoBehaviour
     private void ShowFriendsView()
     {
         chatPanel.SetActive(false);
+        friendsContainer.gameObject.SetActive(true);
+        newMessagesContainer.gameObject.SetActive(false);
         ClearContainer(friendsContainer);
 
         foreach (var group in conversations.Keys)
@@ -207,20 +245,162 @@ public class ChatSystem : MonoBehaviour
         }
     }
 
+    // 在ChatSystem类中添加以下方法
+
+    /// <summary>
+    /// 接收并存储延迟剧情消息
+    /// </summary>
+    public void ReceiveDeferredStory(string storyID)
+    {
+        int startIndex = 0;
+        List<DialoguePiece> pieces = DialogueCSVReader.Instance.LoadDialogueData(DialogueLoader.Instance.LoadCSVFromResources(storyID));
+        if (pieces == null || pieces.Count == 0)
+        {
+            Debug.LogWarning($"没有可用的对话片段，剧情ID: {storyID}");
+            return;
+        }
+
+        // 解析第一个片段的信息获取群组和发送者
+        ParseMessageInfo(pieces[0], out string groupName, out string senderName);
+        // 存储所有片段
+        for (int i = startIndex; i < pieces.Count; i++)
+        {
+            var currentPiece = pieces[i]; // 使用currentPiece避免命名冲突
+
+            var deferredMsg = new DeferredMessage
+            {
+                piece = currentPiece,
+                groupName = groupName,
+                senderName = senderName,
+                hasOptions = currentPiece.option != null && currentPiece.option.Count > 0,
+                storyID = storyID,
+                isCompleted = false,
+                pieceIndex = i, // 记录片段索引
+                totalPieces = pieces.Count // 记录总片段数
+            };
+
+            deferredMessages.Add(deferredMsg);
+
+            // 更新解析信息（后续片段可能有不同的发送者）
+            ParseMessageInfo(currentPiece, out groupName, out senderName);
+        }
+
+        SaveChatData();
+        MarkAsUnread(groupName);
+        Debug.Log($"已接收延迟剧情: {storyID}，共{pieces.Count}个片段，从{startIndex}开始");
+    }
+
+    /// <summary>
+    /// 检查是否有指定剧情的未读消息
+    /// </summary>
+    public bool HasUnreadStory(string storyID)
+    {
+        return deferredMessages.Any(m => m.storyID == storyID && !m.isCompleted);
+    }
+
+
+    /// <summary>
+    /// 处理玩家主动打开聊天时的延迟消息
+    /// </summary>
+    /// <param name="groupName">要检查的群组名称</param>
+    public IEnumerator ProcessDeferredMessagesForGroup(string groupName)
+    {
+        // 找出该群组的所有延迟消息并按时间排序
+        var messagesToProcess = deferredMessages
+            .Where(m => m.groupName == groupName)
+            .OrderBy(m => m.piece.no)
+            .ToList();
+
+        if (messagesToProcess.Count == 0) yield break;
+
+        // 标记为正在处理延迟消息
+        isProcessingDeferredMessages = true;
+
+        // 暂停玩家控制
+        PlayerController.Instance?.movement?.SetPause(true);
+
+        // 显示聊天界面
+        mainPanel.SetActive(true);
+        chatPanel.SetActive(true);
+        chatGroupNameText.text = groupName;
+
+        foreach (var deferredMsg in messagesToProcess)
+        {
+            // 添加消息到聊天记录
+            AddNewMessageToChat(deferredMsg.piece);
+            SaveMessageToHistory(deferredMsg.piece, deferredMsg.groupName, deferredMsg.senderName);
+            MarkAsUnread(deferredMsg.groupName);
+
+            // 如果有选项则处理选项
+            if (deferredMsg.hasOptions)
+            {
+                yield return StartCoroutine(ShowOptions(deferredMsg.piece));
+            }
+            else
+            {
+                yield return WaitForPlayerContinue();
+            }
+
+            // 从延迟列表中移除已处理的消息
+            deferredMessages.Remove(deferredMsg);
+        }
+
+        // 恢复玩家控制
+        PlayerController.Instance?.movement?.SetPause(false);
+
+        // 如果不再处理延迟消息，可以隐藏界面
+        if (!isInPhoneMode)
+        {
+            HideAll();
+        }
+
+        isProcessingDeferredMessages = false;
+        SaveChatData(); // 保存状态
+    }
+
+    // 修改 OpenChatWithGroup 方法
     public void OpenChatWithGroup(string groupName)
     {
         currentChattingGroup = groupName;
         MarkAsRead(groupName);
 
         chatPanel.SetActive(true);
-        chatNameText.text = groupName;
+        //chatNameText.text = groupName;
         chatGroupNameText.text = groupName;
 
         ClearChatContent();
         LoadChatHistory(groupName);
-        ScrollToBottom();
-        UpdateNewMessageBadge();//设置红点
+
+        // 先显示历史消息，然后处理延迟消息
+        StartCoroutine(OpenChatRoutine(groupName));
     }
+
+    private IEnumerator OpenChatRoutine(string groupName)
+    {
+        // 等待一帧确保UI更新完成
+        yield return null;
+
+        // 处理该群的延迟消息
+        yield return StartCoroutine(ProcessDeferredMessagesForGroup(groupName));
+
+        ScrollToBottom();
+        UpdateNewMessageBadge();
+    }
+
+    // public void OpenChatWithGroup(string groupName)
+    // {
+    //     currentChattingGroup = groupName;
+    //     MarkAsRead(groupName);
+
+    //     chatPanel.SetActive(true);
+    //     chatNameText.text = groupName;
+    //     chatGroupNameText.text = groupName;
+
+    //     ClearChatContent();
+    //     LoadChatHistory(groupName);
+    //     ScrollToBottom();
+    //     UpdateNewMessageBadge();//设置红点
+    // }
 
     private void ReturnToMainView()
     {
@@ -330,6 +510,9 @@ public class ChatSystem : MonoBehaviour
             conversations[groupName] = new List<ChatRecord>();
         }
         conversations[groupName].Add(newRecord);
+        // 添加任务判断逻辑
+        CheckAndHandleTask(piece);
+        SaveChatData(); // 每次有新消息都自动保存
     }
 
     private ChatRecord GetPreviousMessage(string groupName)
@@ -547,6 +730,7 @@ public class ChatSystem : MonoBehaviour
     {
         unreadMessages[groupName] = false;
         UpdateNewMessageBadge();
+        SaveChatData(); // 每次有新消息都自动保存
     }
 
     private void UpdateNewMessageBadge()
@@ -569,4 +753,151 @@ public class ChatSystem : MonoBehaviour
         }
     }
     #endregion
+
+    // 更新保存和加载方法
+    public void SaveChatData()
+    {
+        try
+        {
+            ChatSaveData saveData = new ChatSaveData
+            {
+                conversations = this.conversations,
+                unreadMessages = this.unreadMessages,
+                deferredMessages = this.deferredMessages // 新增
+            };
+
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (FileStream stream = new FileStream(chatSavePath, FileMode.Create))
+            {
+                formatter.Serialize(stream, saveData);
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"保存聊天数据失败: {e.Message}");
+        }
+    }
+
+    private void LoadChatData()
+    {
+        if (!File.Exists(chatSavePath)) return;
+
+        try
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (FileStream stream = new FileStream(chatSavePath, FileMode.Open))
+            {
+                ChatSaveData saveData = formatter.Deserialize(stream) as ChatSaveData;
+                if (saveData != null)
+                {
+                    this.conversations = saveData.conversations ?? new Dictionary<string, List<ChatRecord>>();
+                    this.unreadMessages = saveData.unreadMessages ?? new Dictionary<string, bool>();
+                    this.deferredMessages = saveData.deferredMessages ?? new List<DeferredMessage>();
+
+                    // 迁移旧数据（如果有）
+                    foreach (var msg in this.deferredMessages)
+                    {
+                        if (string.IsNullOrEmpty(msg.storyID))
+                        {
+                            msg.storyID = "legacy_" + Guid.NewGuid().ToString();
+                            msg.isCompleted = false;
+                        }
+                    }
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"加载聊天数据失败: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 检查并处理对话片段中的任务指令
+    /// </summary>
+    private void CheckAndHandleTask(DialoguePiece piece)
+    {
+        if (!string.IsNullOrEmpty(piece.task))
+        {
+            if (piece.task.Contains("接受任务"))
+            {
+                string pid = piece.task.Replace("接受任务:", "").Trim();
+                TaskSystem.Instance.StartTask(pid);
+                Debug.Log($"接受任务: {pid}");
+            }
+            else if (piece.task.Contains("完成任务:"))
+            {
+                string pid = piece.task.Replace("完成任务:", "").Trim();
+                TaskSystem.Instance.CompleteTask(pid);
+                Debug.Log($"完成任务: {pid}");
+            }
+        }
+    }
+
+    // // 新增方法：保存聊天数据
+    // public void SaveChatData()
+    // {
+    //     try
+    //     {
+    //         ChatSaveData saveData = new ChatSaveData
+    //         {
+    //             conversations = this.conversations,
+    //             unreadMessages = this.unreadMessages
+    //         };
+
+    //         BinaryFormatter formatter = new BinaryFormatter();
+    //         using (FileStream stream = new FileStream(chatSavePath, FileMode.Create))
+    //         {
+    //             formatter.Serialize(stream, saveData);
+    //         }
+
+    //         Debug.Log("聊天数据已保存");
+    //     }
+    //     catch (System.Exception e)
+    //     {
+    //         Debug.LogError($"保存聊天数据失败: {e.Message}");
+    //     }
+    // }
+
+    // // 新增方法：加载聊天数据
+    // private void LoadChatData()
+    // {
+    //     if (!File.Exists(chatSavePath)) return;
+
+    //     try
+    //     {
+    //         BinaryFormatter formatter = new BinaryFormatter();
+    //         using (FileStream stream = new FileStream(chatSavePath, FileMode.Open))
+    //         {
+    //             ChatSaveData saveData = formatter.Deserialize(stream) as ChatSaveData;
+    //             if (saveData != null)
+    //             {
+    //                 this.conversations = saveData.conversations ?? new Dictionary<string, List<ChatRecord>>();
+    //                 this.unreadMessages = saveData.unreadMessages ?? new Dictionary<string, bool>();
+    //                 Debug.Log("聊天数据已加载");
+    //             }
+    //         }
+    //     }
+    //     catch (System.Exception e)
+    //     {
+    //         Debug.LogError($"加载聊天数据失败: {e.Message}");
+    //         // 加载失败时初始化空数据
+    //         this.conversations = new Dictionary<string, List<ChatRecord>>();
+    //         this.unreadMessages = new Dictionary<string, bool>();
+    //     }
+    // }
+
+    // 新增方法：清空存档（用于测试）
+    public void ClearChatSave()
+    {
+        if (File.Exists(chatSavePath))
+        {
+            File.Delete(chatSavePath);
+            Debug.Log("聊天存档已清除");
+        }
+
+        // 重置内存中的数据
+        conversations.Clear();
+        unreadMessages.Clear();
+    }
 }

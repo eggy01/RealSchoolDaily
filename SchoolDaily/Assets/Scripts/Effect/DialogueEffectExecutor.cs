@@ -7,6 +7,7 @@ using UnityEngine.UIElements;
 using System;
 using static ScheduleEntry;
 using static SchoolD.NewDialogue.DialogueData;
+using System.Text.RegularExpressions;
 
 public class DialogueEffectExecutor : MonoBehaviour
 {
@@ -29,9 +30,12 @@ public class DialogueEffectExecutor : MonoBehaviour
             { EffectType.ShowText, ExecuteShowText }, // 新增文本显示效果类型
              { EffectType.PlaySound, ExecutePlaySound }, // 新增声音处理器
              { EffectType.PlayerAutoMoveto, ExecutePlayerAutoMoveto }, // 新增声音处理器
-            // { EffectType.RandomEvent, ExecuteRandomEvent } // 添加随机事件处理器
+            { EffectType.RandomEvent, ExecuteRandomEvent },// 添加随机事件处理器
+            { EffectType.AddNewChat, ExecuteAddNewChat }
         };
     }
+
+
 
 
 
@@ -57,13 +61,16 @@ public class DialogueEffectExecutor : MonoBehaviour
     /// </summary>
     private IEnumerator ExecuteEffectsSequentially(List<DialogueEffect> effects)
     {
-        // 执行准备阶段效果（黑屏淡入）
+        // 执行准备阶段（黑屏淡入）
         yield return ExecuteEffectPhase(effects, IsPreparationEffect);
 
-        // 执行核心阶段效果（时间跳转、场景切换、文本显示）
-        yield return ExecuteEffectPhase(effects, IsCoreEffect);
+        // 执行核心阶段（确保所有效果完成）
+        foreach (var effect in effects.Where(IsCoreEffect))
+        {
+            yield return ExecuteSingleEffect(effect); // 确保每个效果完全执行
+        }
 
-        // 执行收尾阶段效果（黑屏淡出）
+        // 执行收尾阶段（黑屏淡出）
         yield return ExecuteEffectPhase(effects, IsFinalizationEffect);
     }
 
@@ -107,7 +114,7 @@ public class DialogueEffectExecutor : MonoBehaviour
         if (isFadeIn)
         {
             // 黑屏淡入
-            BlackScreenManager.Instance.TransionBlackScreenSortOrder(1000);
+            BlackScreenManager.Instance.TransionBlackScreenSortOrder(100);
             yield return BlackScreenManager.Instance.FadeIn(effect.duration, false);
 
             // 隐藏所有UI
@@ -141,16 +148,35 @@ public class DialogueEffectExecutor : MonoBehaviour
 
     private IEnumerator ExecutePlayerAutoMoveto(DialogueEffect effect)
     {
+        // 1. 获取目标位置
         Vector2 targetPos = ParsePosition(effect.parameters);
 
-        // 单行调用（无需获取组件）
+        // 2. 隐藏对话框
+        DialogueUI.Instance.SetAllFalse();
+        Debug.Log("对话框已隐藏，开始自动移动");
+
+        // 3. 开始移动
         PlayerAutoMovement.MoveToPosition(targetPos);
 
-        // 等待移动完成
-        while (PlayerAutoMovement.FindPlayer()?.GetComponent<PlayerAutoMovement>().IsMoving() ?? false)
+        // 4. 等待移动完成
+        PlayerAutoMovement movement = PlayerAutoMovement.FindPlayer()?.GetComponent<PlayerAutoMovement>();
+        if (movement != null)
         {
-            yield return null;
+            yield return new WaitWhile(() => movement.IsMoving());
+            yield return new WaitForSeconds(1f);
+            Debug.Log("自动移动完成");
         }
+        else
+        {
+            Debug.LogError("找不到PlayerAutoMovement组件");
+        }
+
+        // 5. 重新显示对话框
+        // DialogueUI.Instance.ShowDialogue();
+        // Debug.Log("对话框已重新显示");
+
+        // 6. 继续执行后续剧情
+        yield return null;
     }
 
     private IEnumerator ExecuteShowText(DialogueEffect effect)
@@ -160,7 +186,7 @@ public class DialogueEffectExecutor : MonoBehaviour
         yield return BlackScreenManager.Instance.AnimateText(effect.parameters);
 
         // 等待文本显示完成（假设每个字符显示0.05秒）
-        float displayTime = effect.parameters.Length * 0.05f + 1f; // 额外5秒阅读时间
+        float displayTime = effect.parameters.Length * 0.03f + 1f; // 额外5秒阅读时间
         yield return new WaitForSeconds(displayTime);
 
         Debug.Log($"文本显示完成: {effect.parameters}");
@@ -168,8 +194,117 @@ public class DialogueEffectExecutor : MonoBehaviour
 
     private IEnumerator ExecuteRandomEvent(DialogueEffect effect)
     {
-        Debug.Log("触发随机事件");
-        RandomEventSystem.Instance.TriggerEvent(effect.parameters);
+
+        string[] parameters = effect.parameters.Split('，');
+        if (parameters.Length == 0)
+        {
+            if (effect.parameters.Contains("&&"))
+            {
+                // 使用正则表达式匹配
+                var match = Regex.Match(effect.parameters, @"(.+?)&&(\d+)%判定(\d+)\|(\d+):(.+)");
+
+                if (match.Success)
+                {
+                    string condition = match.Groups[1].Value;  // "才艺≥10"
+                    string probability = match.Groups[2].Value; // "90"
+                    string successTarget = match.Groups[3].Value; // "8"
+                    string failureTarget = match.Groups[4].Value; // "9"
+                    string description = match.Groups[5].Value; // "string"
+
+                    Debug.Log($"条件: {condition}");
+                    Debug.Log($"概率: {probability}%");
+                    Debug.Log($"成功跳转: {successTarget}");
+                    Debug.Log($"失败跳转: {failureTarget}");
+                    Debug.Log($"描述: {description}");
+                    if (ConditionSystem.Check(condition))
+                        EventHandler.CallLoadDialogueByIndex(successTarget, description);
+                    else if (UnityEngine.Random.Range(0, 100) < 10)
+                        EventHandler.CallLoadDialogueByIndex(failureTarget, description);
+                    else EventHandler.CallLoadDialogueByIndex(successTarget, description);
+                    yield break;
+                }
+                else
+                {
+                    Debug.LogError("格式解析失败");
+                }
+            }
+            Debug.LogWarning("随机事件参数格式错误");
+            yield break;
+        }
+
+
+        // 解析参数中的多个事件（用冒号分隔）
+        string[] eventChain = effect.parameters.Split('：');
+
+        foreach (string eventParam in eventChain)
+        {
+            string[] currentParams = eventParam.Split('，');
+
+            if (currentParams.Length == 0) continue;
+
+            // 格式1: 随机事件:R002（触发单个事件）
+            if (currentParams.Length == 1)
+            {
+                string eventId = currentParams[0].Trim();
+                bool eventCompleted = false;
+                bool eventResult = false;
+
+                Debug.Log("触发事件：" + eventId);
+                RandomEventSystem.Instance.TriggerEvent(eventId, (result) =>
+                {
+                    eventResult = result;
+                    eventCompleted = true;
+                });
+
+                while (!eventCompleted) yield return null;
+
+                if (eventResult)
+                {
+                    TipController.Instance.ShowTip("失败", -1);
+                    Debug.Log("触发成功: " + eventId);
+                    yield break;  // 任一事件触发成功则终止整个流程
+                }
+                else
+                {
+                    Debug.Log("触发失败: " + eventId + "，尝试下一个事件");
+                    continue;  // 继续尝试下一个事件
+                }
+            }
+            // 格式2: 随机事件:R002,3（从R002组触发3个不同事件）
+            else if (currentParams.Length == 2 && int.TryParse(currentParams[1], out int count))
+            {
+                string eventPrefix = currentParams[0].Trim();
+                bool eventsCompleted = false;
+                bool anyTriggered = false;
+
+                RandomEventSystem.Instance.TriggerRandomEventsFromGroup(eventPrefix, count, (result) =>
+                {
+                    anyTriggered = result;
+                    eventsCompleted = true;
+                });
+
+                while (!eventsCompleted) yield return null;
+
+                if (anyTriggered)
+                {
+                    Debug.Log("触发成功: " + eventPrefix + "组中的" + count + "个事件");
+                    yield break;  // 任一事件触发成功则终止整个流程
+                }
+                else
+                {
+                    Debug.Log("触发失败: " + eventPrefix + "组中的" + count + "个事件");
+                    continue;  // 继续尝试下一个事件
+                }
+            }
+        }
+
+        // 所有事件都触发失败后继续执行后续剧情
+        yield return null;
+    }
+
+    private IEnumerator ExecuteAddNewChat(DialogueEffect effect)
+    {
+        ChatSystem.Instance.ReceiveDeferredStory(effect.parameters);
         yield return null;
     }
 
@@ -310,6 +445,12 @@ public class DialogueEffectExecutor : MonoBehaviour
                 Debug.Log("有随机事件");
                 effect.type = EffectType.RandomEvent;
                 effect.parameters = part.Replace("随机事件:", "").Trim();
+            }
+            else if (part.StartsWith("添加新聊天:"))
+            {
+                Debug.Log("添加新聊天:");
+                effect.type = EffectType.AddNewChat;
+                effect.parameters = part.Replace("添加新聊天:", "").Trim();
             }
             Debug.Log("效果+1");
             results.Add(effect);

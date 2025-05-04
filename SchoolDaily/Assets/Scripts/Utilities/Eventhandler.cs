@@ -86,9 +86,9 @@ public class EventHandler
 
 
     //开启新对话
-    public static event Action<string> OnStartNewDialogueEvent;
-    public static void CallStartNewDialogueEvent(string newDialogueFileName)
-        => OnStartNewDialogueEvent?.Invoke(newDialogueFileName);
+    public static event Action<string, System.Action> OnStartNewDialogueEvent;
+    public static void CallStartNewDialogueEvent(string newDialogueFileName, System.Action onDialogueComplete = null)
+        => OnStartNewDialogueEvent?.Invoke(newDialogueFileName, onDialogueComplete);
 
 
 

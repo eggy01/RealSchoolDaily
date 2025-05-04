@@ -13,6 +13,7 @@ namespace SchoolD.Dialogue
             public bool isOnce = true;
             public int SkipIndex = 0;
         }
+        public GameObject CanTalkUI;
 
         [Header("基础设置")]
         public bool requireKeyPress = false;
@@ -111,7 +112,7 @@ namespace SchoolD.Dialogue
             Debug.Log($"对话:{option.dialogueCSV.name} 可解锁:{canUnlock}");
             // 检查条件是否满足
             if (!string.IsNullOrEmpty(option.prerequisiteCondition) &&
-                !ConditionSystem.Check(option.prerequisiteCondition))
+                !ConditionSystem.CheckAll(option.prerequisiteCondition))
             {
                 Debug.Log($"条件未满足或未解锁: {option.prerequisiteCondition}");
                 return false;

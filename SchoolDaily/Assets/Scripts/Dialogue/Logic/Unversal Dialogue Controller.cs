@@ -22,7 +22,7 @@ namespace SchoolD.Dialogue
 
         private void Awake()
         { }
-        private void OnNewDialogueStarted(string newDialogueFileName)
+        private void OnNewDialogueStarted(string newDialogueFileName, System.Action action)
         {
             TextAsset nextCSV = DialogueLoader.Instance.LoadCSVFromResources(newDialogueFileName);
             if (nextCSV == null) return;

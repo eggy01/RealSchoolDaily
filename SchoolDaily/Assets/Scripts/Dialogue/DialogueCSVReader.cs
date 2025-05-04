@@ -41,7 +41,7 @@ public class DialogueCSVReader : MonoBehaviour
 
         if (csvFile == null)
         {
-            Debug.LogError("CSV文件未分配!");
+            Debug.Log("CSV文件未分配!");
             return dialoguePieces;
         }
 

@@ -210,7 +210,7 @@ public class DialogueUI : MonoBehaviour
                 }
                 if (piece.name.Equals("教程"))
                 {
-                    yield return StartCoroutine(AnimateText(piece.dialogueText, 1f));
+                    yield return StartCoroutine(AnimateText(piece.dialogueText, 0.01f));
                     // 开始教程
                     TutorialSystem.Instance.StartInventoryTutorial(piece.dialogueText);
 
@@ -220,7 +220,7 @@ public class DialogueUI : MonoBehaviour
                 else
                 {
                     if (!string.IsNullOrEmpty(piece.dialogueText))
-                        yield return StartCoroutine(AnimateText(piece.dialogueText, 1f));
+                        yield return StartCoroutine(AnimateText(piece.dialogueText, 0.01f));
                 }
 
 
@@ -391,11 +391,29 @@ public class DialogueUI : MonoBehaviour
         currentPiece = null;
     }
 
-    IEnumerator AnimateText(string text, float duration)
-    {
-        dialogueText.text = "";
-        float lettersPerSecond = text.Length / duration;
+    // IEnumerator AnimateText(string text, float duration)
+    // {
+    //     dialogueText.text = "";
+    //     float lettersPerSecond = text.Length / duration;
 
+    //     for (int i = 0; i <= text.Length; i++)
+    //     {
+    //         // 如果玩家按了空格或点击，立即显示完整文本
+    //         if (Input.GetMouseButtonDown(0))
+    //         {
+    //             dialogueText.text = text;
+    //             break;
+    //         }
+
+    //         dialogueText.text = text.Substring(0, i);
+    //         yield return new WaitForSeconds(1f / lettersPerSecond);
+    //     }
+    // }
+    public IEnumerator AnimateText(string text, float dely)//dely为单个字符打出时间
+    {
+        if (text.Contains("x"))
+            text = text.Replace("x", "□");
+        dialogueText.text = "";
         for (int i = 0; i <= text.Length; i++)
         {
             // 如果玩家按了空格或点击，立即显示完整文本
@@ -406,7 +424,7 @@ public class DialogueUI : MonoBehaviour
             }
 
             dialogueText.text = text.Substring(0, i);
-            yield return new WaitForSeconds(1f / lettersPerSecond);
+            yield return new WaitForSeconds(dely);
         }
     }
     public void ContinueDialogue()

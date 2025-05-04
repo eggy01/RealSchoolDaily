@@ -42,10 +42,12 @@ public class RewardManager : MonoBehaviour
                 // Process each reward type
                 if (TryProcessFavorability(trimmedReward)) continue;
                 if (TryProcessItem(trimmedReward)) continue;
-                // if (TryProcessStat(trimmedReward, "体力", (amount) => PlayerStats.Instance.Stamina += amount)) continue;
-                // if (TryProcessStat(trimmedReward, "信念", (amount) => PlayerStats.Instance.Faith += amount)) continue;
-                // if (TryProcessStat(trimmedReward, "金钱", (amount) => PlayerStats.Instance.Money += amount)) continue;
-                // if (TryProcessStat(trimmedReward, "声望", (amount) => PlayerStats.Instance.Reputation += amount)) continue;
+                if (TryProcessStat(trimmedReward, "体力", (amount) => PlayerInformation.Instance.AddStrength(amount))) continue;
+                if (TryProcessStat(trimmedReward, "信念", (amount) => PlayerInformation.Instance.AddStrength(amount))) continue;
+                if (TryProcessStat(trimmedReward, "金钱", (amount) => PlayerInformation.Instance.AddGold(amount))) continue;
+                if (TryProcessStat(trimmedReward, "声望", (amount) => PlayerInformation.Instance.AddFame(amount))) continue;
+                if (TryProcessStat(trimmedReward, "心情", (amount) => PlayerInformation.Instance.AddMood(amount))) continue;
+                if (TryProcessStat(trimmedReward, "智力", (amount) => PlayerInformation.Instance.AddIntelligence(amount))) continue;
                 // if (TryProcessAcademic(trimmedReward, "成绩", (subject, amount) => AcademicManager.Instance.AddGrade(subject, amount))) continue;
                 // if (TryProcessAcademic(trimmedReward, "平时分", (subject, amount) => AcademicManager.Instance.AddRegularScore(subject, amount))) continue;
                 // if (TryProcessSkill(trimmedReward)) continue;

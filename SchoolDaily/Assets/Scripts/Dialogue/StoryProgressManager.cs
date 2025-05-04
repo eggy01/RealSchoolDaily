@@ -34,7 +34,7 @@ public class StoryProgressManager : MonoBehaviour
 
     [Header("时间检查设置")]
     [Tooltip("定期检查时间限制的时间间隔（秒）")]
-    [SerializeField] private float timeCheckInterval = 300f; // 默认5分钟检查一次
+    [SerializeField] private float timeCheckInterval = 1f; // 默认5分钟检查一次
 
 
     // 存档数据结构
@@ -50,17 +50,26 @@ public class StoryProgressManager : MonoBehaviour
     // 确保只有一个实例
     void Awake()
     {
+        Debug.Log("StoryProgressManager Awake 被调用");
         Instance = this;
         saveFilePath = Path.Combine(Application.persistentDataPath, "storyProgress.save");
         Debug.Log("存档路径: " + saveFilePath);
-        // 先尝试加载，如果失败再从CSV初始化
-        if (!LoadProgress())
-        {
-            LoadStoryProgressFromCSV();
-        }
 
+        InitializeProgressData();
 
     }
+    void OnEnable()
+    {
+        EventHandler.OnDateChanged += CheckTimeLimitedStories;
+    }
+    void OnDisable()
+    {
+        EventHandler.OnDateChanged -= CheckTimeLimitedStories;
+    }
+    // void Update()
+    // {
+    //     Debug.Log($"当前激活状态: {gameObject.activeSelf}, 协程状态: {(timeCheckCoroutine != null ? "运行中" : "未运行")}");
+    // }
     private void InitializeProgressData()
     {
         if (!LoadProgress())
@@ -69,32 +78,40 @@ public class StoryProgressManager : MonoBehaviour
             SaveProgress(); // 初始化后立即保存
         }
 
-        StartPeriodicTimeCheck();
+        //StartPeriodicTimeCheck();
     }
 
-    private void StartPeriodicTimeCheck()
-    {
-        if (timeCheckCoroutine != null)
-        {
-            StopCoroutine(timeCheckCoroutine);
-        }
-        timeCheckCoroutine = StartCoroutine(PeriodicTimeCheck());
-    }
+    // private void StartPeriodicTimeCheck()
+    // {
+    //     if (timeCheckCoroutine != null)
+    //     {
+    //         Debug.Log("停止之前的协程");
+    //         StopCoroutine(timeCheckCoroutine);
+    //     }
+    //     Debug.Log("启动新的定期检查协程");
+    //     timeCheckCoroutine = StartCoroutine(PeriodicTimeCheck());
+    // }
 
-    private IEnumerator PeriodicTimeCheck()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(timeCheckInterval);
-            CheckTimeLimitedStories();
+    // private IEnumerator PeriodicTimeCheck()
+    // {
+    //     Debug.LogWarning("PeriodicTimeCheck 协程开始执行");
+    //     while (true)
+    //     {
+    //         Debug.Log($"等待 {timeCheckInterval} 秒后检查...");
+    //         yield return new WaitForSeconds(timeCheckInterval);
+    //         Debug.Log("开始执行 CheckTimeLimitedStories()");
+    //         CheckTimeLimitedStories();
 
-            // 同时保存进度，防止游戏崩溃导致数据丢失
-            SaveProgress();
-        }
-    }
+    //         // 同时保存进度，防止游戏崩溃导致数据丢失
+    //         SaveProgress();
+    //     }
+    // }
 
-    public void CheckTimeLimitedStories()
+    public void CheckTimeLimitedStories(string date)
     {
+        Debug.Log("订阅日期变化事件");
+        Debug.LogWarning($"剧情截止自动检查，待检查剧情数量: {storyTimeLimits.Count}");
+        // Debug.LogError("剧情截止自动检查");
         bool anyChange = false;
         //string currentTime = TimeManager.Instance.GetCurrentDateTime();
 
@@ -123,6 +140,10 @@ public class StoryProgressManager : MonoBehaviour
         {
             SaveProgress();
         }
+    }
+    public void setStoryCompleted(string storyID)
+    {
+        storyProgressDict[storyID] = false;
     }
 
     private void LoadStoryProgressFromCSV()
