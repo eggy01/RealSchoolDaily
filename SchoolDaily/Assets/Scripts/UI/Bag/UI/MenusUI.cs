@@ -31,7 +31,7 @@ public class MenuUI : MonoBehaviour
             {
                 ShowPanel(index);
                 UpdateButtonStates(index);
-                InventoryUIHandler.Instance.CloseAllDetails();
+                BagUI.Instance.CloseAllDetails();
             });
         }
     }
