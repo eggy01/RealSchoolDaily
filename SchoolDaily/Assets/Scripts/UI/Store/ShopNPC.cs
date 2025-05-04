@@ -1,41 +1,37 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ShopNPC : MonoBehaviour
 {
-    public string shopType; // 在Inspector中设置商店类型（如"小卖部"）
-    private bool isInRange;  // 用于检测玩家是否在触发范围内
+    [Header("商店配置")]
+    public string shopType = "超市";
+    public List<ItemData> customItems; // 可覆盖默认商品
+    private bool isInRange;
     public GameObject talkUI;
 
     private void Update()
     {
-        // 当玩家在范围内且按下E键时
         if (isInRange && Input.GetKeyDown(KeyCode.E))
         {
-            if (ShopUI.Instance.shopPanel.activeSelf)
-            {
-                ShopUI.Instance.CloseShop();
-            }
-            else
-            {
-                ShopUI.Instance.ShowShop(shopType);
-            }
-        }
-
-        // 当按下ESC键时关闭商店界面
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (ShopUI.Instance.shopPanel.activeSelf)
-            {
-                ShopUI.Instance.CloseShop();
-            }
+            ToggleShopWindow();
         }
     }
-
+    private void ToggleShopWindow()
+    {
+        if (WindowManager.Instance.IsWindowOpen(typeof(ShopUI)))
+        {
+            WindowManager.Instance.CloseWindow(ShopUI.Instance);
+        }
+        else
+        {
+            WindowManager.Instance.OpenWindow(ShopUI.Instance, shopType);
+        }
+    }
+    
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("玩家进入超市触发器");
             isInRange = true;
             talkUI.SetActive(true);
         }
@@ -45,9 +41,14 @@ public class ShopNPC : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("玩家离开超市触发器");
             isInRange = false;
             talkUI.SetActive(false);
+            
+            // 离开范围时自动关闭商店
+            if (WindowManager.Instance.IsWindowOpen(typeof(ShopUI)))
+            {
+                WindowManager.Instance.CloseWindow(ShopUI.Instance);
+            }
         }
     }
 }

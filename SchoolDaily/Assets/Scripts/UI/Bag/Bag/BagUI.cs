@@ -1,4 +1,3 @@
-// BagUI.cs （控制整个背包界面）
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
@@ -6,10 +5,15 @@ using TMPro;
 using System;
 
 
-public class BagUI : MonoBehaviour
+public class BagUI : MonoBehaviour, IWindow
 {
     public static BagUI Instance;
+    public bool ShouldPauseTime => false;
+    public bool ShouldPausePlayer => true;
+    public bool IsOpen => bagPanel.activeSelf;
     [Header("UI组件")]
+    public GameObject bagPanel;
+    public Button close;
     public Transform contentParent; // ScrollView的Content对象
     public GameObject bagItemPrefab; // 物品预制体
     public GameObject detelePrefab; //删除弹窗
@@ -35,6 +39,7 @@ public class BagUI : MonoBehaviour
             return;
         }
         Instance = this;
+        close.onClick.AddListener(() => WindowManager.Instance.CloseWindow(BagUI.Instance));
     }
 
     private void Start()
@@ -47,10 +52,6 @@ public class BagUI : MonoBehaviour
         detelePrefab.SetActive(false);
         Mask1.SetActive(false);
         Mask2.SetActive(false);
-        NPCManager.Instance.MeetNPC("101011831");
-        NPCManager.Instance.MeetNPC("101012007");
-        NPCManager.Instance.AddFavorability("101011831",100);
-        NPCManager.Instance.AddMuddledness("101011831",100);
     }
     public void ForceRefresh()
     {
@@ -80,6 +81,24 @@ public class BagUI : MonoBehaviour
     }
 
     #region 刷新背包
+    public void Open(params object[] args)
+    {
+        bagPanel.SetActive(true);
+        ForceRefresh();
+        UpdateCapacityDisplay();
+    }
+
+    public void Close()
+    {
+        bagPanel.SetActive(false);
+        CloseAllDetails();
+    }
+
+    public void CloseAllDetails()
+    {
+        ForceRefresh();
+    }
+
     public void RefreshBag()
     {
         //测试
@@ -139,7 +158,7 @@ public class BagUI : MonoBehaviour
         //显示的时候显示mb
         float _used = used / 1000f;
         _used = (float)(Math.Truncate(_used * 10f) / 10f);
-        string usedValue = _used.ToString("F1"); 
+        string usedValue = _used.ToString("F1");
         float _max = max / 1000f;
         _max = (float)(Math.Truncate(_max * 10f) / 10f);
         string maxValue = _max.ToString("F1");

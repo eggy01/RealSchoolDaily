@@ -47,7 +47,6 @@ public class PlayerInformation : MonoBehaviour
     private void Start()
     {
         OnGoldUpdated.AddListener(UpdateGoldUI);
-        AddGold(10000);
         UpdateUI();
     }
 

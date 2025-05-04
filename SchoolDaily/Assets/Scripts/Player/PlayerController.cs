@@ -31,7 +31,18 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.B))
         {
-            InventoryUIHandler.Instance.ToggleInventory();
+            if (WindowManager.Instance.IsWindowOpen(typeof(BagUI)))
+            {
+                WindowManager.Instance.CloseWindow(BagUI.Instance);
+            }
+            else
+            {
+                WindowManager.Instance.OpenWindow(BagUI.Instance);
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            WindowManager.Instance.CloseAll();
         }
     }
     #endregion

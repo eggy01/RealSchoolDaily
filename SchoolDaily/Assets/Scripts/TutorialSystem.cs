@@ -65,7 +65,7 @@ public class TutorialSystem : MonoBehaviour
         Debug.Log("存储按钮被点击");
         PackageLocalData.Instance.AddItem("F001");
 
-        InventoryUIHandler.Instance.ToggleInventory();
+        WindowManager.Instance.OpenWindow(BagUI.Instance);
 
         CompleteTutorial();
     }
@@ -76,7 +76,7 @@ public class TutorialSystem : MonoBehaviour
         {
             Debug.Log("B键被按下");
 
-            InventoryUIHandler.Instance.ToggleInventory();
+            WindowManager.Instance.OpenWindow(BagUI.Instance);
 
             CompleteTutorial();
         }

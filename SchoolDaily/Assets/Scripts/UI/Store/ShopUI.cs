@@ -4,10 +4,11 @@ using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections;
 using System.Linq;
+using System.Collections.Generic;
 
-public class ShopUI : MonoBehaviour
+public class ShopUI : MonoBehaviour, IWindow
 {
-    #region Singleton
+    #region 单例
     public static ShopUI Instance;
 
     private void Awake()
@@ -18,11 +19,16 @@ public class ShopUI : MonoBehaviour
             return;
         }
         Instance = this;
+        close.onClick.AddListener(() => WindowManager.Instance.CloseWindow(ShopUI.Instance));
     }
     #endregion
 
-    #region Public Variables
+    #region 公共变量
+    public bool ShouldPauseTime => false;
+    public bool ShouldPausePlayer => true;
+    public bool IsOpen => shopPanel.activeSelf;
     [Header("UI组件")]
+    public Button close;
     public GameObject shopPanel;
     public GameObject SurePanel; //提示框
     public TextMeshProUGUI titleText;
@@ -52,7 +58,7 @@ public class ShopUI : MonoBehaviour
     public float maxSpeedMultiplier = 10f;
     #endregion
 
-    #region Private Variables
+    #region 私有变量
     private ItemData _currentSelectedItem;
     private int _currentQuantity;
     private bool _isHolding;
@@ -63,49 +69,51 @@ public class ShopUI : MonoBehaviour
 
     #region Core Methods
 
-    //打开商店 在ShopNPC中调用，传入shopType
-    public void ShowShop(string shopType = "超市")
+    public void Open(params object[] args)
     {
-        // 关闭背包
-        if (InventoryUIHandler.Instance != null)
+        // 参数解析
+        string shopType = args.Length > 0 ? (string)args[0] : "超市";
+        List<ItemData> customItems = args.Length > 1 ? (List<ItemData>)args[1] : null;
+
+        // 核心打开逻辑
+        shopPanel.SetActive(true);
+        titleText.text = shopType;
+
+        // 根据参数刷新商品
+        if (customItems != null)
         {
-            InventoryUIHandler.Instance.CloseInventory();
+            RefreshShopItems(customItems);
+        }
+        else
+        {
+            RefreshShopItems(InventoryManager.Instance.itemDatabase
+                .Where(item => item.ShopTypes.Contains(shopType))
+                .ToList());
         }
 
-        titleText.text = shopType;
+        // 重置购买状态
         _currentSelectedItem = null;
-        shopPanel.SetActive(true);
-        SurePanel.SetActive(false);
-        PauseManager.Instance.SetPauseState(true);
-        RefreshShopItems();
+        _currentQuantity = 0;
         UpdateUI();
     }
 
-    public void CloseShop()
+    public void Close()
     {
         shopPanel.SetActive(false);
+        SurePanel.SetActive(false);
 
-        // 检查背包是否打开
-        if (!InventoryUIHandler.Instance.myBag.activeSelf)
-        {
-            PauseManager.Instance.SetPauseState(false);
-        }
-
+        // 清理临时数据
         _currentSelectedItem = null;
-        UpdateUI();
+        _currentQuantity = 0;
+        ClearItemContainer();
     }
 
     //刷新商店列表
-    private void RefreshShopItems()
+    private void RefreshShopItems(List<ItemData> items)
     {
         ClearItemContainer();
 
-        //筛选
-        var validItems = InventoryManager.Instance.itemDatabase
-            .Where(item => item.ShopTypes.Contains(titleText.text) && item.Price > 0)
-            .ToList();
-
-        foreach (var item in validItems)
+        foreach (var item in items.Where(i => i.Price > 0))
         {
             CreateShopItem(item);
         }
