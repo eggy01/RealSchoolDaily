@@ -9,12 +9,14 @@ using System;
 using SchoolD.Dialogue;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using Unity.VisualScripting;
 using SchoolD.Task;
 
-public class ChatSystem : MonoBehaviour
+public class ChatSystem : MonoBehaviour, IWindow
 {
     public static ChatSystem Instance { get; private set; }
+    public bool ShouldPauseTime => false;
+    public bool ShouldPausePlayer => true;
+    public bool IsOpen => mainPanel.activeSelf;
 
     [Header("UI References")]
     [SerializeField] private GameObject mainPanel;
@@ -108,6 +110,7 @@ public class ChatSystem : MonoBehaviour
         }
         LoadChatData();//加载存档
         Instance = this;
+        backButton.onClick.AddListener(() => WindowManager.Instance.CloseWindow(ChatSystem.Instance));
 
         InitializeUI();
     }
@@ -123,24 +126,36 @@ public class ChatSystem : MonoBehaviour
         friendsButton.onClick.AddListener(ShowFriendsView);
     }
 
-    private void Update()//
+    #region Public Interface Methods
+    public void Open(params object[] args)
     {
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            ToggleMainInterface();
-        }
+        // 统一通过设置mainPanel.active来管理状态
+        mainPanel.SetActive(true);
+
+        // 处理不同打开模式
+        bool isPhoneMode = args.Length > 0 && (bool)args[0];
+        phoneChatPopup.SetActive(isPhoneMode);
+
+        // 默认显示新消息视图
+        if (!isPhoneMode) ShowNewMessagesView();
     }
 
-    #region Public Interface Methods
-    public void ToggleMainInterface()//按键弹出
+    public void Close()
     {
-        if (mainPanel.activeSelf)
+        // 关闭所有相关UI
+        mainPanel.SetActive(false);
+        phoneChatPopup.SetActive(false);
+        chatPanel.SetActive(false);
+    }
+    public void ToggleMainInterface()
+    {
+        if (IsOpen)
         {
-            HideAll();
+            WindowManager.Instance.CloseWindow(this);
         }
         else
         {
-            ShowMainInterface();
+            WindowManager.Instance.OpenWindow(this);
         }
     }
 
@@ -160,12 +175,10 @@ public class ChatSystem : MonoBehaviour
 
     public IEnumerator ShowPhoneMessage(DialoguePiece piece)
     {
-        // Pause game
-        PlayerController.Instance?.movement?.SetPause(true);
 
         // Setup phone mode
         isInPhoneMode = true;
-        mainPanel.SetActive(true);
+        WindowManager.Instance.OpenWindow(this, true);
         //phoneChatPopup.SetActive(true);
 
         // Parse message info
@@ -201,9 +214,9 @@ public class ChatSystem : MonoBehaviour
         // Clean up
         if (isInPhoneMode)
         {
-            HideAll();
-            PlayerController.Instance?.movement?.SetPause(false);
+            WindowManager.Instance.CloseWindow(this);
         }
+        yield return new WaitUntil(() => !isProcessingDeferredMessages);
     }
     #endregion
 
@@ -372,7 +385,7 @@ public class ChatSystem : MonoBehaviour
         currentChattingGroup = groupName;
         MarkAsRead(groupName);
 
-        chatPanel.SetActive(true);
+        WindowManager.Instance.OpenWindow(this, false, groupName);
         //chatNameText.text = groupName;
         chatGroupNameText.text = groupName;
 

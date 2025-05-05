@@ -39,7 +39,7 @@ public class BagUI : MonoBehaviour, IWindow
             return;
         }
         Instance = this;
-        close.onClick.AddListener(() => WindowManager.Instance.CloseWindow(BagUI.Instance));
+        close.onClick.AddListener(() => WindowManager.Instance.CloseWindow(this));
     }
 
     private void Start()

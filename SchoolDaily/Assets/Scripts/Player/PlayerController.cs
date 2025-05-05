@@ -1,3 +1,4 @@
+using UnityEditor.PackageManager.UI;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -40,6 +41,19 @@ public class PlayerController : MonoBehaviour
                 WindowManager.Instance.OpenWindow(BagUI.Instance);
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            if (WindowManager.Instance.IsWindowOpen(typeof(ChatSystem)))
+            {
+                WindowManager.Instance.CloseWindow(ChatSystem.Instance);
+            }
+            else
+            {
+                WindowManager.Instance.OpenWindow(ChatSystem.Instance, true);
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             WindowManager.Instance.CloseAll();
