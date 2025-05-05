@@ -62,28 +62,55 @@ public class ChatSystem : MonoBehaviour, IWindow
     {
         public string senderName;
         public string message;
-        public DateTime timestamp;
+        public string timestamp; // DateTime转为字符串存储
         public bool isPlayerMessage;
+        public string avatarPath;
+        [System.NonSerialized] public Sprite avatar; // 标记为不序列化
 
-        public bool ShouldShowTimeLabel(ChatRecord previousRecord)
-        {
-            if (previousRecord == null) return true;
-            return (timestamp - previousRecord.timestamp).TotalMinutes >= 30;
-        }
+        // 添加头像路径而不是Sprite对象
+
+        // public bool ShouldShowTimeLabel(ChatRecord previousRecord)
+        // {
+        //     if (previousRecord == null) return true;
+        //     return (timestamp - previousRecord.timestamp).TotalMinutes >= 30;
+        // }
     }
 
 
     [System.Serializable]
     public class DeferredMessage
     {
-        public DialoguePiece piece;
+        // 只存储必要字段代替完整piece
+        public string dialogueText;
+        public List<string> options;
+        public string nextIndex;
+        public string belongToCSVFileName;
+
+        // 原有字段
         public string groupName;
         public string senderName;
         public bool hasOptions;
         public string storyID;
         public bool isCompleted;
-        public int pieceIndex; // 新增：片段在剧情中的索引
-        public int totalPieces; // 新增：剧情总片段数
+        public int pieceIndex;
+        public int totalPieces;
+
+        // 从DialoguePiece提取数据的构造函数
+        public DeferredMessage(DialoguePiece piece, string group, string sender, string storyId, int index, int total)
+        {
+            this.dialogueText = piece.dialogueText;
+            this.options = piece.option;
+            this.nextIndex = piece.nextIndex;
+            this.belongToCSVFileName = piece.belongToCSVFileName;
+
+            this.groupName = group;
+            this.senderName = sender;
+            this.hasOptions = piece.option != null && piece.option.Count > 0;
+            this.storyID = storyId;
+            this.isCompleted = false;
+            this.pieceIndex = index;
+            this.totalPieces = total;
+        }
     }
     bool isProcessingDeferredMessages = false;
 
@@ -95,6 +122,19 @@ public class ChatSystem : MonoBehaviour, IWindow
         public Dictionary<string, List<ChatRecord>> conversations;
         public Dictionary<string, bool> unreadMessages;
         public List<DeferredMessage> deferredMessages; // 新增
+    }
+    [System.Serializable]
+    private class SerializableConversation
+    {
+        public string groupName;
+        public List<SerializableChatRecord> records;
+    }
+
+    [System.Serializable]
+    private class SerializableUnreadMessage
+    {
+        public string groupName;
+        public bool isUnread;
     }
 
     private string chatSavePath;
@@ -112,7 +152,13 @@ public class ChatSystem : MonoBehaviour, IWindow
         Instance = this;
         backButton.onClick.AddListener(() => WindowManager.Instance.CloseWindow(ChatSystem.Instance));
 
+        // 测试打印
+        PrintAllMessageStates();
+
         InitializeUI();
+        Debug.LogWarning($"组件状态: mainPanel={mainPanel != null}, newMessagesContainer={newMessagesContainer != null}");
+
+        Debug.Log($"组件引用状态: mainPanel={mainPanel != null}, newMessagesContainer={newMessagesContainer != null}");
     }
 
     private void InitializeUI()
@@ -134,10 +180,11 @@ public class ChatSystem : MonoBehaviour, IWindow
 
         // 处理不同打开模式
         bool isPhoneMode = args.Length > 0 && (bool)args[0];
+        Debug.LogWarning(isPhoneMode);
         phoneChatPopup.SetActive(isPhoneMode);
 
         // 默认显示新消息视图
-        if (!isPhoneMode) ShowNewMessagesView();
+        ShowNewMessagesView();
     }
 
     public void Close()
@@ -164,7 +211,6 @@ public class ChatSystem : MonoBehaviour, IWindow
         isInPhoneMode = false;
         mainPanel.SetActive(true);
         //phoneChatPopup.SetActive(false);
-        ShowNewMessagesView();
     }
 
     public void HideAll()
@@ -219,28 +265,89 @@ public class ChatSystem : MonoBehaviour, IWindow
         yield return new WaitUntil(() => !isProcessingDeferredMessages);
     }
     #endregion
+    // 打印未读消息字典
+    public void PrintUnreadMessages()
+    {
+        Debug.LogWarning("=== 未读消息状态 ===");
+        if (unreadMessages.Count == 0)
+        {
+            Debug.LogWarning("无未读消息");
+            return;
+        }
 
+        foreach (var kvp in unreadMessages)
+        {
+            Debug.LogWarning($"群组: {kvp.Key}, 未读: {kvp.Value}");
+        }
+    }
+
+    // 打印延迟消息列表
+    public void PrintDeferredMessages()
+    {
+        Debug.LogWarning("=== 延迟消息列表 ===");
+        if (deferredMessages.Count == 0)
+        {
+            Debug.LogWarning("无延迟消息");
+            return;
+        }
+
+        foreach (var msg in deferredMessages)
+        {
+            Debug.LogWarning($"群组: {msg.groupName}\n" +
+                     $"发送者: {msg.senderName}\n" +
+                     $"剧情ID: {msg.storyID}\n" +
+                     $"选项消息: {msg.hasOptions}\n" +
+                     $"已完成: {msg.isCompleted}\n" +
+                     $"进度: {msg.pieceIndex + 1}/{msg.totalPieces}\n" +
+                     //$"内容: {msg.piece.dialogueText}\n" +
+                     "---------------------");
+        }
+    }
+
+    // 同时打印两者的快捷方法
+    public void PrintAllMessageStates()
+    {
+        Debug.LogWarning("开始打印");
+        PrintUnreadMessages();
+        PrintDeferredMessages();
+    }
     #region Navigation Methods
     private void ShowNewMessagesView()
     {
-        chatPanel.SetActive(false);//关闭聊天框
+        Debug.LogWarning("自动打开消息面板");
+        chatPanel.SetActive(false);
         friendsContainer.gameObject.SetActive(false);
         newMessagesContainer.gameObject.SetActive(true);
+        ClearContainer(newMessagesContainer);
 
-        ClearContainer(newMessagesContainer);//清理
+        Debug.LogWarning("=== 启动测试打印 ===");
+        PrintAllMessageStates();
+        Debug.LogWarning("=== 测试打印结束 ===");
 
-        foreach (var entry in unreadMessages.Where(e => e.Value))
+        // 合并判断条件：有未读标记 或 有待处理选项
+        foreach (var group in unreadMessages.Keys
+                 .Union(deferredMessages.Select(m => m.groupName).Distinct()))
         {
-            if (conversations.TryGetValue(entry.Key, out var messages) && messages.Count > 0)
+            bool hasUnread = unreadMessages.TryGetValue(group, out bool unread) && unread;
+            bool hasPendingOptions = deferredMessages.Any(m => m.groupName == group && !m.isCompleted);
+            Debug.Log("未读消息：" + hasUnread);
+            Debug.Log("待处理选项：" + hasPendingOptions);
+
+            if ((hasUnread || hasPendingOptions) &&
+                conversations.TryGetValue(group, out var messages))
             {
-                var lastMessage = messages.Last();
-                CreateMessageListItem(entry.Key, lastMessage.message, newMessagesContainer);
+                Debug.Log("消息判断");
+                // 优先显示最后一条普通消息，如果没有则显示"新消息待处理"
+                string displayText = messages.Count > 0 ?
+                    messages.Last().message :
+                    "[有新消息待处理]";
+
+                CreateMessageListItem(group, displayText, newMessagesContainer);
             }
         }
 
         UpdateNewMessageBadge();
     }
-
     private void ShowFriendsView()
     {
         chatPanel.SetActive(false);
@@ -265,7 +372,7 @@ public class ChatSystem : MonoBehaviour, IWindow
     /// </summary>
     public void ReceiveDeferredStory(string storyID)
     {
-        int startIndex = 0;
+        Debug.LogWarning("接受延迟消息");
         List<DialoguePiece> pieces = DialogueCSVReader.Instance.LoadDialogueData(DialogueLoader.Instance.LoadCSVFromResources(storyID));
         if (pieces == null || pieces.Count == 0)
         {
@@ -275,32 +382,73 @@ public class ChatSystem : MonoBehaviour, IWindow
 
         // 解析第一个片段的信息获取群组和发送者
         ParseMessageInfo(pieces[0], out string groupName, out string senderName);
-        // 存储所有片段
-        for (int i = startIndex; i < pieces.Count; i++)
+
+        // 确保群组存在（即使没有历史消息）
+        if (!conversations.ContainsKey(groupName))
         {
-            var currentPiece = pieces[i]; // 使用currentPiece避免命名冲突
-
-            var deferredMsg = new DeferredMessage
-            {
-                piece = currentPiece,
-                groupName = groupName,
-                senderName = senderName,
-                hasOptions = currentPiece.option != null && currentPiece.option.Count > 0,
-                storyID = storyID,
-                isCompleted = false,
-                pieceIndex = i, // 记录片段索引
-                totalPieces = pieces.Count // 记录总片段数
-            };
-
-            deferredMessages.Add(deferredMsg);
-
-            // 更新解析信息（后续片段可能有不同的发送者）
-            ParseMessageInfo(currentPiece, out groupName, out senderName);
+            Debug.LogWarning("创建新的群组");
+            conversations[groupName] = new List<ChatRecord>();
+            unreadMessages[groupName] = true;
         }
 
-        SaveChatData();
+        // 处理所有消息片段
+        for (int i = 0; i < pieces.Count; i++)
+        {
+            Debug.LogWarning("开始处理消息");
+            var piece = pieces[i];
+
+            // 1. 普通NPC消息直接存入聊天记录
+            if (piece.option == null || piece.option.Count == 0)
+            {
+                var npcRecord = new ChatRecord
+                {
+                    senderName = senderName,
+                    message = piece.dialogueText,
+                    timestamp = DateTime.Now.ToString(),
+                    isPlayerMessage = false
+                };
+                Debug.LogWarning("是npc消息");
+                conversations[groupName].Add(npcRecord);
+                continue;
+            }
+
+            // 2. 选项消息特殊处理
+            var deferredMsg = new DeferredMessage(
+         piece: piece,
+         group: groupName,
+         sender: senderName,
+         storyId: storyID,
+         index: i,
+         total: pieces.Count
+     );
+
+            deferredMessages.Add(deferredMsg);
+            Debug.LogWarning("选项消息，等待玩家处理");
+            deferredMessages.Add(deferredMsg);
+            Debug.LogWarning("添加到延迟消息列表消息");
+
+            break; // 暂停后续消息，等待玩家选择
+        }
+
+        //新消息提示
+        ChatNewMessageTip.Instance.ShowNewMessageNotification();
+
+        // 更新UI状态
         MarkAsUnread(groupName);
-        Debug.Log($"已接收延迟剧情: {storyID}，共{pieces.Count}个片段，从{startIndex}开始");
+        UpdateNewMessageBadge();
+        SaveChatData();
+    }
+
+    // 当需要恢复对话时
+    public DialoguePiece ReconstructPiece(DeferredMessage deferred)
+    {
+        return new DialoguePiece
+        {
+            dialogueText = deferred.dialogueText,
+            option = deferred.options,
+            nextIndex = deferred.nextIndex,
+            belongToCSVFileName = deferred.belongToCSVFileName
+        };
     }
 
     /// <summary>
@@ -318,83 +466,151 @@ public class ChatSystem : MonoBehaviour, IWindow
     /// <param name="groupName">要检查的群组名称</param>
     public IEnumerator ProcessDeferredMessagesForGroup(string groupName)
     {
-        // 找出该群组的所有延迟消息并按时间排序
         var messagesToProcess = deferredMessages
-            .Where(m => m.groupName == groupName)
-            .OrderBy(m => m.piece.no)
+            .Where(m => m.groupName == groupName && !m.isCompleted)
+            .OrderBy(m => m.pieceIndex)
             .ToList();
 
         if (messagesToProcess.Count == 0) yield break;
 
-        // 标记为正在处理延迟消息
         isProcessingDeferredMessages = true;
-
-        // 暂停玩家控制
-        PlayerController.Instance?.movement?.SetPause(true);
-
-        // 显示聊天界面
-        mainPanel.SetActive(true);
-        chatPanel.SetActive(true);
-        chatGroupNameText.text = groupName;
 
         foreach (var deferredMsg in messagesToProcess)
         {
-            // 添加消息到聊天记录
-            AddNewMessageToChat(deferredMsg.piece);
-            SaveMessageToHistory(deferredMsg.piece, deferredMsg.groupName, deferredMsg.senderName);
+            // 重建DialoguePiece
+            var piece = new DialoguePiece
+            {
+                dialogueText = deferredMsg.dialogueText,
+                option = deferredMsg.options,
+                nextIndex = deferredMsg.nextIndex,
+                belongToCSVFileName = deferredMsg.belongToCSVFileName,
+                name = deferredMsg.senderName // 设置发送者名
+            };
+
+            AddNewMessageToChat(piece);
+            SaveMessageToHistory(piece, deferredMsg.groupName, deferredMsg.senderName);
             MarkAsUnread(deferredMsg.groupName);
 
-            // 如果有选项则处理选项
             if (deferredMsg.hasOptions)
             {
-                yield return StartCoroutine(ShowOptions(deferredMsg.piece));
+                yield return StartCoroutine(ShowOptions(piece));
             }
             else
             {
                 yield return WaitForPlayerContinue();
             }
 
-            // 从延迟列表中移除已处理的消息
+            deferredMsg.isCompleted = true;
             deferredMessages.Remove(deferredMsg);
         }
 
-        // 恢复玩家控制
-        PlayerController.Instance?.movement?.SetPause(false);
-
-        // 如果不再处理延迟消息，可以隐藏界面
-        if (!isInPhoneMode)
-        {
-            HideAll();
-        }
-
         isProcessingDeferredMessages = false;
-        SaveChatData(); // 保存状态
+        SaveChatData();
     }
 
     // 修改 OpenChatWithGroup 方法
     public void OpenChatWithGroup(string groupName)
     {
-        Debug.Log($"尝试打开聊天: {groupName}");
+        // 确保主面板保持激活
+        if (!mainPanel.activeSelf)
+        {
+            mainPanel.SetActive(true);
+        }
 
-        // 检查群组是否存在
+        // 如果群组不存在，初始化空列表
         if (!conversations.ContainsKey(groupName))
         {
-            Debug.LogWarning($"群组不存在: {groupName}");
-            return;
+            conversations[groupName] = new List<ChatRecord>();
+            unreadMessages[groupName] = false;
         }
+
         currentChattingGroup = groupName;
         MarkAsRead(groupName);
 
-        WindowManager.Instance.OpenWindow(this, false, groupName);
-        //chatNameText.text = groupName;
+        // 修改这里：不通过WindowManager直接控制UI状态
+        chatPanel.SetActive(true);
         chatGroupNameText.text = groupName;
-
         ClearChatContent();
+
+        // 加载历史消息
         LoadChatHistory(groupName);
 
-        // 先显示历史消息，然后处理延迟消息
-        StartCoroutine(OpenChatRoutine(groupName));
-        Debug.Log($"聊天面板状态: active={chatPanel.activeSelf}, 群组名={chatGroupNameText.text}");
+        // 延迟一帧再处理选项，确保UI完全初始化
+        StartCoroutine(DelayedProcessOptions(groupName));
+    }
+
+    private IEnumerator DelayedProcessOptions(string groupName)
+    {
+        yield return null; // 等待一帧确保UI完成初始化
+        yield return StartCoroutine(ProcessPendingOptions(groupName));
+    }
+
+    private IEnumerator ProcessPendingOptions(string groupName)
+    {
+        var pendingOption = deferredMessages.FirstOrDefault(m =>
+            m.groupName == groupName && !m.isCompleted && m.hasOptions);
+
+        if (pendingOption != null)
+        {
+            // 确保聊天面板保持激活
+            if (!chatPanel.activeSelf)
+            {
+                chatPanel.SetActive(true);
+            }
+
+            var optionPiece = new DialoguePiece
+            {
+                dialogueText = pendingOption.dialogueText,
+                option = pendingOption.options,
+                nextIndex = pendingOption.nextIndex,
+                belongToCSVFileName = pendingOption.belongToCSVFileName,
+                name = pendingOption.senderName
+            };
+
+            // 显示选项前确保主面板激活
+            mainPanel.SetActive(true);
+            yield return StartCoroutine(ShowOptions(optionPiece));
+
+            pendingOption.isCompleted = true;
+            SaveChatData();
+
+            if (pendingOption.pieceIndex + 1 < pendingOption.totalPieces)
+            {
+                string remainingStoryID = pendingOption.storyID;
+                deferredMessages.Remove(pendingOption);
+                ReceiveDeferredStory(remainingStoryID);
+            }
+        }
+
+        ScrollToBottom();
+    }
+
+    private IEnumerator ShowOptions(DialoguePiece piece)
+    {
+        yield return new WaitForSeconds(optionDisplayDelay);
+
+        ClearOptions();
+        var optionButtons = CreateOptionButtons(piece);
+
+        if (optionButtons.Count == 0)
+        {
+            selectedOptionIndex = 0;
+            yield break;
+        }
+
+        // 确保父面板激活
+        if (!optionsPanel.transform.parent.gameObject.activeSelf)
+        {
+            optionsPanel.transform.parent.gameObject.SetActive(true);
+        }
+
+        optionsPanel.SetActive(true);
+        selectedOptionIndex = -1;
+
+        yield return new WaitUntil(() => selectedOptionIndex != -1);
+
+        optionsPanel.SetActive(false);
+        CleanupOptions(optionButtons);
     }
 
     private IEnumerator OpenChatRoutine(string groupName)
@@ -408,21 +624,6 @@ public class ChatSystem : MonoBehaviour, IWindow
         ScrollToBottom();
         UpdateNewMessageBadge();
     }
-
-    // public void OpenChatWithGroup(string groupName)
-    // {
-    //     currentChattingGroup = groupName;
-    //     MarkAsRead(groupName);
-
-    //     chatPanel.SetActive(true);
-    //     chatNameText.text = groupName;
-    //     chatGroupNameText.text = groupName;
-
-    //     ClearChatContent();
-    //     LoadChatHistory(groupName);
-    //     ScrollToBottom();
-    //     UpdateNewMessageBadge();//设置红点
-    // }
 
     private void ReturnToMainView()
     {
@@ -457,6 +658,8 @@ public class ChatSystem : MonoBehaviour, IWindow
         {
             groupName = match.Groups[1].Value.Trim();
             senderName = match.Groups[2].Value.Trim();
+            if (groupName.Equals("NQChat"))
+                groupName = senderName;
 
             // 调试输出
             Debug.Log($"原始字符串: {piece.name}");
@@ -478,7 +681,7 @@ public class ChatSystem : MonoBehaviour, IWindow
         {
             senderName = senderName,
             message = piece.dialogueText,
-            timestamp = DateTime.Now,
+            timestamp = DateTime.Now.ToString(),
             isPlayerMessage = isPlayer
         };
 
@@ -488,11 +691,13 @@ public class ChatSystem : MonoBehaviour, IWindow
 
     private void AddMessageToChat(ChatRecord record, ChatRecord previousRecord = null)
     {
-        if (record.ShouldShowTimeLabel(previousRecord))
+        // 检查是否需要显示时间标签（第一条消息或间隔≥30分钟）
+        if (ShouldDisplayTimeLabel(record.timestamp, previousRecord?.timestamp))
         {
             CreateTimeLabel(record.timestamp);
         }
 
+        // 创建消息UI（剩余部分保持不变）
         GameObject prefab = record.isPlayerMessage ? playerMessagePrefab : messagePrefab;
         var messageObj = Instantiate(prefab, chatContent);
         var messageItem = messageObj.GetComponent<ChatMessageItem>();
@@ -501,18 +706,44 @@ public class ChatSystem : MonoBehaviour, IWindow
         {
             messageItem.Initialize(record.senderName, record.message, !record.isPlayerMessage);
 
-            if (DialogueCSVReader.Instance?.spriteDict?.TryGetValue(record.senderName, out Sprite avatar) ?? false)
+            Sprite avatar = DialogueCSVReader.Instance.GetAvatarForSender(record.senderName);
+            if (avatar != null)
             {
                 messageItem.SetAvatar(avatar);
             }
         }
     }
 
-    private void CreateTimeLabel(DateTime time)
+    // 新增方法：判断是否需要显示时间标签
+    private bool ShouldDisplayTimeLabel(string currentTime, string previousTime)
+    {
+        // 第一条消息总是显示时间
+        if (string.IsNullOrEmpty(previousTime))
+            return true;
+
+        try
+        {
+            // 解析字符串时间为DateTime（假设格式为"yyyy-MM-dd HH:mm:ss"）
+            DateTime current = DateTime.Parse(currentTime);
+            DateTime previous = DateTime.Parse(previousTime);
+
+            // 计算时间差（分钟）
+            double minutesDiff = (current - previous).TotalMinutes;
+            return minutesDiff >= 30;
+        }
+        catch
+        {
+            // 如果时间格式解析失败，默认显示时间标签
+            Debug.LogWarning($"时间格式解析失败: current={currentTime}, previous={previousTime}");
+            return true;
+        }
+    }
+
+    private void CreateTimeLabel(string time)
     {
         var timeLabel = Instantiate(timeLabelPrefab, chatContent);
         var timeLabelItem = timeLabel.GetComponent<ChatMessageItem>();
-        timeLabelItem.InitializeAsTimeLabel(time.ToString("HH:mm"));
+        timeLabelItem.InitializeAsTimeLabel(time);
     }
 
     private void SaveMessageToHistory(DialoguePiece piece, string groupName, string senderName)
@@ -523,7 +754,7 @@ public class ChatSystem : MonoBehaviour, IWindow
         {
             senderName = senderName,
             message = piece.dialogueText,
-            timestamp = DateTime.Now,
+            timestamp = DateTime.Now.ToString(),
             isPlayerMessage = isPlayer
         };
 
@@ -548,33 +779,45 @@ public class ChatSystem : MonoBehaviour, IWindow
     #endregion
 
     #region Option Handling
-    private IEnumerator ShowOptions(DialoguePiece piece)
-    {
-        yield return new WaitForSeconds(optionDisplayDelay);
+    // private IEnumerator ShowOptions(DialoguePiece piece)
+    // {
+    //     yield return new WaitForSeconds(optionDisplayDelay);
 
-        ClearOptions();
-        var optionButtons = CreateOptionButtons(piece);
+    //     ClearOptions();
 
-        if (optionButtons.Count == 0)
-        {
-            selectedOptionIndex = 0;
-        }
-        else
-        {
-            optionsPanel.SetActive(true);
-            selectedOptionIndex = -1;
+    //     // 创建选项按钮
+    //     var optionButtons = new List<Button>();
+    //     for (int i = 0; i < piece.option.Count; i++)
+    //     {
+    //         if (!ShouldShowOption(piece, i)) continue;
 
-            while (selectedOptionIndex == -1)
-            {
-                yield return null;
-            }
+    //         Button optionButton = Instantiate(optionButtonPrefab, optionsPanel.transform);
+    //         optionButton.GetComponentInChildren<TextMeshProUGUI>().text = piece.option[i];
 
-            optionsPanel.SetActive(false);
-        }
+    //         int index = i;
+    //         optionButton.onClick.AddListener(() => OnOptionSelected(index));
+    //         optionButtons.Add(optionButton);
+    //     }
 
-        CleanupOptions(optionButtons);
-        ProcessOptionResult(piece);
-    }
+    //     // 处理无选项情况
+    //     if (optionButtons.Count == 0)
+    //     {
+    //         selectedOptionIndex = 0;
+    //         yield break;
+    //     }
+
+    //     // 显示选项面板并等待选择
+    //     optionsPanel.SetActive(true);
+    //     selectedOptionIndex = -1;
+    //     yield return new WaitUntil(() => selectedOptionIndex != -1);
+    //     optionsPanel.SetActive(false);
+
+    //     // 清理选项按钮
+    //     foreach (Button button in optionButtons)
+    //     {
+    //         Destroy(button.gameObject);
+    //     }
+    // }
 
     private List<Button> CreateOptionButtons(DialoguePiece piece)
     {
@@ -701,23 +944,25 @@ public class ChatSystem : MonoBehaviour, IWindow
 
     private void CreateMessageListItem(string groupName, string lastMessage, Transform parent)
     {
-        Debug.Log("创建信息列表");
         var itemObj = Instantiate(messageItemPrefab, parent);
         var item = itemObj.GetComponent<MessageListItem>();
 
         if (item != null)
         {
+            Debug.Log("创建成功");
             bool isUnread = unreadMessages.TryGetValue(groupName, out bool unread) && unread;
+            bool hasOptions = deferredMessages.Any(m => m.groupName == groupName && !m.isCompleted);
+
             item.Initialize(
                 groupName,
                 lastMessage,
-                isUnread,
+                isUnread || hasOptions, // 有未读消息或待处理选项都显示红点
                 () => OpenChatWithGroup(groupName)
             );
 
-            if (DialogueCSVReader.Instance?.spriteDict?.TryGetValue(groupName, out Sprite avatar) ?? false)
+            if (DialogueCSVReader.Instance.GetAvatarForSender(groupName) != null)
             {
-                item.SetAvatar(avatar);
+                item.SetAvatar(DialogueCSVReader.Instance.GetAvatarForSender(groupName));
             }
         }
     }
@@ -735,10 +980,9 @@ public class ChatSystem : MonoBehaviour, IWindow
                 isUnread,
                 () => OpenChatWithGroup(groupName)
             );
-
-            if (DialogueCSVReader.Instance?.spriteDict?.TryGetValue(groupName, out Sprite avatar) ?? false)
+            if (DialogueCSVReader.Instance.GetAvatarForSender(groupName) != null)
             {
-                item.SetAvatar(avatar);
+                item.SetAvatar(DialogueCSVReader.Instance.GetAvatarForSender(groupName));
             }
         }
     }
@@ -782,23 +1026,37 @@ public class ChatSystem : MonoBehaviour, IWindow
     {
         try
         {
-            ChatSaveData saveData = new ChatSaveData
+            // 创建可序列化的数据结构
+            var saveData = new
             {
-                conversations = this.conversations,
-                unreadMessages = this.unreadMessages,
-                deferredMessages = this.deferredMessages // 新增
+                conv = conversations.ToDictionary(
+                    kv => kv.Key,
+                    kv => kv.Value.Select(r => new
+                    {
+                        r.senderName,
+                        r.message,
+                        time = r.timestamp.ToString(),
+                        r.isPlayerMessage,
+                        r.avatarPath
+                    }).ToList()
+                ),
+                unread = unreadMessages,
+                deferred = deferredMessages
             };
 
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (FileStream stream = new FileStream(chatSavePath, FileMode.Create))
-            {
-                formatter.Serialize(stream, saveData);
-            }
+            string json = JsonUtility.ToJson(saveData, true);
+            File.WriteAllText(chatSavePath, json);
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
-            Debug.LogError($"保存聊天数据失败: {e.Message}");
+            Debug.LogError($"保存失败: {e.Message}");
         }
+    }
+
+    private string GetAvatarPath(string senderName)
+    {
+        // 实现你的头像路径逻辑，例如：
+        return $"Avatars/{senderName}";
     }
 
     private void LoadChatData()
@@ -807,32 +1065,55 @@ public class ChatSystem : MonoBehaviour, IWindow
 
         try
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (FileStream stream = new FileStream(chatSavePath, FileMode.Open))
-            {
-                ChatSaveData saveData = formatter.Deserialize(stream) as ChatSaveData;
-                if (saveData != null)
-                {
-                    this.conversations = saveData.conversations ?? new Dictionary<string, List<ChatRecord>>();
-                    this.unreadMessages = saveData.unreadMessages ?? new Dictionary<string, bool>();
-                    this.deferredMessages = saveData.deferredMessages ?? new List<DeferredMessage>();
+            string json = File.ReadAllText(chatSavePath);
+            var wrapper = JsonUtility.FromJson<ChatDataWrapper>(json);
 
-                    // 迁移旧数据（如果有）
-                    foreach (var msg in this.deferredMessages)
-                    {
-                        if (string.IsNullOrEmpty(msg.storyID))
-                        {
-                            msg.storyID = "legacy_" + Guid.NewGuid().ToString();
-                            msg.isCompleted = false;
-                        }
-                    }
-                }
-            }
+            // 重建对话记录
+            conversations = wrapper.conversations.ToDictionary(
+                kv => kv.Key,
+                kv => kv.Value.Select(r => new ChatRecord
+                {
+                    senderName = r.senderName,
+                    message = r.message,
+                    timestamp = r.timestamp,
+                    isPlayerMessage = r.isPlayerMessage,
+                    avatarPath = r.avatarPath,
+                    avatar = LoadAvatar(r.avatarPath)
+                }).ToList()
+            );
+
+            unreadMessages = wrapper.unreadMessages;
+            deferredMessages = wrapper.deferredMessages;
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"加载聊天数据失败: {e.Message}");
+            Debug.LogError($"加载失败: {e.Message}");
+            InitializeDefaultData();
         }
+    }
+
+    // 辅助类用于反序列化
+    [System.Serializable]
+    private class ChatDataWrapper
+    {
+        public Dictionary<string, List<SerializableChatRecord>> conversations;
+        public Dictionary<string, bool> unreadMessages;
+        public List<DeferredMessage> deferredMessages;
+    }
+
+    [System.Serializable]
+    private class SerializableChatRecord
+    {
+        public string senderName;
+        public string message;
+        public string timestamp;
+        public bool isPlayerMessage;
+        public string avatarPath;
+    }
+
+    private Sprite LoadAvatar(string path)
+    {
+        return Resources.Load<Sprite>(path);
     }
 
     /// <summary>
@@ -857,58 +1138,13 @@ public class ChatSystem : MonoBehaviour, IWindow
         }
     }
 
-    // // 新增方法：保存聊天数据
-    // public void SaveChatData()
-    // {
-    //     try
-    //     {
-    //         ChatSaveData saveData = new ChatSaveData
-    //         {
-    //             conversations = this.conversations,
-    //             unreadMessages = this.unreadMessages
-    //         };
 
-    //         BinaryFormatter formatter = new BinaryFormatter();
-    //         using (FileStream stream = new FileStream(chatSavePath, FileMode.Create))
-    //         {
-    //             formatter.Serialize(stream, saveData);
-    //         }
-
-    //         Debug.Log("聊天数据已保存");
-    //     }
-    //     catch (System.Exception e)
-    //     {
-    //         Debug.LogError($"保存聊天数据失败: {e.Message}");
-    //     }
-    // }
-
-    // // 新增方法：加载聊天数据
-    // private void LoadChatData()
-    // {
-    //     if (!File.Exists(chatSavePath)) return;
-
-    //     try
-    //     {
-    //         BinaryFormatter formatter = new BinaryFormatter();
-    //         using (FileStream stream = new FileStream(chatSavePath, FileMode.Open))
-    //         {
-    //             ChatSaveData saveData = formatter.Deserialize(stream) as ChatSaveData;
-    //             if (saveData != null)
-    //             {
-    //                 this.conversations = saveData.conversations ?? new Dictionary<string, List<ChatRecord>>();
-    //                 this.unreadMessages = saveData.unreadMessages ?? new Dictionary<string, bool>();
-    //                 Debug.Log("聊天数据已加载");
-    //             }
-    //         }
-    //     }
-    //     catch (System.Exception e)
-    //     {
-    //         Debug.LogError($"加载聊天数据失败: {e.Message}");
-    //         // 加载失败时初始化空数据
-    //         this.conversations = new Dictionary<string, List<ChatRecord>>();
-    //         this.unreadMessages = new Dictionary<string, bool>();
-    //     }
-    // }
+    private void InitializeDefaultData()
+    {
+        conversations = new Dictionary<string, List<ChatRecord>>();
+        unreadMessages = new Dictionary<string, bool>();
+        deferredMessages = new List<DeferredMessage>();
+    }
 
     // 新增方法：清空存档（用于测试）
     public void ClearChatSave()

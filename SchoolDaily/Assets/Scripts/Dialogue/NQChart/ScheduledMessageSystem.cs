@@ -34,6 +34,10 @@ public class ScheduledMessageSystem : MonoBehaviour
         ScheduleMessage("Semester_sx_0,", new DateTime(1, 9, 23, 19, 0, 0), false);
         ScheduleMessage("Semester_sx_00,", new DateTime(1, 9, 23, 19, 0, 0), false);
         ScheduleMessage("Semester_sx_04,", new DateTime(1, 9, 30, 20, 0, 0), false);
+        ScheduleMessage("Semester_sx_05_0,", new DateTime(1, 9, 30, 20, 0, 0), false);
+        ScheduleMessage("Semester_sx_07_1,", new DateTime(1, 10, 14, 19, 0, 0), false);
+        ScheduleMessage("Semester_sx_07_2,", new DateTime(1, 10, 15, 8, 0, 0), false);
+        ScheduleMessage("Semester_sx_07_5,", new DateTime(1, 10, 16, 20, 0, 0), false);
     }
 
     private void Update()

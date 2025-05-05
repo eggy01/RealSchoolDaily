@@ -141,6 +141,7 @@ public class DialogueUI : MonoBehaviour
                     dialogueText.gameObject.SetActive(true);
                     faceLeft.gameObject.SetActive(true);
                     faceLeft.sprite = piece.faceImage;
+                    faceLeft.SetNativeSize();
                 }
                 // 非旁白模式：正常显示对话
                 else

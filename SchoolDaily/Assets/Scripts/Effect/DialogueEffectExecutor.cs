@@ -157,20 +157,14 @@ public class DialogueEffectExecutor : MonoBehaviour
         Debug.Log("对话框已隐藏，开始自动移动");
 
         // 3. 开始移动
-        PlayerAutoMovement.MoveToPosition(targetPos);
+        PlayerAutoMovement.Instance.MoveToPosition(targetPos);
 
         // 4. 等待移动完成
-        PlayerAutoMovement movement = PlayerAutoMovement.FindPlayer()?.GetComponent<PlayerAutoMovement>();
-        if (movement != null)
-        {
-            yield return new WaitWhile(() => movement.IsMoving());
-            yield return new WaitForSeconds(1f);
-            Debug.Log("自动移动完成");
-        }
-        else
-        {
-            Debug.LogError("找不到PlayerAutoMovement组件");
-        }
+        //PlayerAutoMovement movement = PlayerAutoMovement.FindPlayer()?.GetComponent<PlayerAutoMovement>();
+
+        yield return new WaitWhile(() => PlayerAutoMovement.Instance.isAutoMoving);
+        yield return new WaitForSeconds(1f);
+        Debug.Log("自动移动完成");
 
         // 5. 重新显示对话框
         // DialogueUI.Instance.ShowDialogue();
@@ -484,7 +478,8 @@ public class DialogueEffectExecutor : MonoBehaviour
                effect.type == EffectType.SceneTransition ||
                effect.type == EffectType.ShowText ||
                effect.type == EffectType.PlayerAutoMoveto ||
-               effect.type == EffectType.RandomEvent;
+               effect.type == EffectType.RandomEvent ||
+               effect.type == EffectType.AddNewChat;
     }
 
     private bool IsFinalizationEffect(DialogueEffect effect)

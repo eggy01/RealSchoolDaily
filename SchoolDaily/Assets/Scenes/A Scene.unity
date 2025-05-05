@@ -57416,6 +57416,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9fdb1a4df38d5479511581fc9ff82a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CanTalkUI: {fileID: 0}
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
@@ -71931,6 +71932,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9fdb1a4df38d5479511581fc9ff82a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CanTalkUI: {fileID: 0}
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
@@ -72027,6 +72029,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9fdb1a4df38d5479511581fc9ff82a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CanTalkUI: {fileID: 0}
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
@@ -72307,6 +72310,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9fdb1a4df38d5479511581fc9ff82a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CanTalkUI: {fileID: 0}
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
@@ -132747,6 +132751,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9fdb1a4df38d5479511581fc9ff82a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CanTalkUI: {fileID: 0}
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: 879647a0e6a950e4b81153a3935c45cb, type: 3}
@@ -133173,6 +133178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9fdb1a4df38d5479511581fc9ff82a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CanTalkUI: {fileID: 0}
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
@@ -133255,7 +133261,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToGo: Life Scene
-  positionToGo: {x: 7, y: 57, z: 0}
+  positionToGo: {x: 9, y: 57, z: 0}
 --- !u!61 &2138424867
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -133310,7 +133316,7 @@ Transform:
   m_GameObject: {fileID: 2138424865}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 7.01, y: 56.61, z: 0}
+  m_LocalPosition: {x: 6.6, y: 56.61, z: 0}
   m_LocalScale: {x: 1.87, y: 4.9714, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
