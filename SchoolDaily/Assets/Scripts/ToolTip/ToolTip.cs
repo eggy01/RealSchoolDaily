@@ -40,12 +40,12 @@ public class ToolTip : MonoBehaviour
         layoutElement.enabled = shouldWrap;
     }
 
-    private void Update()
-    {
-        if (gameObject.activeInHierarchy)
-        {
-            Vector2 position = Input.mousePosition;
-            transform.position = position;
-        }
-    }
+    // private void Update()
+    // {
+    //     if (gameObject.activeInHierarchy)
+    //     {
+    //         Vector2 position = Input.mousePosition;
+    //         transform.position = position;
+    //     }
+    // }
 }

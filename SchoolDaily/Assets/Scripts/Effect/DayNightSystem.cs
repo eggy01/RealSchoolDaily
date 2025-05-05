@@ -48,7 +48,9 @@ public class DayNightSystem : MonoBehaviour
     private void OnEnable()
     {
         //EventHandler.OnDayChangedEvent += OnHourChanged;
-        TimeManager.Instance.OnHourChanged += OnHourChanged;
+        //TimeManager.Instance.OnHourChanged += OnHourChanged;
+        EventHandler.TenMinuteChanged += ChangedLight;
+        EventHandler.AfterScenLoadEvent += ChangedLight;
         // UnityEngine.SceneManagement.SceneManager.activeSceneChanged += OnSceneChanged;
     }
 
@@ -56,8 +58,10 @@ public class DayNightSystem : MonoBehaviour
     {
         //EventHandler.OnDayChangedEvent -= OnHourChanged;
         //TimeManager.OnHourChanged -= OnHourChanged;
-        TimeManager.Instance.OnHourChanged -= OnHourChanged;
+        //TimeManager.Instance.OnHourChanged -= OnHourChanged;
+        EventHandler.TenMinuteChanged -= ChangedLight;
         //UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= OnSceneChanged;
+        EventHandler.AfterScenLoadEvent -= ChangedLight;
     }
 
     private void Start()
@@ -65,18 +69,25 @@ public class DayNightSystem : MonoBehaviour
         //CheckCurrentScene();
         // 强制重置曲线（仅调试用）
         lightIntensityCurve = new AnimationCurve(
-            new Keyframe(0f, 0.1f),    // 午夜
-            new Keyframe(0.2f, 0.8f),  // 黎明开始
-            new Keyframe(0.3f, 1f),    // 早晨（覆盖7:00）
-            new Keyframe(0.7f, 1f),    // 傍晚
-            new Keyframe(0.8f, 0.1f)   // 深夜
-        );
+    new Keyframe(0f, 0.1f),    // 午夜
+    new Keyframe(0.23f, 0.1f),  // 黎明前
+    new Keyframe(0.25f, 0.8f),  // 日出
+    new Keyframe(0.3f, 1f),    // 完全日出
+    new Keyframe(0.7f, 1f),    // 日落前
+    new Keyframe(0.75f, 0.8f), // 日落
+    new Keyframe(0.77f, 0.1f)  // 完全夜晚
+);
         UpdateTimeOfDay(); // 添加这行初始化时间
         UpdateSeasonalParameters();
         UpdateLighting();
 
     }
     private void OnHourChanged(int hour)
+    {
+        UpdateTimeOfDay();
+        UpdateLighting();
+    }
+    private void ChangedLight()
     {
         UpdateTimeOfDay();
         UpdateLighting();
@@ -90,6 +101,9 @@ public class DayNightSystem : MonoBehaviour
         float minute = timeManager.GetMinute();
 
         currentTimeOfDay = (hour + minute / 60f) / 24f;
+
+        // 添加调试输出
+        //Debug.Log($"当前游戏时间: {hour}:{minute} => currentTimeOfDay: {currentTimeOfDay}");
     }
 
     private void UpdateSeasonalParameters()
@@ -128,7 +142,6 @@ public class DayNightSystem : MonoBehaviour
 
         if (!WeatherManager.isOutdoorScene)
         {
-            // 非室外场景直接设为固定光照
             globalLight.intensity = 1f;
             globalLight.color = Color.white;
             return;
@@ -136,65 +149,54 @@ public class DayNightSystem : MonoBehaviour
 
         UpdateSeasonalParameters();
 
+        // 1. 计算季节参数（严格限制范围）
+        float currentDayLength = Mathf.Clamp(
+            Mathf.Lerp(winterDayLength, summerDayLength, seasonLerpFactor),
+            0.1f, 24f
+        );
+        float currentMaxIntensity = Mathf.Clamp(
+            Mathf.Lerp(winterMaxIntensity, summerMaxIntensity, seasonLerpFactor),
+            baseMinIntensity, 1f
+        );
 
-        // 计算当前季节的昼夜参数
-        float currentDayLength = Mathf.Lerp(winterDayLength, summerDayLength, seasonLerpFactor);
-        float currentMaxIntensity = Mathf.Lerp(winterMaxIntensity, summerMaxIntensity, seasonLerpFactor);
+        // 2. 计算时间分段（防止除零和越界）
+        float dawnTime = Mathf.Clamp((12f - currentDayLength / 2f) / 24f, 0f, 0.5f);
+        float sunriseTime = Mathf.Clamp(dawnTime + 0.05f, dawnTime + 0.01f, 0.5f); // 确保 sunriseTime > dawnTime
+        float sunsetTime = Mathf.Clamp((12f + currentDayLength / 2f - 0.05f) / 24f, 0.5f, 1f);
+        float duskTime = Mathf.Clamp((12f + currentDayLength / 2f) / 24f, sunsetTime + 0.01f, 1f); // 确保 duskTime > sunsetTime
 
-        // 调整天气系统的基础光照强度
-        AdjustWeatherLightIntensity(currentMaxIntensity);
-
-        // 计算日夜周期
-        float dawnTime = (12f - currentDayLength / 2f) / 24f;
-        float duskTime = (12f + currentDayLength / 2f) / 24f;
-
-
-        // 计算光照强度
+        // 3. 计算光照强度（严格限制插值参数）
         float intensity;
-        if (currentTimeOfDay < dawnTime || currentTimeOfDay > duskTime)
+        if (currentTimeOfDay <= dawnTime || currentTimeOfDay >= duskTime)
         {
-            // 夜晚
-            intensity = baseMinIntensity;
+            intensity = baseMinIntensity; // 夜晚
         }
-        else if (currentTimeOfDay < dawnTime + 0.05f)
+        else if (currentTimeOfDay <= sunriseTime)
         {
-            // 黎明过渡
-            float t = (currentTimeOfDay - dawnTime) / 0.05f;
-            intensity = Mathf.Lerp(baseMinIntensity, currentMaxIntensity, t);
+            float t = Mathf.Clamp01((currentTimeOfDay - dawnTime) / Mathf.Max(0.01f, sunriseTime - dawnTime));
+            intensity = Mathf.Lerp(baseMinIntensity, currentMaxIntensity, t); // 黎明渐变
         }
-        else if (currentTimeOfDay > duskTime - 0.05f)
+        else if (currentTimeOfDay >= sunsetTime)
         {
-            // 黄昏过渡
-            float t = (duskTime - currentTimeOfDay) / 0.05f;
-            intensity = Mathf.Lerp(baseMinIntensity, currentMaxIntensity, t);
+            float t = Mathf.Clamp01((duskTime - currentTimeOfDay) / Mathf.Max(0.01f, duskTime - sunsetTime));
+            intensity = Mathf.Lerp(baseMinIntensity, currentMaxIntensity, t); // 黄昏渐变
         }
         else
         {
-            // 白天
-            intensity = currentMaxIntensity;
+            intensity = currentMaxIntensity; // 白天
         }
 
-        // 应用光照设置
+        // 4. 最终强度限制（双重保险）
+        float finalIntensity = Mathf.Clamp(intensity, baseMinIntensity, currentMaxIntensity);
+        globalLight.intensity = finalIntensity;
         globalLight.color = lightColorGradient.Evaluate(currentTimeOfDay);
 
-        float curveValue = lightIntensityCurve.Evaluate(currentTimeOfDay);
-        //Debug.Log($"强度计算: {intensity:F2} * {curveValue:F2}");
-        if (curveValue <= 0.01f) // 如果曲线异常
-        {
-            curveValue = 1f;    // 强制白天亮度
-            Debug.LogWarning("光照曲线返回异常值，已强制修复");
-        }
+        // 调试输出
+        Debug.Log($"时间: {currentTimeOfDay:F3} | 分段: [{dawnTime:F3},{sunriseTime:F3}]→[{sunsetTime:F3},{duskTime:F3}]");
+        Debug.Log($"强度: {intensity:F3} → 最终: {finalIntensity:F3} (最大允许: {currentMaxIntensity:F2})");
 
-        globalLight.intensity = Mathf.Clamp(intensity * curveValue, 0.03f, 1f);
-        //Debug.Log("当前灯光强度：" + globalLight.intensity);
-
-        // 新增：根据光照强度控制路灯
-        // 控制所有灯光（光照≤0.2时开启）
-        bool shouldLightsBeOn = globalLight.intensity <= lightActivationThreshold;
-        lightController.SetAllLights(shouldLightsBeOn);
-
-        Debug.Log($"全局光照: {globalLight.intensity:F2} | " +
-                 $"灯光状态: {(shouldLightsBeOn ? "开启" : "关闭")}");
+        // 控制路灯
+        lightController.SetAllLights(finalIntensity <= lightActivationThreshold);
     }
 
     private void AdjustWeatherLightIntensity(float seasonMaxIntensity)

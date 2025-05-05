@@ -68,10 +68,12 @@ public class DialogueCSVReader : MonoBehaviour
             }
 
             //解析角色名字
-            if (fields[2].Contains("(=pn)") || fields[2].Contains("主角"))
+            if (fields[2].Contains("(=pn)"))
                 fields[2] = fields[2].Replace("(=pn)", Settings.playerName);
             if (fields[2].Contains("主角"))
                 fields[2] = fields[2].Replace("主角", Settings.playerName);
+            if (fields[2].Contains("（=pn）"))
+                fields[2] = fields[2].Replace("（=pn）", Settings.playerName);
 
             piece.name = fields[2].Trim();
 
@@ -147,6 +149,8 @@ public class DialogueCSVReader : MonoBehaviour
             {
                 if (fields[8].Contains("|"))
                     piece.nextIndex = fields[8];
+                else if (fields[8].Contains(":"))
+                    piece.nextIndex = fields[8].Replace(":", "");
                 else
                     piece.nextDialogueCSVFileName = fields[8];
             }

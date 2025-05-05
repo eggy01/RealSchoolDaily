@@ -85,9 +85,15 @@ namespace SchoolD.Dialogue
                     {
                         dialogueList = DialogueCSVReader.Instance.LoadDialogueData(csvFiles[i]);
                         if (dialogueList != null)
-                            if (!string.IsNullOrEmpty(dialogueList[0].prerequisites)
-                            && dialogueList[0].prerequisites.Contains(";")
-                            && ConditionSystem.CheckAll(dialogueList[0].prerequisites))
+                            if (string.IsNullOrEmpty(dialogueList[0].prerequisites))
+                            {
+                                hasActiveDialogue = true;
+                                CurrentcsvFileName = csvFiles[i].name;
+                                Debug.Log("当前剧情：" + CurrentcsvFileName);
+                                break;
+                            }
+                            else
+                        if (ConditionSystem.CheckAll(dialogueList[0].prerequisites))
                             {
                                 hasActiveDialogue = true;
                                 CurrentcsvFileName = csvFiles[i].name;
@@ -167,11 +173,21 @@ namespace SchoolD.Dialogue
                     // 只有条件满足时才继续
                     piece = dialogueStack.Pop();
                     EventHandler.CallShowDialogueEvent(piece);
-                    if (Input.GetKeyDown(KeyCode.P))
-                        break;
 
-                    // 等待对话完成
+                    // // 检查是否需要跳转
+                    // if (!string.IsNullOrEmpty(piece.nextIndex))
+                    // {
+                    //     Debug.Log($"跳转到新对话: {piece.nextIndex}");
+                    //     istalking = false;
+                    //     canTalkUI.SetActive(false);
+                    //     hasActiveDialogue = false;
+                    //     //EventHandler.CallLoadDialogueByIndex(piece.nextIndex, piece.belongToCSVFileName);
+                    //     yield break; // 终止当前协程
+                    // }
+                    //等待对话完成
                     yield return new WaitUntil(() => piece.isDone);
+
+
 
                     // 等待玩家输入继续
                     if (piece.hasToPause)
@@ -187,21 +203,7 @@ namespace SchoolD.Dialogue
 
 
         }
-        // 新增：跳过整个对话
-        public void SkipEntireDialogue()
-        {
-            if (!istalking) return;
 
-            isDialogueSkipping = true;
-            Debug.Log("玩家点击按钮跳过了整个对话");
-
-            // 立即清空对话栈
-            dialogueStack.Clear();
-
-            // 强制结束当前对话
-            EventHandler.CallShowDialogueEvent(null);
-        }
-        // 新增：对话清理公共逻辑
         private void CleanUpDialogue()
         {
             // 对话结束

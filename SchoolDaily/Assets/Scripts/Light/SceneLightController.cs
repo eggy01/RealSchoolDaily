@@ -24,11 +24,13 @@ public class SceneLightController : MonoBehaviour
     [Header("设置")]
     public float checkInterval = 0.3f;
     public float activationRadius = 20f;
+    public float lightActivationThreshold = 0.2f; // 光照强度阈值，低于这个值才激活灯光
 
     private Dictionary<Light2D, bool> lightPool = new Dictionary<Light2D, bool>();
     private List<Light2D> activeLights = new List<Light2D>();
     private Transform playerTransform;
     private Coroutine checkCoroutine;
+    private Light2D globalLight; // 用于检测全局光照强度
 
     private void Awake()
     {
@@ -56,6 +58,7 @@ public class SceneLightController : MonoBehaviour
     private void InitializeSystem()
     {
         FindPlayer();
+        FindGlobalLight();
         RefreshSceneLights();
         InitializeLightPool();
         StartLightCheck();
@@ -68,6 +71,23 @@ public class SceneLightController : MonoBehaviour
         {
             Debug.LogWarning("未找到玩家对象，将使用默认位置");
             playerTransform = transform; // 使用控制器自身作为回退位置
+        }
+    }
+
+    private void FindGlobalLight()
+    {
+        // 查找场景中的全局光照（通常是一个没有形状的Light2D）
+        globalLight = FindObjectOfType<Light2D>();
+        if (globalLight != null && globalLight.lightType != Light2D.LightType.Global)
+        {
+            // 如果不是全局光，继续查找
+            var allLights = FindObjectsOfType<Light2D>();
+            globalLight = allLights.FirstOrDefault(light => light.lightType == Light2D.LightType.Global);
+        }
+
+        if (globalLight == null)
+        {
+            Debug.LogWarning("未找到全局光照，将默认视为夜晚");
         }
     }
 
@@ -99,7 +119,7 @@ public class SceneLightController : MonoBehaviour
             if (lightParent != null)
             {
                 group.lights = lightParent.GetComponentsInChildren<Light2D>(true)
-                    .Where(light => light != null)
+                    .Where(light => light != null && light.lightType != Light2D.LightType.Global) // 排除全局光
                     .ToList();
 
                 Debug.Log($"收集到 {SceneManager.GetActiveScene().name} 的 {group.groupName} 灯光: {group.lights.Count}个");
@@ -155,9 +175,10 @@ public class SceneLightController : MonoBehaviour
         activeLights.Clear();
     }
 
-    public void SetAllLights(bool turnOn)
+    // 外部调用这个方法根据光照强度控制灯光
+    public void SetAllLights(bool shouldLightsBeOn)
     {
-        if (turnOn)
+        if (shouldLightsBeOn)
         {
             UpdateActiveLightsAroundPlayer();
         }
@@ -165,6 +186,16 @@ public class SceneLightController : MonoBehaviour
         {
             ReturnAllLightsToPool();
         }
+    }
+
+    // 检查当前是否是夜晚（光照强度≤阈值）
+    public bool IsNightTime()
+    {
+        // 如果没有找到全局光，默认视为夜晚
+        if (globalLight == null) return true;
+
+        // 检查全局光照强度是否低于阈值
+        return globalLight.intensity <= lightActivationThreshold;
     }
 
     private void StartLightCheck()
@@ -181,12 +212,28 @@ public class SceneLightController : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(checkInterval);
-            UpdateActiveLightsAroundPlayer();
+
+            // 只有夜晚时才检查玩家附近的灯光
+            if (IsNightTime())
+            {
+                UpdateActiveLightsAroundPlayer();
+            }
+            else
+            {
+                ReturnAllLightsToPool();
+            }
         }
     }
 
     private void UpdateActiveLightsAroundPlayer()
     {
+        // 如果不在夜晚时间，直接返回所有灯光
+        if (!IsNightTime())
+        {
+            ReturnAllLightsToPool();
+            return;
+        }
+
         if (playerTransform == null)
         {
             FindPlayer();
@@ -196,7 +243,7 @@ public class SceneLightController : MonoBehaviour
         Vector2 playerPos = playerTransform.position;
         List<Light2D> neededLights = new List<Light2D>();
 
-        // 确定需要哪些灯光
+        // 确定需要哪些灯光（仅在夜晚且玩家靠近时）
         foreach (var group in lightGroups)
         {
             neededLights.AddRange(group.lights

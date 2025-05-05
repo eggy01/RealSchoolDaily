@@ -33,6 +33,13 @@ public class EventHandler
     }
 
     //昼夜相关
+    //十分钟更新一次光照
+    public static event System.Action TenMinuteChanged;
+    public static void CallTenMinuteChanged()
+    {
+        TenMinuteChanged?.Invoke();
+    }
+    //一小时更新一次光照
     public static event System.Action OnHourChangedEvent;
     public static void CallOnHourChangedEvent()
     {

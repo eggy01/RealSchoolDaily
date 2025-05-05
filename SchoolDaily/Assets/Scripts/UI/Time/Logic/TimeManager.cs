@@ -133,6 +133,7 @@ public class TimeManager : MonoBehaviour
             {
                 lastUpdatedMinute = gameMinute;
                 EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
+                EventHandler.CallTenMinuteChanged();
             }
         }
     }

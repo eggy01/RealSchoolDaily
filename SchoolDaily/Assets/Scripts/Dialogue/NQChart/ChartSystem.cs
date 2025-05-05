@@ -361,6 +361,14 @@ public class ChatSystem : MonoBehaviour
     // 修改 OpenChatWithGroup 方法
     public void OpenChatWithGroup(string groupName)
     {
+        Debug.Log($"尝试打开聊天: {groupName}");
+
+        // 检查群组是否存在
+        if (!conversations.ContainsKey(groupName))
+        {
+            Debug.LogWarning($"群组不存在: {groupName}");
+            return;
+        }
         currentChattingGroup = groupName;
         MarkAsRead(groupName);
 
@@ -373,6 +381,7 @@ public class ChatSystem : MonoBehaviour
 
         // 先显示历史消息，然后处理延迟消息
         StartCoroutine(OpenChatRoutine(groupName));
+        Debug.Log($"聊天面板状态: active={chatPanel.activeSelf}, 群组名={chatGroupNameText.text}");
     }
 
     private IEnumerator OpenChatRoutine(string groupName)
@@ -679,6 +688,7 @@ public class ChatSystem : MonoBehaviour
 
     private void CreateMessageListItem(string groupName, string lastMessage, Transform parent)
     {
+        Debug.Log("创建信息列表");
         var itemObj = Instantiate(messageItemPrefab, parent);
         var item = itemObj.GetComponent<MessageListItem>();
 

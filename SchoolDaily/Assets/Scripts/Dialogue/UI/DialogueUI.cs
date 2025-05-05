@@ -76,11 +76,18 @@ public class DialogueUI : MonoBehaviour
 
     private IEnumerator ShowDialogue(DialoguePiece piece)
     {
-        Debug.Log("处理剧情");
 
         PlayerController.Instance.movement.SetPause(true);
         if (piece != null)
         {
+            if (piece.index == -1)
+            {
+                piece.isDone = true;
+                SetAllFalse();
+                yield break;
+            }
+
+
             Debug.Log("地点" + piece.Loaction);
             // 检查是否是手机屏幕消息
             if (!string.IsNullOrEmpty(piece.Loaction) && piece.Loaction.Contains("手机屏幕"))
@@ -140,6 +147,7 @@ public class DialogueUI : MonoBehaviour
                 {
                     dialogueBoxTop.SetActive(true);
                     dialogueText.gameObject.SetActive(true);
+                    Debug.Log("说话者" + piece.name);
 
                     if (!piece.name.Equals(string.Empty))
                     {
@@ -346,6 +354,16 @@ public class DialogueUI : MonoBehaviour
                     //}
                     yield break;
                 }
+                // 动态加载下一剧情文件
+                if (!string.IsNullOrEmpty(piece.nextIndex))
+                {
+                    yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
+                    Debug.Log("跳转下一剧情：" + piece.nextIndex);
+
+                    SetAllFalse();
+                    EventHandler.CallLoadDialogueByIndex(piece.nextIndex, piece.belongToCSVFileName);
+                    yield break;
+                }
             }
             piece.isDone = true;
 
@@ -391,24 +409,6 @@ public class DialogueUI : MonoBehaviour
         currentPiece = null;
     }
 
-    // IEnumerator AnimateText(string text, float duration)
-    // {
-    //     dialogueText.text = "";
-    //     float lettersPerSecond = text.Length / duration;
-
-    //     for (int i = 0; i <= text.Length; i++)
-    //     {
-    //         // 如果玩家按了空格或点击，立即显示完整文本
-    //         if (Input.GetMouseButtonDown(0))
-    //         {
-    //             dialogueText.text = text;
-    //             break;
-    //         }
-
-    //         dialogueText.text = text.Substring(0, i);
-    //         yield return new WaitForSeconds(1f / lettersPerSecond);
-    //     }
-    // }
     public IEnumerator AnimateText(string text, float dely)//dely为单个字符打出时间
     {
         if (text.Contains("x"))

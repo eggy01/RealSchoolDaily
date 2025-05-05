@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
@@ -8,6 +9,7 @@ using UnityEngine.UI;
 
 public class WeatherManager : MonoBehaviour
 {
+    public static WeatherManager Instance { get; private set; }
     public enum WeatherType
     {
         Sunny,
@@ -59,6 +61,7 @@ public class WeatherManager : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
         timeManager = FindObjectOfType<TimeManager>();
         CheckCurrentScene();
     }
@@ -86,6 +89,11 @@ public class WeatherManager : MonoBehaviour
     {
         CheckCurrentScene();
         UpdateWeatherEffects();
+    }
+
+    public bool IsOuterScene(string scenename)//判断是否为室外场景
+    {
+        return outdoorScenes.Contains(scenename);
     }
 
     private void CheckCurrentScene()

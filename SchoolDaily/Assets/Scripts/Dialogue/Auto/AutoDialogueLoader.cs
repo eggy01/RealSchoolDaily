@@ -59,10 +59,10 @@ public class AutoDialogueLoader : MonoBehaviour
                     RegisterDialogue(line);
                 }
             }
-            else if (showFilterLogs)
-            {
-                Debug.Log($"跳过剧情 [{line["ID"]}]，时间限制 {line["TimeLimit"]} 不符合当前日期: {currentDate:MM-dd}");
-            }
+            // else if (showFilterLogs)
+            // {
+            //     Debug.Log($"跳过剧情 [{line["ID"]}]，时间限制 {line["TimeLimit"]} 不符合当前日期: {currentDate:MM-dd}");
+            // }
         }
 
         Debug.Log($"当日剧情加载完成: 共{totalCount}条，加载{loadedCount}条，跳过{totalCount - loadedCount}条");

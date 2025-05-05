@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ToolTipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class ToolTipTrigger : MonoBehaviour//, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField]
     [TextArea(3, 10)] // 添加这个特性使Inspector中显示多行文本区域
@@ -11,16 +11,6 @@ public class ToolTipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     [SerializeField]
     public string header = "默认标题";
-
-    // public void OnMouseEnter()
-    // {
-    //     Debug.Log($"触发提示 - 标题: {header}, 内容: {content}"); // 调试日志
-    //     ToolTipSystem.Show(content, header);
-    // }
-    // public void OnMouseExit()
-    // {
-    //     ToolTipSystem.Hide();
-    // }
 
     public void OnPointerEnter(PointerEventData eventData)
     {

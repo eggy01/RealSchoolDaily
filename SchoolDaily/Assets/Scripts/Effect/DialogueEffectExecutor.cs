@@ -142,6 +142,7 @@ public class DialogueEffectExecutor : MonoBehaviour
     private IEnumerator ExecuteSceneTransition(DialogueEffect effect)
     {
         var transitionData = ParseSceneTransition(effect.parameters);
+        Debug.Log("场景切换数据：" + transitionData.sceneName + "X:" + transitionData.position.x + "Y:" + transitionData.position.y);
         EventHandler.CallTransitionEvent(transitionData.sceneName, transitionData.position);
         yield return null;
     }

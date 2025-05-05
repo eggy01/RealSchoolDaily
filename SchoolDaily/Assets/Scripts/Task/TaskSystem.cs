@@ -105,17 +105,32 @@ namespace SchoolD.Task
                 string[] fields = ParseCSVLine(lines[i]);
                 if (fields.Length < 6) continue;
 
+                // 清理和规范化所有字段
+                for (int j = 0; j < fields.Length; j++)
+                {
+                    fields[j] = fields[j]?.Trim() ?? "";
+                }
+
                 var task = new Task
                 {
-                    PID = fields[0].Trim(),
-                    parentPID = fields[1].Trim(),
-                    location = fields[2].Trim(),
-                    title = fields[3].Trim(),
-                    reward = fields[4].Trim(),
-                    description = fields[5].Trim(),
-                    time = fields.Length > 6 ? fields[6].Trim() : "",
-                    state = fields.Length > 7 ? (TaskState)Enum.Parse(typeof(TaskState), fields[7].Trim()) : TaskState.NoStarted,
+                    PID = fields[0],
+                    parentPID = fields[1],
+                    location = fields[2],
+                    title = fields[3],
+                    reward = fields[4],
+                    description = fields[5],
+                    time = fields.Length > 6 ? fields[6].Replace(";", ":") : "", // 统一时间分隔符
+                    state = TaskState.NoStarted // 默认状态
                 };
+
+                // 只有明确提供了状态时才解析
+                if (fields.Length > 7 && !string.IsNullOrEmpty(fields[7]))
+                {
+                    if (Enum.TryParse(fields[7], out TaskState parsedState))
+                    {
+                        task.state = parsedState;
+                    }
+                }
 
                 allTasks.Add(task);
             }
