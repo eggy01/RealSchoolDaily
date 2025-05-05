@@ -42,7 +42,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -3375145283416882329, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: dailySchedule.Array.data[0].startPosition.y
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -3375145283416882329, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: dailySchedule.Array.data[1].startPosition.x
@@ -54,11 +54,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -3375145283416882329, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: dailySchedule.Array.data[2].startPosition.x
-      value: -2
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: -3375145283416882329, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: dailySchedule.Array.data[2].startPosition.y
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -3375145283416882329, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: dailySchedule.Array.data[0].targetPosition.x
@@ -66,15 +66,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -3375145283416882329, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: dailySchedule.Array.data[0].targetPosition.y
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: -3375145283416882329, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: dailySchedule.Array.data[1].targetPosition.x
-      value: -2
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: -3375145283416882329, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: dailySchedule.Array.data[1].targetPosition.y
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -3375145283416882329, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: dailySchedule.Array.data[2].targetPosition.x
@@ -82,7 +82,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -3375145283416882329, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: dailySchedule.Array.data[2].targetPosition.y
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2243151867572723924, guid: d57ec426f97d7d148b71561a6d883556, type: 3}
       propertyPath: m_Name

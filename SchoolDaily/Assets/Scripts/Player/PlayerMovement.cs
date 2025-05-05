@@ -5,19 +5,22 @@ public class PlayerMovement : MonoBehaviour
     public static PlayerMovement Instance;
     [SerializeField]
     private float speed = 15;
+    [SerializeField]
+    private AudioClip walkAudio;
     private Animator anim;
     private bool inputDisable;
     public bool IsPaused { get; private set; }
 
     private void Awake()
     {
+        Instance = this;
         anim = GetComponent<Animator>();
     }
     void OnEnable()
     {
         EventHandler.MoveToPositionEvent += moveToPosition;
     }
-    void Disable()
+    void OnDisable()
     {
         EventHandler.MoveToPositionEvent -= moveToPosition;
     }
@@ -45,9 +48,11 @@ public class PlayerMovement : MonoBehaviour
 
         if (isWalking)
         {
+            //AllAudioManager.Instance.PlaySFX("Footstep", "DirtStep", loop: true);
             anim.SetFloat("horizontal", direction.x);
             anim.SetFloat("vertical", direction.y);
         }
+        AllAudioManager.Instance.StopCategory("Footstep", fadeOut: true);
     }
 
     public void SetPause(bool pause)

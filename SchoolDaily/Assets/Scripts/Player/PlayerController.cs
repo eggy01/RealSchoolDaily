@@ -53,11 +53,6 @@ public class PlayerController : MonoBehaviour
                 WindowManager.Instance.OpenWindow(ChatSystem.Instance, true);
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            WindowManager.Instance.CloseAll();
-        }
     }
     #endregion
 }
