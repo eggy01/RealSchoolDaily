@@ -65,7 +65,7 @@ public class RandomEventSystem : MonoBehaviour
                 Debug.LogWarning($"行 {i} 字段不足，跳过处理。字段数: {fields.Length}");
                 continue;
             }
-            Debug.Log("随机事件:" + fields[0]);
+            //Debug.Log("随机事件:" + fields[0]);
             RandomEvent newEvent = new RandomEvent
             {
                 eventId = fields[0].Trim(),

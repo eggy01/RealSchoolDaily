@@ -13,6 +13,28 @@ public class DialogueCSVReader : MonoBehaviour
     public Sprite[] characterSprites;
     public Dictionary<string, Sprite> spriteDict = new Dictionary<string, Sprite>();
 
+    private Dictionary<string, string> nameToIconMap = new Dictionary<string, string>()
+{
+    {"安澜", "ai"},
+    {"林风", "lf"},
+    {"椿", "c"},
+    {"弗洛", "fl"},
+    {"宁芷", "nz"},
+    {"纪远行", "jyx"},
+    {"云絮", "yx"},
+    {"夏灼", "xz"},
+     {"叶含光", "yhg"},
+};
+    public Sprite GetAvatarForSender(string senderName)
+    {
+        if (nameToIconMap.TryGetValue(senderName, out string iconName))
+        {
+            string path = $"Npc/Icons/{iconName}"; // 根据您的实际路径调整
+            return Resources.Load<Sprite>(path);
+        }
+        else
+            return Resources.Load<Sprite>("Forum/NPC/Icon/gly");
+    }
 
     private void Awake()
     {
@@ -33,6 +55,7 @@ public class DialogueCSVReader : MonoBehaviour
             if (sprite != null && !spriteDict.ContainsKey(sprite.name))
                 spriteDict.Add(sprite.name, sprite);
         }
+
     }
 
     public List<DialoguePiece> LoadDialogueData(TextAsset csvFile)

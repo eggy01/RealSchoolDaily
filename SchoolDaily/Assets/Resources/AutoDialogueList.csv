@@ -10,5 +10,6 @@ Semester_07,Multi,时间.==.9月6日7:10;场景.Dormitory Scene.==.1,Semester_07
 Semester_sx_01,Multi,时间.==.9月24日7:10;场景.Classroom Scene.==.1,Semester_sx_01,,9月24日
 Semester_sx_03,Multi,时间.==.9月26日7:10;场景.Classroom Scene.==.1,Semester_sx_03,,9月26日
 Semester_sx_05,Multi,时间.>=.10月1日7:10;场景.ClassHallWay Scene.==.1,Semester_sx_05,,10月1日
-Semester_sx_06,Multi,时间.>=.10月21日7:10;Dormitory Scene.==.1,Semester_sx_06,,10月21日
-Semester_sx_06_1,Multi,时间.>=.10月21日7:40;时间.<.10月21日8:00;场景.Classroom Scene.==.1,Semester_sx_06_1,,10月21日
+Semester_sx_06,Multi,时间.>=.10月12日7:10;Dormitory Scene.==.1,Semester_sx_06,,10月12日
+Semester_sx_06_1,Multi,时间.>=.10月21日7:40;时间.<.10月12日8:00;场景.Classroom Scene.==.1,Semester_sx_06_1,,10月12日
+Semester_sx_07_4,Multi,时间.>=.10月15日9:30;时间.<.10月15日12:00;场景.LibraryStudyRoom Scene.==.1,Semester_sx_07_4,,10月15日

@@ -30,9 +30,11 @@ public class ChatMessageItem : MonoBehaviour
     // 初始化普通消息
     public void Initialize(string sender, string message, bool isLeftSide)
     {
+        Debug.Log("创建消息列表");
         // 基础信息设置
         if (senderText != null) senderText.text = sender;
         if (messageText != null) messageText.text = message;
+
 
         // // 气泡设置
         // if (bubbleImage != null)

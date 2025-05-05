@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MovementController : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f;
-    public bool IsInputEnabled { get; set; } = true;
+    [SerializeField] private float moveSpeed = 5f; // 移动速度
+    public bool IsInputEnabled { get; set; } = true; // 是否启用输入
 
     private Vector2 currentInput;
     private Rigidbody2D rb;
@@ -16,7 +14,7 @@ public class MovementController : MonoBehaviour
     }
 
     /// <summary>
-    /// 设置移动输入（供PlayerAutoMovement调用）
+    /// 设置移动输入
     /// </summary>
     public void SetMovementInput(Vector2 input)
     {
