@@ -26,4 +26,5 @@ public class Reply {
     public string level;
     public string content;
     public string avatar;
+    public string isOriginalAuthor;
 }

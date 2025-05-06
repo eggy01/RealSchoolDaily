@@ -8,6 +8,7 @@ public class ReplyItem : MonoBehaviour
     public Image avatarImage;            // 用户头像
     public TextMeshProUGUI usernameText; // 用户名
     public Image levelImage;             // 用户等级图标
+    public GameObject originalAuthorImage;   //楼主头衔
     public TextMeshProUGUI floorText;    // 楼层号
     public TextMeshProUGUI contentText;  // 回复内容
     public GameObject replyToPanel;      // 引用回复面板
@@ -55,6 +56,7 @@ public class ReplyItem : MonoBehaviour
             avatarImage.sprite = uiManager.defaultAvatar;
         }
 
+
         // 设置楼层号
         floorText.text = reply.floor;
         // 设置回复内容
@@ -73,6 +75,10 @@ public class ReplyItem : MonoBehaviour
                 levelImage.gameObject.SetActive(true);           // 显示等级图标
             }
         }
+
+        //设置楼主
+        bool isAuthor = reply.isOriginalAuthor.ToLower() == "true";
+        originalAuthorImage.SetActive(isAuthor);
 
         // 处理回复引用
         if (!string.IsNullOrEmpty(reply.replyTo))

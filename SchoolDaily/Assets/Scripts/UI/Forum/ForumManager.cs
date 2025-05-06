@@ -67,7 +67,7 @@ public class ForumUIManager : MonoBehaviour, IWindow
             return;
         }
         Instance = this;
-        close.onClick.AddListener(() => WindowManager.Instance.CloseWindow(ForumUIManager.Instance));
+        close.onClick.AddListener(() => WindowManager.Instance.CloseWindow(this));
     }
 
     // 从Resources文件夹加载论坛数据
@@ -152,7 +152,7 @@ public class ForumUIManager : MonoBehaviour, IWindow
 
                 // 获取hot图片组件
                 Image hotIndicator = entry.transform.Find("Hot").GetComponent<Image>();
-                
+
                 // 如果回复数量超过10条，显示hot图片
                 if (post.replies.Count >= 10)
                 {
