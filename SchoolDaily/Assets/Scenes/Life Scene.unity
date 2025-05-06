@@ -90934,7 +90934,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToGo: A Scene
-  positionToGo: {x: -10, y: 56, z: 0}
+  positionToGo: {x: -1, y: 56, z: 0}
 --- !u!1 &881359575
 GameObject:
   m_ObjectHideFlags: 0
