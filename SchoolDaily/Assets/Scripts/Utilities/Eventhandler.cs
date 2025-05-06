@@ -1,10 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using SchoolD.Dialogue;
-using Unity.VisualScripting;
 using UnityEngine;
-using SchoolD.Task;
 
 public class EventHandler
 {

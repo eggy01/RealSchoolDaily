@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class BagItemUI : MonoBehaviour
 {
-    private ItemData itemData; 
+    private ItemData itemData;
     [Header("UI组件")]
     public Image iconImage;
     public Image imageName;
@@ -15,7 +15,7 @@ public class BagItemUI : MonoBehaviour
     public TextMeshProUGUI sizeText;
     public TextMeshProUGUI idText;
     public GameObject newTag; // 可选的新物品提示
-    
+
     [HideInInspector]
     public string ItemID; // ItemID
 
@@ -32,7 +32,7 @@ public class BagItemUI : MonoBehaviour
         sizeText.text = $"{item.Size} kb";
         idText.text = ItemID;
         // 显示新物品标识
-        if(newTag != null) 
+        if (newTag != null)
             newTag.SetActive(PackageLocalData.Instance.IsItemNew(item.ID));
     }
     public ItemData GetItemData()

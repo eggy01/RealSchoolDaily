@@ -1,6 +1,23 @@
 using System;
 using UnityEngine;
 
+[Serializable]
+public class GameTimeData
+{
+    public int year;
+    public int month;
+    public int day;
+    public int hour;
+    public int minute;
+    public int weekDay;
+    public int weekCount;
+    public int termCount;
+    public bool isInTerm;
+    public Season season;
+
+    // 保存时的游戏时间（用于计算离线时间）
+    public string saveTimestamp;
+}
 public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance; // 单例实例
@@ -78,7 +95,7 @@ public class TimeManager : MonoBehaviour
         }
     }
 
-    private void NewGameTime()
+    public void NewGameTime()
     {
         // 直接从9月4日(周日)开始
         gameYear = 1;
@@ -199,6 +216,49 @@ public class TimeManager : MonoBehaviour
 
         UpdateSeason();
     }
+    #region 读档
+    // 获取当前时间数据（用于保存）
+    public GameTimeData GetTimeDataForSave()
+    {
+        return new GameTimeData
+        {
+            year = gameYear,
+            month = gameMonth,
+            day = gameDay,
+            hour = 7,      // 强制设置为早上7点
+            minute = 0,    // 强制设置为整点
+            weekDay = gameWeekDay,
+            weekCount = gameWeekCount,
+            termCount = termCount,
+            isInTerm = isInTerm,
+            saveTimestamp = DateTime.UtcNow.ToString("o")  // 使用ISO8601格式
+        };
+    }
+
+    // 加载时间数据（用于读档）
+    public void LoadTimeData(GameTimeData data)
+    {
+        gameYear = data.year;
+        gameMonth = data.month;
+        gameDay = data.day;
+        gameHour = data.hour;
+        gameMinute = data.minute;
+        gameWeekDay = data.weekDay;
+        gameWeekCount = data.weekCount;
+        termCount = data.termCount;
+        isInTerm = data.isInTerm;
+
+        // 根据加载的月份重新计算季节
+        UpdateSeason();
+
+        // 强制更新时间显示
+        EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
+        EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
+                                    gameSeason, gameWeekDay, termCount);
+
+        Debug.Log($"加载时间数据：{gameYear}年{gameMonth}月{gameDay}日 {gameHour}:{gameMinute}");
+    }
+    #endregion
 
     #region 快进
     // 进入下个月
@@ -225,6 +285,7 @@ public class TimeManager : MonoBehaviour
     // 跳到第二天
     public void SkipToNextDay()
     {
+        SaveManager.Instance.SaveGame(SaveManager.Instance.currentSlot);
         gameHour = 7;  // 强制设置为7点
         gameMinute = 0;
         minuteTimer = 0;

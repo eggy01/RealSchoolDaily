@@ -6,6 +6,48 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/StartMenu.unity
+    guid: fdff666418abe424993fd682a06cec06
+  - enabled: 1
     path: Assets/Scenes/PersistScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/A Scene.unity
+    guid: c0aed2cda84e80647bc374abd703f3aa
+  - enabled: 1
+    path: Assets/Scenes/B Scene.unity
+    guid: 185a5f15299c3bb499907af24265bef0
+  - enabled: 1
+    path: Assets/Scenes/Canteen Scene.unity
+    guid: 8683b352a71333e4ba01de41a812f518
+  - enabled: 1
+    path: Assets/Scenes/ClassHallWay Scene.unity
+    guid: 925ce3924753ebd45be21c41e72e452c
+  - enabled: 1
+    path: Assets/Scenes/Classroom Scene.unity
+    guid: b9e1bc1144289d347a236b89b395fd63
+  - enabled: 1
+    path: Assets/Scenes/Dormitory Scene.unity
+    guid: 14562e3f9e81c1b4889fe845aec3be87
+  - enabled: 1
+    path: Assets/Scenes/DormitoryHallWay Scene.unity
+    guid: b8be766887016854f86b61afd166b4c1
+  - enabled: 1
+    path: Assets/Scenes/Library Scene.unity
+    guid: b50ef1bd79e65274b925178c9cc233fb
+  - enabled: 1
+    path: Assets/Scenes/Life Scene.unity
+    guid: 3c23d4953cd1f334fa87ae8dc5608c0f
+  - enabled: 1
+    path: Assets/Scenes/MachineRoom Scene.unity
+    guid: a35056bc4420093448ad6531236bfb8e
+  - enabled: 1
+    path: Assets/Scenes/Office Scene.unity
+    guid: 1a1974192524e974a938404fa574e5a6
+  - enabled: 1
+    path: Assets/Scenes/Teach Scene.unity
+    guid: aea393c628d02ab44a752527c9a4e7a4
+  - enabled: 1
+    path: Assets/Scenes/WashRoom Scene.unity
+    guid: 2641e4057229fd1469cea6a1625f6fd4
   m_configObjects: {}

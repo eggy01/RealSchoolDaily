@@ -27,8 +27,6 @@ public class PlayerInformation : MonoBehaviour
     [Header("事件")]
     public GoldUpdateEvent OnGoldUpdated;
 
-    private string savePath = "PlayerData.json";
-
     #region Unity生命周期
     private void Awake()
     {
@@ -40,8 +38,10 @@ public class PlayerInformation : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        LoadPlayerData();
-        InitializeData();
+        if (SaveManager.Instance.GetTempData().playerData == null)
+        {
+            SaveManager.Instance.GetTempData().playerData = new PlayerData();
+        }
     }
 
     private void Start()
@@ -57,46 +57,29 @@ public class PlayerInformation : MonoBehaviour
     #endregion
 
     #region 数据管理
-    private void InitializeData()
+    public PlayerData CurrentData
     {
-        if (string.IsNullOrEmpty(playerData.name))
-        {
-            playerData = new PlayerData();
-        }
+        get => SaveManager.Instance.GetTempData().playerData;
+        set => SaveManager.Instance.GetTempData().playerData = value;
     }
 
-    public void SavePlayerData()
+    // 当切换存档槽位时调用
+    public void RefreshFromSaveData()
     {
-        string jsonPlayerData = JsonUtility.ToJson(playerData);
-        File.WriteAllText(savePath, jsonPlayerData);
-    }
-
-    private void LoadPlayerData()
-    {
-        if (File.Exists(savePath))
-        {
-            string jsonPlayerData = File.ReadAllText(savePath);
-            playerData = JsonUtility.FromJson<PlayerData>(jsonPlayerData);
-        }
-    }
-
-    private void SaveAndUpdate()
-    {
-        SavePlayerData();
-        OnGoldUpdated?.Invoke(CurrentGold);
         UpdateUI();
+        OnGoldUpdated?.Invoke(CurrentData.gold);
     }
     #endregion
 
     #region 金币管理
-    public int CurrentGold => playerData.gold;
+    public int CurrentGold => CurrentData.gold;
 
     public bool TrySpendGold(int amount)
     {
         if (amount <= 0 || CurrentGold < amount) return false;
 
         playerData.gold = Mathf.Max(0, CurrentGold - amount);
-        SaveAndUpdate();
+        UpdateUI();
         return true;
     }
 
@@ -105,7 +88,7 @@ public class PlayerInformation : MonoBehaviour
         if (amount <= 0) return;
 
         playerData.gold += amount;
-        SaveAndUpdate();
+        UpdateUI();
     }
     #endregion
 
@@ -115,7 +98,6 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.life += value;
         UpdateUI();
-        SavePlayerData();
     }
     //在别的地方调用
     //playerController.AddLife(10);
@@ -125,7 +107,6 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.life -= value;
         UpdateUI();
-        SavePlayerData();
     }
 
     // 增加玩家体力上限
@@ -133,7 +114,6 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.strength += value;
         UpdateUI();
-        SavePlayerData();
     }
 
     // 减少玩家体力上限
@@ -141,7 +121,6 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.strength -= value;
         UpdateUI();
-        SavePlayerData();
     }
 
     // 增加玩家心情
@@ -149,7 +128,6 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.mood = Mathf.Clamp(playerData.mood + value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     // 减少玩家心情
@@ -157,7 +135,6 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.mood = Mathf.Clamp(playerData.mood - value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     // 增加玩家失序值
@@ -165,7 +142,6 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.muddledness = Mathf.Clamp(playerData.muddledness + value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     // 减少玩家失序值
@@ -173,7 +149,6 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.muddledness = Mathf.Clamp(playerData.muddledness - value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     // 增加声望
@@ -181,14 +156,12 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.fame = Mathf.Max(playerData.fame + value, 0);
         UpdateUI();
-        SavePlayerData();
     }
 
     public void SubtractFame(int value)
     {
         playerData.fame = Mathf.Max(playerData.fame - value, 0);
         UpdateUI();
-        SavePlayerData();
     }
 
     // 道德
@@ -196,14 +169,12 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.morality = Mathf.Min(playerData.morality + value, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     public void SubtractMorality(int value)
     {
         playerData.morality -= value; // 允许负数
         UpdateUI();
-        SavePlayerData();
     }
 
     // 智力
@@ -211,14 +182,12 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.intelligence = Mathf.Clamp(playerData.intelligence + value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     public void SubtractIntelligence(int value)
     {
         playerData.intelligence = Mathf.Clamp(playerData.intelligence - value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     // 理解力
@@ -226,14 +195,12 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.comprehension = Mathf.Clamp(playerData.comprehension - value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     public void SubtractComprehension(int value)
     {
         playerData.comprehension = Mathf.Clamp(playerData.comprehension - value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     // 天赋
@@ -241,14 +208,12 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.talent = Mathf.Clamp(playerData.talent + value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     public void SubtractTalent(int value)
     {
         playerData.talent = Mathf.Clamp(playerData.talent - value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     // 社交
@@ -256,14 +221,12 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.society = Mathf.Clamp(playerData.society + value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     public void SubtractSociety(int value)
     {
         playerData.society = Mathf.Clamp(playerData.society - value, 0, 100);
         UpdateUI();
-        SavePlayerData();
     }
 
     // 增加玩家仓库容量
@@ -271,7 +234,6 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.warehouse += value;
         UpdateUI();
-        SavePlayerData();
     }
 
     // 减少玩家仓库容量
@@ -279,7 +241,6 @@ public class PlayerInformation : MonoBehaviour
     {
         playerData.warehouse -= value;
         UpdateUI();
-        SavePlayerData();
     }
     #endregion
 
