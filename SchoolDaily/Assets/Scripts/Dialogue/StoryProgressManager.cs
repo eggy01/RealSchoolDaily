@@ -1,13 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using SchoolD.Dialogue;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class StoryProgressManager : MonoBehaviour
 { // 单例引用

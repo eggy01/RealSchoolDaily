@@ -101,10 +101,6 @@ public class BagUI : MonoBehaviour, IWindow
 
     public void RefreshBag()
     {
-        //测试
-        if (contentParent == null) Debug.LogError("contentParent 未赋值！");
-        if (PackageLocalData.Instance == null) Debug.LogError("PackageLocalData 实例为 null");
-        if (InventoryManager.Instance == null) Debug.LogError("InventoryManager 实例为 null");
         // 清空旧物品
         foreach (Transform child in contentParent)
         {
@@ -112,7 +108,7 @@ public class BagUI : MonoBehaviour, IWindow
         }
 
         // 获取背包数据
-        List<PackageLocalItem> bagItems = PackageLocalData.Instance.LoadPackage();
+        List<PackageLocalItem> bagItems = PackageLocalData.Instance.items;
 
         // 生成新物品列表
         foreach (PackageLocalItem bagItem in bagItems)
@@ -152,8 +148,9 @@ public class BagUI : MonoBehaviour, IWindow
     // 更新容量显示的方法
     private void UpdateCapacityDisplay()
     {
+        List<PackageLocalItem> bagItems = PackageLocalData.Instance.items;
         int used = PackageLocalData.Instance.CalculateTotalUsed();
-        int max = PackageLocalData.Instance.MaxCapacity;
+        int max = bagItems.Capacity;
 
         //显示的时候显示mb
         float _used = used / 1000f;

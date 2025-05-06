@@ -8,11 +8,13 @@ public class PackageLocalItem
     public string ID;        // 对应ItemData的ID
     public int Num;          // 物品数量
     public bool IsNew;       // 是否为新获得的物品
+    public int Capacity;
 
     public override string ToString()
     {
         return string.Format("[ID]:{0} [Num]:{1} [IsNew]:{2}", ID, Num, IsNew);
     }
+
 
 }
 
@@ -22,7 +24,6 @@ public class PackageLocalData
     public List<PackageLocalItem> items = new List<PackageLocalItem>(); // 直接初始化
     public static UnityEvent onInventoryChanged = new UnityEvent();
     private static PackageLocalData _instance;
-    public int MaxCapacity = 6400; // 初始背包容量
 
     public static PackageLocalData Instance
     {
@@ -31,11 +32,35 @@ public class PackageLocalData
             if (_instance == null)
             {
                 _instance = new PackageLocalData();
-                _instance.LoadPackage(); // 确保加载数据时列表已存在
             }
             return _instance;
         }
     }
+
+    public void LoadData()
+    {
+        GameData tempData = SaveManager.Instance.GetTempData();
+        if (tempData != null && tempData.packageItems != null) // 假设GameData中存在packageItems字段
+        {
+            items = new List<PackageLocalItem>(tempData.packageItems);
+            Debug.Log("背包数据已从存档加载");
+        }
+        else
+        {
+            items = new List<PackageLocalItem>();
+        }
+        onInventoryChanged.Invoke();
+    }
+    private void SaveData()
+    {
+        GameData tempData = SaveManager.Instance.GetTempData();
+        if (tempData != null)
+        {
+            tempData.packageItems = new List<PackageLocalItem>(items);
+            Debug.Log("背包数据已保存到临时存档");
+        }
+    }
+
 
     // 添加获取新物品状态的方法
     public bool IsItemNew(string itemID)
@@ -52,42 +77,10 @@ public class PackageLocalData
         if (item != null)
         {
             item.IsNew = false;
-            SavePackage();
+            SaveData(); // 修改为调用统一保存方法
         }
     }
 
-    // 保存背包数据
-    public void SavePackage()
-    {
-        string inventoryJson = JsonUtility.ToJson(this);
-        PlayerPrefs.SetString("PackageLocalData", inventoryJson);
-        PlayerPrefs.SetInt("MaxCapacity", MaxCapacity); // 存储背包容量
-        PlayerPrefs.Save();
-    }
-
-    // 加载背包数据
-    public List<PackageLocalItem> LoadPackage()
-    {
-
-        if (PlayerPrefs.HasKey("PackageLocalData"))
-        {
-            string inventoryJson = PlayerPrefs.GetString("PackageLocalData");
-            PackageLocalData packageLocalData = JsonUtility.FromJson<PackageLocalData>(inventoryJson);
-            items = packageLocalData.items ?? new List<PackageLocalItem>(); // 空值保护
-
-            // 加载背包容量
-            if (PlayerPrefs.HasKey("MaxCapacity"))
-            {
-                MaxCapacity = PlayerPrefs.GetInt("MaxCapacity");
-            }
-        }
-        else
-        {
-            items = new List<PackageLocalItem>();
-        }
-        PrintInventory(); // 加载数据后输出背包信息
-        return items;
-    }
 
     // 计算当前已用容量
     public int CalculateTotalUsed()
@@ -108,7 +101,7 @@ public class PackageLocalData
         if (itemData == null) return false;
 
         int addedSize = itemData.Size * amount;
-        if (CalculateTotalUsed() + addedSize > MaxCapacity)
+        if (CalculateTotalUsed() + addedSize > items.Capacity)
         {
             Debug.Log("背包容量不足！");
             return false;
@@ -128,8 +121,8 @@ public class PackageLocalData
                 IsNew = true
             });
         }
-        SavePackage();
         onInventoryChanged.Invoke(); // 触发全局事件
+        SaveData();
         return true;
     }
 
@@ -144,8 +137,8 @@ public class PackageLocalData
             {
                 items.Remove(itemToRemove);
             }
-            SavePackage();
             onInventoryChanged.Invoke(); // 触发全局事件
+            SaveData();
         }
     }
 

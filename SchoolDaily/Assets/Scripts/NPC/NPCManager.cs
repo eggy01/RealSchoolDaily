@@ -13,7 +13,7 @@ public class NPCLocalItem
 
     public override string ToString()
     {
-        return string.Format("[ID]:{0} [Meet]:{1} [Favorability]:{2} [NPCMuddledness]:{3}", 
+        return string.Format("[ID]:{0} [Meet]:{1} [Favorability]:{2} [NPCMuddledness]:{3}",
             NPCID, IsMeet, Favorability, NPCMuddledness);
     }
 }
@@ -32,7 +32,6 @@ public class NPCManager
             if (_instance == null)
             {
                 _instance = new NPCManager();
-                _instance.LoadNPCData();
             }
             return _instance;
         }
@@ -41,23 +40,28 @@ public class NPCManager
     // 保存NPC数据
     public void SaveNPCData()
     {
-        string npcJson = JsonUtility.ToJson(this);
-        PlayerPrefs.SetString("NPCLocalData", npcJson);
-        PlayerPrefs.Save();
+        GameData tempData = SaveManager.Instance.GetTempData();
+        if (tempData != null)
+        {
+            tempData.npcLocalItems = new List<NPCLocalItem>(npcs);
+            Debug.Log("NPC数据已保存到临时存档");
+        }
     }
 
-    // 加载NPC数据
+    // 从存档系统加载NPC数据
     public void LoadNPCData()
     {
-        if (PlayerPrefs.HasKey("NPCLocalData"))
+        GameData tempData = SaveManager.Instance.GetTempData();
+        if (tempData != null && tempData.npcLocalItems != null)
         {
-            string npcJson = PlayerPrefs.GetString("NPCLocalData");
-            JsonUtility.FromJsonOverwrite(npcJson, this);
+            npcs = new List<NPCLocalItem>(tempData.npcLocalItems);
+            Debug.Log("NPC数据已从存档加载");
         }
         else
         {
             npcs = new List<NPCLocalItem>();
         }
+        onNPCDataChanged.Invoke();
     }
 
     // 首次遇见NPC
@@ -100,6 +104,7 @@ public class NPCManager
     public void ReduceFavorability(string npcID, int amount)
     {
         AddFavorability(npcID, -amount);
+        SaveNPCData();
     }
 
     // 增加混乱值
@@ -118,6 +123,7 @@ public class NPCManager
     public void ReduceMuddledness(string npcID, int amount)
     {
         AddMuddledness(npcID, -amount);
+        SaveNPCData();
     }
 
     // 获取NPC数据
