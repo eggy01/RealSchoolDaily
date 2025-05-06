@@ -13,11 +13,6 @@ public class ChatMessageItem : MonoBehaviour
     [SerializeField] private Image bubbleImage;
     [SerializeField] private GameObject timeLabelObject;
 
-    [Header("Bubble Settings")]
-    [SerializeField] private Color leftBubbleColor = new Color(0.9f, 0.9f, 0.9f);
-    [SerializeField] private Color rightBubbleColor = new Color(0.2f, 0.6f, 1f);
-    [SerializeField] private Vector2 leftBubblePivot = new Vector2(0, 0.5f);
-    [SerializeField] private Vector2 rightBubblePivot = new Vector2(1, 0.5f);
 
     private Button _button;
 
@@ -35,18 +30,6 @@ public class ChatMessageItem : MonoBehaviour
         if (senderText != null) senderText.text = sender;
         if (messageText != null) messageText.text = message;
 
-
-        // // 气泡设置
-        // if (bubbleImage != null)
-        // {
-        //     bubbleImage.color = isLeftSide ? leftBubbleColor : rightBubbleColor;
-        // }
-
-        // if (bubbleTransform != null)
-        // {
-        //     bubbleTransform.pivot = isLeftSide ? leftBubblePivot : rightBubblePivot;
-        // }
-
         // 默认隐藏时间标签
         if (timeLabelObject != null)
         {
@@ -62,7 +45,7 @@ public class ChatMessageItem : MonoBehaviour
             // 隐藏其他元素
             if (bubbleTransform != null) bubbleTransform.gameObject.SetActive(false);
             if (avatarImage != null) avatarImage.gameObject.SetActive(false);
-
+            Debug.Log("初始化时间");
             // 显示时间标签
             timeLabelObject.SetActive(true);
             var timeText = timeLabelObject.GetComponentInChildren<TextMeshProUGUI>();

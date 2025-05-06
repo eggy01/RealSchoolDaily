@@ -192,8 +192,8 @@ public class DayNightSystem : MonoBehaviour
         globalLight.color = lightColorGradient.Evaluate(currentTimeOfDay);
 
         // 调试输出
-        Debug.Log($"时间: {currentTimeOfDay:F3} | 分段: [{dawnTime:F3},{sunriseTime:F3}]→[{sunsetTime:F3},{duskTime:F3}]");
-        Debug.Log($"强度: {intensity:F3} → 最终: {finalIntensity:F3} (最大允许: {currentMaxIntensity:F2})");
+        //Debug.Log($"时间: {currentTimeOfDay:F3} | 分段: [{dawnTime:F3},{sunriseTime:F3}]→[{sunsetTime:F3},{duskTime:F3}]");
+        //Debug.Log($"强度: {intensity:F3} → 最终: {finalIntensity:F3} (最大允许: {currentMaxIntensity:F2})");
 
         // 控制路灯
         lightController.SetAllLights(finalIntensity <= lightActivationThreshold);

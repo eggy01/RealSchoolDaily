@@ -39,7 +39,7 @@ public class ChatNewMessageTip : MonoBehaviour
     private void PlayNotificationSound()
     {
         // 调用音频管理器播放音效
-        AudioManager.Instance.PlaySFX("新消息提示音");
+        AudioManager.Instance.PlaySFX("tip");
 
     }
 

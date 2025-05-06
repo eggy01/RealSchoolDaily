@@ -104,13 +104,11 @@ public class DialogueUI : MonoBehaviour
             if (string.IsNullOrEmpty(piece.name) && piece.effects != null && piece.effects.Count > 0)
             {
                 {//处理效果：黑屏，场景跳转，时间跳转
-                    Debug.Log("触发效果：" + piece.effects);
                     yield return DialogueEffectExecutor.Instance.ExecuteEffects(piece.effects);
                 }
             }
             else
             {
-                Debug.Log("处理普通剧情");
                 piece.hasToPause = true;
                 piece.isDone = false;
                 dialogueText.text = "";
@@ -148,7 +146,7 @@ public class DialogueUI : MonoBehaviour
                 {
                     dialogueBoxTop.SetActive(true);
                     dialogueText.gameObject.SetActive(true);
-                    Debug.Log("说话者" + piece.name);
+                    //Debug.Log("说话者" + piece.name);
 
                     if (!piece.name.Equals(string.Empty))
                     {
@@ -385,11 +383,6 @@ public class DialogueUI : MonoBehaviour
         }
     }
 
-    //手机屏幕显示
-    void ShowNQChart()
-    {
-
-    }
     public void SetAllFalse()
     {
         //IsDialogueActive = false;

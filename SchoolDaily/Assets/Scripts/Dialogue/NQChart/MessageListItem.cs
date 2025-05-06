@@ -23,4 +23,11 @@ public class MessageListItem : MonoBehaviour
     {
         avatarImage.sprite = avatar;
     }
+    public void ClearUnreadBadge()
+    {
+        if (unreadIndicator != null)
+        {
+            unreadIndicator.SetActive(false);
+        }
+    }
 }

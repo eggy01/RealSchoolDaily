@@ -198,7 +198,3 @@ MonoBehaviour:
   bubbleTransform: {fileID: 0}
   bubbleImage: {fileID: 0}
   timeLabelObject: {fileID: 30122492215708118}
-  leftBubbleColor: {r: 0.9, g: 0.9, b: 0.9, a: 1}
-  rightBubbleColor: {r: 0.2, g: 0.6, b: 1, a: 1}
-  leftBubblePivot: {x: 0, y: 0.5}
-  rightBubblePivot: {x: 1, y: 0.5}

@@ -123,6 +123,7 @@ public class EventHandler
     public static event Action<string, string> OnLoadDialogueByIndex;
     public static void CallLoadDialogueByIndex(string index, string dialogueID)
     {
+        Debug.Log($"事件订阅者数量: {EventHandler.OnLoadDialogueByIndex?.GetInvocationList().Length ?? 0}");
         OnLoadDialogueByIndex?.Invoke(index, dialogueID);
     }
 

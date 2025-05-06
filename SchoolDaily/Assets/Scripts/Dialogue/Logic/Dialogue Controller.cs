@@ -39,6 +39,9 @@ namespace SchoolD.Dialogue
             canTalkUI = transform.Find("CanTalkIcon").gameObject; // 假设可对话图标的子对象名称为"CanTalkIcon"
             canTalkUI.SetActive(false); // 默认不显示可对话图标
 
+            EventHandler.OnLoadDialogueByIndex += HandleIndex;
+            EventHandler.OnStartNewDialogueEvent += HandleStartNew;
+
             // 自动注册所有对话
             foreach (var csv in csvFiles)
             {
@@ -47,6 +50,38 @@ namespace SchoolD.Dialogue
             if (DefaultcsvFile != null)
                 DialogueManager.Instance.RegisterDialogue(DefaultcsvFile);
         }
+
+        private void HandleStartNew(string StartcsvFilename, System.Action action)
+        {
+            if (StartcsvFilename.Equals(CurrentcsvFileName))
+            {
+                hasActiveDialogue = false;
+                istalking = false;
+                dialogueList.Clear();
+                canTalkUI.SetActive(false);
+                hasActiveDialogue = false;
+            }
+        }
+
+        void Destroy()
+        {
+            EventHandler.OnLoadDialogueByIndex -= HandleIndex;
+            EventHandler.OnStartNewDialogueEvent -= HandleStartNew;
+        }
+
+        private void HandleIndex(string index, string belongToCSVFileName)
+        {
+            Debug.Log("dialogueController序号跳转处理");
+            if (belongToCSVFileName.Equals(CurrentcsvFileName))
+            {
+                hasActiveDialogue = false;
+                istalking = false;
+                dialogueList.Clear();
+                canTalkUI.SetActive(false);
+                hasActiveDialogue = false;
+            }
+        }
+
         private void Start()
         {
             CheckAvailableDialogue();
@@ -69,6 +104,7 @@ namespace SchoolD.Dialogue
         }
         private void CheckAvailableDialogue()
         {
+            Debug.LogWarning(gameObject.name + "haActiveDialogue" + hasActiveDialogue);
             // 如果已经加载过剧情文件，则不再加载
             if (hasActiveDialogue)
             {

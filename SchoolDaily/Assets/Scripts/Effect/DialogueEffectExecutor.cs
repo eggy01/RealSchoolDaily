@@ -92,7 +92,7 @@ public class DialogueEffectExecutor : MonoBehaviour
     /// </summary>
     private IEnumerator ExecuteSingleEffect(DialogueEffect effect)
     {
-        Debug.Log($"执行效果: {effect.type}, 参数: {effect.parameters}");
+        //Debug.Log($"执行效果: {effect.type}, 参数: {effect.parameters}");
 
         if (_effectHandlers.TryGetValue(effect.type, out var handler))
         {
@@ -100,7 +100,7 @@ public class DialogueEffectExecutor : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"未知的效果类型: {effect.type}");
+            //Debug.LogWarning($"未知的效果类型: {effect.type}");
             yield return null;
         }
     }
@@ -142,7 +142,7 @@ public class DialogueEffectExecutor : MonoBehaviour
     private IEnumerator ExecuteSceneTransition(DialogueEffect effect)
     {
         var transitionData = ParseSceneTransition(effect.parameters);
-        Debug.Log("场景切换数据：" + transitionData.sceneName + "X:" + transitionData.position.x + "Y:" + transitionData.position.y);
+        // Debug.Log("场景切换数据：" + transitionData.sceneName + "X:" + transitionData.position.x + "Y:" + transitionData.position.y);
         EventHandler.CallTransitionEvent(transitionData.sceneName, transitionData.position);
         yield return null;
     }
@@ -154,7 +154,7 @@ public class DialogueEffectExecutor : MonoBehaviour
 
         // 2. 隐藏对话框
         DialogueUI.Instance.SetAllFalse();
-        Debug.Log("对话框已隐藏，开始自动移动");
+        //Debug.Log("对话框已隐藏，开始自动移动");
 
         // 3. 开始移动
         PlayerAutoMovement.Instance.MoveToPosition(targetPos);
@@ -164,7 +164,7 @@ public class DialogueEffectExecutor : MonoBehaviour
 
         yield return new WaitWhile(() => PlayerAutoMovement.Instance.isAutoMoving);
         yield return new WaitForSeconds(1f);
-        Debug.Log("自动移动完成");
+        //Debug.Log("自动移动完成");
 
         // 5. 重新显示对话框
         // DialogueUI.Instance.ShowDialogue();
@@ -184,7 +184,7 @@ public class DialogueEffectExecutor : MonoBehaviour
         float displayTime = effect.parameters.Length * 0.03f + 1f; // 额外5秒阅读时间
         yield return new WaitForSeconds(displayTime);
 
-        Debug.Log($"文本显示完成: {effect.parameters}");
+        //Debug.Log($"文本显示完成: {effect.parameters}");
     }
 
     private IEnumerator ExecuteRandomEvent(DialogueEffect effect)

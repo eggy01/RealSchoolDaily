@@ -30,6 +30,12 @@ public class npcExpressionOffset : MonoBehaviour
             case "宁芷":
                 npcIndex = 3;
                 break;
+            case "安澜":
+                npcIndex = 4;
+                break;
+            case "教授":
+                npcIndex = 4;
+                break;
 
         }
         return npcIndex;
