@@ -117,7 +117,6 @@ GameObject:
   - component: {fileID: 6174514986243192369}
   - component: {fileID: 7662949297091585494}
   - component: {fileID: 8600692745386022111}
-  - component: {fileID: 8065104696090775107}
   - component: {fileID: -3375145283416882329}
   - component: {fileID: 6043198564570640313}
   - component: {fileID: 2232063694477425367}
@@ -241,20 +240,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.5625, y: 2.125}
   m_EdgeRadius: 0
---- !u!114 &8065104696090775107
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2243151867572723924}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed9b45d2754d64b4688f3288cd478155, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  characterSprites:
-  - {fileID: 21300000, guid: 07ff1524ee8acfe489867ad03b453def, type: 3}
 --- !u!114 &-3375145283416882329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,7 +254,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dailySchedule: []
   specialSchedule: []
-  moveSpeed: 0
 --- !u!114 &6043198564570640313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,12 +266,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63ee6f664459cfe43b6291f1ddb6120c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spriteRenderer: {fileID: 0}
+  npcCollider: {fileID: 0}
+  fadeDuration: 0.5
   moveSpeed: 3
   pathUpdateThreshold: 0.1
   obstacleMask:
     serializedVersion: 2
     m_Bits: 8
-  npcPrefab: {fileID: 0}
   showPathGizmos: 1
   horizontalAnimParam: horizontal
   verticalAnimParam: vertical
