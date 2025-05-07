@@ -19,11 +19,24 @@ public class NPCLocalItem
 }
 
 [Serializable]
-public class NPCManager
+public class NPCManager : MonoBehaviour
 {
     public List<NPCLocalItem> npcs = new List<NPCLocalItem>();
     public static UnityEvent onNPCDataChanged = new UnityEvent();
     private static NPCManager _instance;
+
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+    }
 
     public static NPCManager Instance
     {
@@ -31,10 +44,24 @@ public class NPCManager
         {
             if (_instance == null)
             {
-                _instance = new NPCManager();
+                _instance = FindObjectOfType<NPCManager>();
+                if (_instance == null)
+                {
+                    GameObject obj = new GameObject("NPCManager");
+                    _instance = obj.AddComponent<NPCManager>();
+                    DontDestroyOnLoad(obj);
+                }
             }
             return _instance;
         }
+    }
+    public void Start()
+    {
+        // MeetNPC("101011831");
+        // MeetNPC("101012007");
+        // AddMuddledness("101012007", 20);
+        // AddMuddledness("101011831", 10);
+
     }
 
     // 保存NPC数据

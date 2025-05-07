@@ -3,6 +3,8 @@ using UnityEngine.SceneManagement;
 
 public class StartMenu : MonoBehaviour
 {
+    [SerializeField] private SaveSlotUI saveSlotUI; // 存档界面UI
+    
     public void StartGame()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);

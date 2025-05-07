@@ -14,9 +14,6 @@ public class GameTimeData
     public int termCount;
     public bool isInTerm;
     public Season season;
-
-    // 保存时的游戏时间（用于计算离线时间）
-    public string saveTimestamp;
 }
 public class TimeManager : MonoBehaviour
 {
@@ -231,7 +228,6 @@ public class TimeManager : MonoBehaviour
             weekCount = gameWeekCount,
             termCount = termCount,
             isInTerm = isInTerm,
-            saveTimestamp = DateTime.UtcNow.ToString("o")  // 使用ISO8601格式
         };
     }
 
@@ -285,7 +281,6 @@ public class TimeManager : MonoBehaviour
     // 跳到第二天
     public void SkipToNextDay()
     {
-        SaveManager.Instance.SaveGame(SaveManager.Instance.currentSlot);
         gameHour = 7;  // 强制设置为7点
         gameMinute = 0;
         minuteTimer = 0;
@@ -305,6 +300,7 @@ public class TimeManager : MonoBehaviour
         EventHandler.CallGameMinuteEvent(gameMinute, gameHour);
         EventHandler.CallGameDateEvent(gameHour, gameDay, gameMonth, gameYear,
                                      gameSeason, gameWeekDay, termCount);
+        SaveManager.Instance.SaveGame(SaveManager.Instance.currentSlot);
     }
 
     // 跳到下一小时

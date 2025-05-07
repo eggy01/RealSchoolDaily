@@ -1,24 +1,21 @@
 using UnityEngine;
 using System.IO;
-using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { get; private set; }
 
-    // 当前内存中的临时数据（尚未保存）
     private GameData _tempData;
-
-    // 存档槽位数量
-    public const int SaveSlotCount = 3;
-    // 当前选择的存档槽位
-    public int currentSlot = 0;
+    public const int SaveSlotCount = 8; // 改为8个槽位
+    public int currentSlot = -1; // 当前选择的存档槽位
 
     void Start()
     {
-        // 游戏启动时加载最后一次保存的正式数据
-        LoadGame(currentSlot);
+        // 初始化临时数据
+        _tempData = new GameData();
     }
 
     private void Awake()
@@ -32,6 +29,16 @@ public class SaveManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    // 新游戏初始化
+    public void NewGame(int slot)
+    {
+        currentSlot = slot;
+        _tempData = new GameData();
+        _tempData.playerData = new PlayerData(); // 明确初始化
+        _tempData.gameTimeData = TimeManager.Instance.GetTimeDataForSave();
+        SaveGame(slot);
     }
 
     // 保存游戏（指定槽位）
@@ -51,36 +58,66 @@ public class SaveManager : MonoBehaviour
     // 加载游戏（指定槽位）
     public void LoadGame(int slot)
     {
+        StartCoroutine(LoadGameRoutine(slot));
+    }
+    private IEnumerator LoadGameRoutine(int slot)
+    {
+        // 加载主场景
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("PersistScene");
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
+
         string path = GetSavePath(slot);
         if (File.Exists(path))
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (FileStream stream = new FileStream(path, FileMode.Open))
+            try
             {
-                _tempData = formatter.Deserialize(stream) as GameData;
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (FileStream stream = new FileStream(path, FileMode.Open))
+                {
+                    _tempData = formatter.Deserialize(stream) as GameData;
+                }
+                currentSlot = slot;
+
+                // 确保按正确顺序初始化
+                TimeManager.Instance.LoadTimeData(_tempData.gameTimeData);
+                PackageLocalData.Instance.LoadData();
+                NPCManager.Instance.LoadNPCData();
+
+                PlayerInformation.Instance.CurrentData = _tempData.playerData;
+                PlayerInformation.Instance.RefreshFromSaveData();
+
+                PackageLocalData.Instance.ForceRefresh();
             }
-
-            // 加载时间数据
-            TimeManager.Instance.LoadTimeData(_tempData.gameTimeData);
-            PackageLocalData.Instance.LoadData();
-            NPCManager.Instance.LoadNPCData();
-            PlayerInformation.Instance.CurrentData = _tempData.playerData;
-            PlayerInformation.Instance.RefreshFromSaveData();
-
-            PackageLocalData.Instance.ForceRefresh();
-            Debug.Log($"成功加载槽位 {slot} 的存档");
-        }
-        else
-        {
-            // 新游戏初始化时间
-            TimeManager.Instance.NewGameTime();
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Load failed: {e.Message}");
+            }
         }
     }
 
-    public GameData GetTempData()
+    public bool IsSlotEmpty(int slot)
     {
-        return _tempData;
+        return !File.Exists(GetSavePath(slot));
     }
+
+    public int FindFirstEmptySlot()
+    {
+        for (int i = 0; i < SaveSlotCount; i++)
+        {
+            if (IsSlotEmpty(i)) return i;
+        }
+        return -1;
+    }
+
+    public bool AreAllSlotsFull()
+    {
+        return FindFirstEmptySlot() == -1;
+    }
+
+    public GameData GetTempData() => _tempData;
 
     // 获取存档路径
     private string GetSavePath(int slot)
@@ -102,5 +139,29 @@ public class SaveManager : MonoBehaviour
     public void SetCurrentSlot(int slot)
     {
         currentSlot = slot;
+    }
+
+    //读取时间
+    public GameTimeData GetTimeFromSave(int slot)
+    {
+        string path = GetSavePath(slot);
+        if (File.Exists(path))
+        {
+            try
+            {
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (FileStream stream = new FileStream(path, FileMode.Open))
+                {
+                    GameData data = formatter.Deserialize(stream) as GameData;
+                    return data.gameTimeData;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"读取时间失败: {e.Message}");
+                return null;
+            }
+        }
+        return null;
     }
 }

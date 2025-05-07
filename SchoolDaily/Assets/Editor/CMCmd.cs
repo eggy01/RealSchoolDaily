@@ -8,7 +8,7 @@ public class CMCmd : MonoBehaviour
     public class GMCmd
     {
         private static List<ItemData> itemDatabase;
-         private static List<NPCData> NPCDatabase;
+        private static List<NPCData> NPCDatabase;
 
         [MenuItem("CMCmd/读取物品表格")]
         static void ReadTable()
@@ -48,5 +48,24 @@ public class CMCmd : MonoBehaviour
             }
 
         }
+
+        [MenuItem("CMCmd/加钱")]
+        static void EditorGold()
+        {
+            PlayerInformation.Instance.AddGold(10000);
+        }
+
+        [MenuItem("CMCmd/减钱")]
+        static void SpendGold()
+        {
+            PlayerInformation.Instance.TrySpendGold(10000);
+        }
+
+        [MenuItem("CMCmd/加容量")]
+        static void EditorCapacity()
+        {
+            PackageLocalData.Instance.AddCapacity(6400);
+        }
+
     }
 }

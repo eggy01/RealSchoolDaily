@@ -19,7 +19,7 @@ public class ShopUI : MonoBehaviour, IWindow
             return;
         }
         Instance = this;
-        close.onClick.AddListener(() => WindowManager.Instance.CloseWindow(ShopUI.Instance));
+        close.onClick.AddListener(() => WindowManager.Instance.CloseWindow(this));
     }
     #endregion
 
@@ -251,7 +251,6 @@ public class ShopUI : MonoBehaviour, IWindow
     #region UI Updates
     private void UpdateUI()
     {
-        UpdateGoldDisplay();
         Updatecurrenticon();
         Updatecurrentname();
         UpdateQuantityDisplay();
@@ -273,11 +272,6 @@ public class ShopUI : MonoBehaviour, IWindow
             ? $"总价: {total}"
             : " ";
         totalCostText.color = total > GetCurrentGold() ? insufficientColor : normalColor;
-    }
-
-    private void UpdateGoldDisplay()
-    {
-        goldText.text = $" {GetCurrentGold()}";
     }
 
     private void UpdateBuyButtonState()

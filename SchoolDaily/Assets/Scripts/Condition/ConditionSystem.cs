@@ -112,7 +112,7 @@ public static class ConditionSystem
     }
     private static int GetTalent(string arg)
     {
-        return PlayerInformation.Instance.playerData.talent;
+        return PlayerInformation.Instance.CurrentData.talent;
     }
 
     // 新增场景判断方法
