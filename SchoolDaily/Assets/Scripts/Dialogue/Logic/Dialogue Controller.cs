@@ -29,6 +29,8 @@ namespace SchoolD.Dialogue
 
         private string CurrentcsvFileName;//当前剧情文件的名字
 
+        private string nextDialogueCSVFileName;
+
         private bool hasActiveDialogue = false;//是否存在激活剧情
         //[Header("跳过设置")]
         public Button skipButton;
@@ -36,6 +38,8 @@ namespace SchoolD.Dialogue
 
         private void Awake()
         {
+
+
             canTalkUI = transform.Find("CanTalkIcon").gameObject; // 假设可对话图标的子对象名称为"CanTalkIcon"
             canTalkUI.SetActive(false); // 默认不显示可对话图标
 
@@ -53,7 +57,7 @@ namespace SchoolD.Dialogue
 
         private void HandleStartNew(string StartcsvFilename, System.Action action)
         {
-            if (StartcsvFilename.Equals(CurrentcsvFileName))
+            if (StartcsvFilename.Equals(nextDialogueCSVFileName))
             {
                 hasActiveDialogue = false;
                 istalking = false;
@@ -208,22 +212,14 @@ namespace SchoolD.Dialogue
 
                     // 只有条件满足时才继续
                     piece = dialogueStack.Pop();
+
+                    if (string.IsNullOrEmpty(piece.nextDialogueCSVFileName))
+                        nextDialogueCSVFileName = piece.nextDialogueCSVFileName;
+
                     EventHandler.CallShowDialogueEvent(piece);
 
-                    // // 检查是否需要跳转
-                    // if (!string.IsNullOrEmpty(piece.nextIndex))
-                    // {
-                    //     Debug.Log($"跳转到新对话: {piece.nextIndex}");
-                    //     istalking = false;
-                    //     canTalkUI.SetActive(false);
-                    //     hasActiveDialogue = false;
-                    //     //EventHandler.CallLoadDialogueByIndex(piece.nextIndex, piece.belongToCSVFileName);
-                    //     yield break; // 终止当前协程
-                    // }
                     //等待对话完成
                     yield return new WaitUntil(() => piece.isDone);
-
-
 
                     // 等待玩家输入继续
                     if (piece.hasToPause)
