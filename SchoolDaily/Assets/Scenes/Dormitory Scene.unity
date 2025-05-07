@@ -8352,12 +8352,48 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 3118072610972631162, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
+      propertyPath: specialSchedule.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3118072610972631162, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
+      propertyPath: specialSchedule.Array.data[0].day
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3118072610972631162, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
+      propertyPath: specialSchedule.Array.data[0].month
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 3118072610972631162, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
+      propertyPath: specialSchedule.Array.data[0].endHour
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 3118072610972631162, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
+      propertyPath: specialSchedule.Array.data[0].startHour
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3118072610972631162, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
       propertyPath: dailySchedule.Array.data[1].targetPosition.x
       value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 3118072610972631162, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
       propertyPath: dailySchedule.Array.data[1].targetPosition.y
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3118072610972631162, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
+      propertyPath: specialSchedule.Array.data[0].startPosition.x
+      value: -8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3118072610972631162, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
+      propertyPath: specialSchedule.Array.data[0].startPosition.y
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3118072610972631162, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
+      propertyPath: specialSchedule.Array.data[0].targetPosition.x
+      value: -8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3118072610972631162, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
+      propertyPath: specialSchedule.Array.data[0].targetPosition.y
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 3448848094603900204, guid: 5c948af73062b5c438f2483614e08b5f, type: 3}
       propertyPath: m_LocalPosition.x
