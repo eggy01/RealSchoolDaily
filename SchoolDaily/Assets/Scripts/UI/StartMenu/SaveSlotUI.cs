@@ -12,6 +12,8 @@ public class SaveSlotUI : MonoBehaviour
     private List<SaveSlotButton> slotButtons = new List<SaveSlotButton>();
     private bool isForNewGame;
 
+    private bool isNewGame;
+
     private void Start()
     {
         InitializeSlots();
@@ -36,6 +38,7 @@ public class SaveSlotUI : MonoBehaviour
         int emptySlot = SaveManager.Instance.FindFirstEmptySlot();
         if (emptySlot != -1)
         {
+            isNewGame = true;
             StartCoroutine(StartNewGameRoutine(emptySlot));
         }
         else
@@ -69,7 +72,7 @@ public class SaveSlotUI : MonoBehaviour
             btn.interactable = isForNewGame || !isEmpty;
         }
     }
-    
+
     private void OnSlotSelected(int slot)
     {
         if (!isForNewGame && SaveManager.Instance.IsSlotEmpty(slot))
@@ -79,6 +82,7 @@ public class SaveSlotUI : MonoBehaviour
 
         if (isForNewGame)
         {
+            isNewGame = true;
             StartCoroutine(StartNewGameRoutine(slot));
         }
         else
@@ -89,8 +93,17 @@ public class SaveSlotUI : MonoBehaviour
 
     private IEnumerator StartNewGameRoutine(int slot)
     {
+        SaveManager.Instance.currentSlot = slot;
+        // // 检测是否是新游戏
+        // 将结果存储到 PlayerPrefs（供 PersistScene 读取）
+        // 检查是否是新游戏（存档槽位为空）
+        PlayerPrefs.SetInt("IsNewGame_" + slot, isNewGame ? 1 : 0);
+        PlayerPrefs.Save();
+
+
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("PersistScene");
         while (!asyncLoad.isDone) yield return null;
         SaveManager.Instance.NewGame(slot);
+
     }
 }

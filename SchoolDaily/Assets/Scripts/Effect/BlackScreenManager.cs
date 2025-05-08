@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +9,7 @@ public class BlackScreenManager : MonoBehaviour
 
     [SerializeField] private CanvasGroup blackScreenCanvasGroup;
     [SerializeField] private TextMeshProUGUI textElement; // 手动拖拽赋值
+    [SerializeField] private Image Image; // 手动拖拽赋值
     bool _isAnimatingText;
     private bool _isWaitingForZeroOrder; // 新增：标记是否正在等待层级归零
 
@@ -21,11 +21,17 @@ public class BlackScreenManager : MonoBehaviour
             blackScreenCanvasGroup = GetComponent<CanvasGroup>();
             Debug.LogError("未分配blackScreenCanvasGroup，已自动获取");
         }
+        Image.gameObject.SetActive(false);
     }
     public void SetText(string str)
     {
         textElement.text = str;
         SetTextVisibility(true);
+    }
+    public void ShowImage(bool show, Sprite image = null)
+    {
+        Image.gameObject.SetActive(show);
+        if (image != null) Image.sprite = image;
     }
     public void TransionBlackScreenSortOrder(int targetOrder)//调整黑屏层级
     {

@@ -120,18 +120,18 @@ public class ChatSystem : MonoBehaviour, IWindow
             deferredMessages = new List<DeferredMessage>();
         }
     }
-    private string chatSavePath;
+    // private string chatSavePath;
 
     private void Awake()
     {
-        chatSavePath = Path.Combine(Application.persistentDataPath, "chat_save.json");
-        Debug.Log("聊天存档路径: " + chatSavePath);
+        //chatSavePath = Path.Combine(Application.persistentDataPath, "chat_save.json");
+        //Debug.Log("聊天存档路径: " + chatSavePath);
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
-        LoadChatData();//加载存档
+        //LoadChatData();//加载存档
         Instance = this;
         backButton.onClick.AddListener(() => WindowManager.Instance.CloseWindow(ChatSystem.Instance));
 
@@ -145,11 +145,11 @@ public class ChatSystem : MonoBehaviour, IWindow
         }
     }
 
-    private void OnApplicationQuit()
-    {
-        Debug.LogWarning("游戏退出");
-        SaveChatData();
-    }
+    // private void OnApplicationQuit()
+    // {
+    //     Debug.LogWarning("游戏退出");
+    //     SaveChatData();
+    // }
 
     private void InitializeUI()
     {
@@ -486,7 +486,7 @@ public class ChatSystem : MonoBehaviour, IWindow
         // 更新UI状态
         MarkAsUnread(groupName);
         UpdateNewMessageBadge();
-        SaveChatData();
+        //SaveChatData();
     }
     #endregion
     // 当需要恢复对话时
@@ -559,7 +559,7 @@ public class ChatSystem : MonoBehaviour, IWindow
 
         isProcessingDeferredMessages = false;
         MarkAsRead(groupName);
-        SaveChatData();
+        //SaveChatData();
     }
 
     // 修改 OpenChatWithGroup 方法
@@ -629,7 +629,7 @@ public class ChatSystem : MonoBehaviour, IWindow
 
             // 标记完成但先不移除
             pendingOption.isCompleted = true;
-            SaveChatData();
+            //SaveChatData();
 
             // 直接继续处理后续消息
             yield return StartCoroutine(ProcessDeferredMessagesForGroup(groupName));
@@ -861,7 +861,7 @@ public class ChatSystem : MonoBehaviour, IWindow
         conversations[groupName].Add(newRecord);
         // 添加任务判断逻辑
         CheckAndHandleTask(piece);
-        SaveChatData(); // 每次有新消息都自动保存
+        // SaveChatData(); // 每次有新消息都自动保存
     }
 
     private ChatRecord GetPreviousMessage(string groupName)
@@ -1031,7 +1031,7 @@ public class ChatSystem : MonoBehaviour, IWindow
     {
         unreadMessages[groupName] = false;
         UpdateNewMessageBadge();
-        SaveChatData(); // 每次有新消息都自动保存
+        //SaveChatData(); // 每次有新消息都自动保存
     }
 
     private void UpdateNewMessageBadge()
@@ -1056,7 +1056,7 @@ public class ChatSystem : MonoBehaviour, IWindow
     #endregion
 
 
-    public void SaveChatData()
+    public void SaveChatData(string chatSavePath)
     {
         try
         {
@@ -1069,7 +1069,7 @@ public class ChatSystem : MonoBehaviour, IWindow
 
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(chatSavePath, json);
-            Debug.Log($"存档成功，路径: {chatSavePath}\n内容: {json}");
+            // Debug.Log($"存档成功，路径: {chatSavePath}\n内容: {json}");
         }
         catch (Exception e)
         {
@@ -1077,7 +1077,7 @@ public class ChatSystem : MonoBehaviour, IWindow
         }
     }
 
-    public bool LoadChatData()
+    public bool LoadChatData(string chatSavePath)
     {
         if (!File.Exists(chatSavePath))
         {
@@ -1146,17 +1146,17 @@ public class ChatSystem : MonoBehaviour, IWindow
         deferredMessages = new List<DeferredMessage>();
     }
 
-    // 新增方法：清空存档（用于测试）
-    public void ClearChatSave()
-    {
-        if (File.Exists(chatSavePath))
-        {
-            File.Delete(chatSavePath);
-            Debug.Log("聊天存档已清除");
-        }
+    // // 新增方法：清空存档（用于测试）
+    // public void ClearChatSave()
+    // {
+    //     if (File.Exists(chatSavePath))
+    //     {
+    //         File.Delete(chatSavePath);
+    //         Debug.Log("聊天存档已清除");
+    //     }
 
-        // 重置内存中的数据
-        conversations.Clear();
-        unreadMessages.Clear();
-    }
+    //     // 重置内存中的数据
+    //     conversations.Clear();
+    //     unreadMessages.Clear();
+    // }
 }

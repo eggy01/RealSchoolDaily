@@ -38,13 +38,12 @@ namespace SchoolD.Dialogue
 
         private void Awake()
         {
-
-
             canTalkUI = transform.Find("CanTalkIcon").gameObject; // 假设可对话图标的子对象名称为"CanTalkIcon"
             canTalkUI.SetActive(false); // 默认不显示可对话图标
 
             EventHandler.OnLoadDialogueByIndex += HandleIndex;
             EventHandler.OnStartNewDialogueEvent += HandleStartNew;
+            EventHandler.LoadCSVCompleted += StartCheck;//基础数据加载完成后
 
             // 自动注册所有对话
             foreach (var csv in csvFiles)
@@ -71,6 +70,7 @@ namespace SchoolD.Dialogue
         {
             EventHandler.OnLoadDialogueByIndex -= HandleIndex;
             EventHandler.OnStartNewDialogueEvent -= HandleStartNew;
+            EventHandler.LoadCSVCompleted -= StartCheck;//基础数据加载完成后
         }
 
         private void HandleIndex(string index, string belongToCSVFileName)
@@ -86,7 +86,7 @@ namespace SchoolD.Dialogue
             }
         }
 
-        private void Start()
+        private void StartCheck()
         {
             CheckAvailableDialogue();
 
@@ -108,7 +108,7 @@ namespace SchoolD.Dialogue
         }
         private void CheckAvailableDialogue()
         {
-            Debug.LogWarning(gameObject.name + "haActiveDialogue" + hasActiveDialogue);
+            Debug.Log("开启可用剧情检测");
             // 如果已经加载过剧情文件，则不再加载
             if (hasActiveDialogue)
             {

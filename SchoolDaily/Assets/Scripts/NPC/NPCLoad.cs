@@ -29,4 +29,11 @@ public class NPCLoad : MonoBehaviour
     {
         return npcDatabase.Find(n => n.NPCID == id);
     }
+
+    // 新增：通过NPCName获取NPCID
+    public string GetNPCIDByName(string name)
+    {
+        NPCData npc = npcDatabase.Find(n => n.NPCName == name);
+        return npc != null ? npc.NPCID : null;
+    }
 }

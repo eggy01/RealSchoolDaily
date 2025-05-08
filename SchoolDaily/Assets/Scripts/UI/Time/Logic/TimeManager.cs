@@ -120,6 +120,7 @@ public class TimeManager : MonoBehaviour
         if (gameMinute > Settings.minuteHold)
         {
             gameMinute = 0;
+
             if (++gameHour > Settings.hourHold)
             {
                 gameHour = 0;

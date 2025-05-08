@@ -23,7 +23,7 @@ public class StoryProgressManager : MonoBehaviour
     private Dictionary<string, string> storyTimeLimits = new Dictionary<string, string>();
 
     // 存档文件路径
-    private string saveFilePath;
+    // private string saveFilePath;
 
     private Coroutine timeCheckCoroutine;
 
@@ -47,12 +47,11 @@ public class StoryProgressManager : MonoBehaviour
     // 确保只有一个实例
     void Awake()
     {
-        Debug.Log("StoryProgressManager Awake 被调用");
         Instance = this;
-        saveFilePath = Path.Combine(Application.persistentDataPath, "storyProgress.save");
-        Debug.Log("存档路径: " + saveFilePath);
+        //saveFilePath = Path.Combine(Application.persistentDataPath, "storyProgress.save");
+        //Debug.Log("存档路径: " + saveFilePath);
 
-        InitializeProgressData();
+        //InitializeProgressData();
 
     }
     void OnEnable()
@@ -63,45 +62,15 @@ public class StoryProgressManager : MonoBehaviour
     {
         EventHandler.OnDateChanged -= CheckTimeLimitedStories;
     }
-    // void Update()
+    // private void InitializeProgressData()
     // {
-    //     Debug.Log($"当前激活状态: {gameObject.activeSelf}, 协程状态: {(timeCheckCoroutine != null ? "运行中" : "未运行")}");
-    // }
-    private void InitializeProgressData()
-    {
-        if (!LoadProgress())
-        {
-            LoadStoryProgressFromCSV();
-            SaveProgress(); // 初始化后立即保存
-        }
-
-        //StartPeriodicTimeCheck();
-    }
-
-    // private void StartPeriodicTimeCheck()
-    // {
-    //     if (timeCheckCoroutine != null)
+    //     if (!LoadProgress())
     //     {
-    //         Debug.Log("停止之前的协程");
-    //         StopCoroutine(timeCheckCoroutine);
+    //         LoadStoryProgressFromCSV();
+    //         SaveProgress(); // 初始化后立即保存
     //     }
-    //     Debug.Log("启动新的定期检查协程");
-    //     timeCheckCoroutine = StartCoroutine(PeriodicTimeCheck());
-    // }
 
-    // private IEnumerator PeriodicTimeCheck()
-    // {
-    //     Debug.LogWarning("PeriodicTimeCheck 协程开始执行");
-    //     while (true)
-    //     {
-    //         Debug.Log($"等待 {timeCheckInterval} 秒后检查...");
-    //         yield return new WaitForSeconds(timeCheckInterval);
-    //         Debug.Log("开始执行 CheckTimeLimitedStories()");
-    //         CheckTimeLimitedStories();
-
-    //         // 同时保存进度，防止游戏崩溃导致数据丢失
-    //         SaveProgress();
-    //     }
+    //     //StartPeriodicTimeCheck();
     // }
 
     public void CheckTimeLimitedStories(string date)
@@ -109,7 +78,7 @@ public class StoryProgressManager : MonoBehaviour
         Debug.Log("订阅日期变化事件");
         Debug.LogWarning($"剧情截止自动检查，待检查剧情数量: {storyTimeLimits.Count}");
         // Debug.LogError("剧情截止自动检查");
-        bool anyChange = false;
+        //bool anyChange = false;
         //string currentTime = TimeManager.Instance.GetCurrentDateTime();
 
         foreach (var timeLimit in storyTimeLimits)
@@ -125,7 +94,7 @@ public class StoryProgressManager : MonoBehaviour
             if (ConditionSystem.Check(deadline))
             {
                 storyProgressDict[storyID] = true;
-                anyChange = true;
+                //anyChange = true;
                 Debug.Log($"剧情 [{storyID}] 因超过截止时间 {deadline} 被自动标记为已完成");
 
                 // 触发事件通知其他系统
@@ -133,17 +102,17 @@ public class StoryProgressManager : MonoBehaviour
             }
         }
 
-        if (anyChange)
-        {
-            SaveProgress();
-        }
+        // if (anyChange)
+        // {
+        //     SaveProgress();
+        // }
     }
     public void setStoryCompleted(string storyID)
     {
         storyProgressDict[storyID] = false;
     }
 
-    private void LoadStoryProgressFromCSV()
+    public void LoadStoryProgressFromCSV()
     {
         if (storyListCSV == null)
         {
@@ -182,6 +151,7 @@ public class StoryProgressManager : MonoBehaviour
                     storyTimeLimits[storyID] = parts[2].Trim();
                 }
             }
+            Debug.Log("剧情文件加载完成");
         }
         catch (Exception e)
         {
@@ -189,55 +159,7 @@ public class StoryProgressManager : MonoBehaviour
         }
     }
 
-    // public void SaveProgress()
-    // {
-    //     try
-    //     {
-    //         BinaryFormatter formatter = new BinaryFormatter();
-    //         using (FileStream stream = new FileStream(saveFilePath, FileMode.Create))
-    //         {
-    //             SaveData data = new SaveData
-    //             {
-    //                 progressDict = storyProgressDict,
-    //                 unlockConditions = storyUnlockConditions,
-    //                 timeLimits = storyTimeLimits
-    //             };
-    //             formatter.Serialize(stream, data);
-    //         }
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         Debug.LogError($"存档失败: {e.Message}");
-    //     }
-    // }
-    // public bool LoadProgress()
-    // {
-    //     if (!File.Exists(saveFilePath)) return false;
-
-    //     try
-    //     {
-    //         BinaryFormatter formatter = new BinaryFormatter();
-    //         using (FileStream stream = new FileStream(saveFilePath, FileMode.Open))
-    //         {
-    //             SaveData data = formatter.Deserialize(stream) as SaveData;
-    //             if (data != null)
-    //             {
-    //                 storyProgressDict = data.progressDict ?? new Dictionary<string, bool>();
-    //                 storyUnlockConditions = data.unlockConditions ?? new Dictionary<string, string>();
-    //                 storyTimeLimits = data.timeLimits ?? new Dictionary<string, string>();
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         Debug.LogError($"读档失败: {e.Message}");
-    //         return false;
-    //     }
-    //     return false;
-    // }
-
-    public void SaveProgress()
+    public void SaveProgress(string saveFilePath)
     {
         try
         {
@@ -260,10 +182,8 @@ public class StoryProgressManager : MonoBehaviour
         }
     }
 
-    public bool LoadProgress()
+    public void LoadProgress(string saveFilePath)
     {
-        if (!File.Exists(saveFilePath)) return false;
-
         try
         {
             BinaryFormatter formatter = new BinaryFormatter();
@@ -276,15 +196,16 @@ public class StoryProgressManager : MonoBehaviour
                     storyUnlockConditions = data.unlockConditions ?? new Dictionary<string, string>();
                     storyTimeLimits = data.timeLimits ?? new Dictionary<string, string>();
                     dialogueLineProgress = data.dialogueLineProgress ?? new Dictionary<string, bool>(); // 新增
-                    return true;
+                    return;
                 }
             }
         }
         catch (Exception e)
         {
-            Debug.LogError($"读档失败: {e.Message}");
+            Debug.Log($"读档失败: {e.Message}");
+            LoadStoryProgressFromCSV();
         }
-        return false;
+        return;
     }
 
 
@@ -307,7 +228,7 @@ public class StoryProgressManager : MonoBehaviour
         if (storyProgressDict.ContainsKey(storyFileName))
         {
             storyProgressDict[storyFileName] = true;
-            SaveProgress(); // 自动保存
+            //SaveProgress(); // 自动保存
         }
         else
         {
@@ -427,7 +348,7 @@ public class StoryProgressManager : MonoBehaviour
     {
         string key = GetDialogueLineKey(storyFileName, lineNumber);
         dialogueLineProgress[key] = true;
-        SaveProgress(); // 自动保存到二进制文件
+        //SaveProgress(); // 自动保存到二进制文件
 
 #if UNITY_EDITOR
         Debug.Log($"标记对话行完成: {key}");
@@ -445,17 +366,6 @@ public class StoryProgressManager : MonoBehaviour
         {
             dialogueLineProgress.Remove(key);
         }
-        SaveProgress();
-    }
-
-
-    // 删除存档(用于测试)
-    public void DeleteSaveFile()
-    {
-        if (File.Exists(saveFilePath))
-        {
-            File.Delete(saveFilePath);
-            Debug.Log("存档已删除");
-        }
+        //SaveProgress();
     }
 }

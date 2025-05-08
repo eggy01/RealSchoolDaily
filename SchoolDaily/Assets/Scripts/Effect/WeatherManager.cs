@@ -100,21 +100,16 @@ public class WeatherManager : MonoBehaviour
     {
         string currentScene = SceneManager.GetActiveScene().name;
         isOutdoorScene = outdoorScenes.Contains(currentScene);
-        Debug.Log($"当前场景: {currentScene}, 是室外场景: {isOutdoorScene}");
     }
 
     private void OnDayChanged(string date)
     {
-        Debug.Log($"天气系统收到日期变更通知");
-
         if (!timeManager.gameClockPause)
         {
             daysPassedWithCurrentWeather++;
-            Debug.Log($"天气已持续: {daysPassedWithCurrentWeather}天");
 
             if (daysPassedWithCurrentWeather >= currentWeatherDuration)
             {
-                Debug.Log("执行天气变更");
                 ChangeRandomWeather();
                 daysPassedWithCurrentWeather = 0;
                 currentWeatherDuration = UnityEngine.Random.Range(minWeatherDuration, maxWeatherDuration);
@@ -127,7 +122,6 @@ public class WeatherManager : MonoBehaviour
     {
         if (WeatherUI == null || WeatherSprites == null || WeatherSprites.Length < 4)
         {
-            Debug.LogWarning("天气UI配置不完整");
             return;
         }
 
@@ -143,14 +137,12 @@ public class WeatherManager : MonoBehaviour
         if (index < WeatherSprites.Length && WeatherSprites[index] != null)
         {
             WeatherUI.sprite = WeatherSprites[index];
-            Debug.Log($"设置天气图标: {weather} (索引:{index})");
         }
     }
 
     private void ChangeRandomWeather()
     {
         WeatherType newWeather = GetSeasonalWeather();
-        Debug.Log("天气：" + newWeather);
         UpdateWeatherIcon(newWeather);
         SetWeather(newWeather);
     }
@@ -256,7 +248,7 @@ public class WeatherManager : MonoBehaviour
     {
         if (sunLight2D == null)
         {
-            Debug.LogWarning("未找到2D光源组件");
+            //Debug.LogWarning("未找到2D光源组件");
             return;
         }
 

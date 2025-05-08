@@ -26,15 +26,38 @@ namespace SchoolD.Transition
 
         private void OnTransitionEvent(String sceneToGo, Vector3 positionToGo)
         {
-            // Debug.Log("目标场景：" + sceneToGo);
-            // Debug.Log(SceneManager.GetActiveScene().name);
             if (!isfade)
                 StartCoroutine(Transition(sceneToGo, positionToGo));
         }
 
         private void Start()
         {
-            StartCoroutine(LoadSceneSetActive(startSceneName, true));
+            StartCoroutine(StartSequence());
+        }
+
+        IEnumerator StartSequence()
+        {
+            int slot = SaveManager.Instance.currentSlot;
+
+            // 读取是否是新游戏
+            bool isNewGame = PlayerPrefs.GetInt("IsNewGame_" + slot, 0) == 1;
+
+            if (isNewGame)
+            {
+                // 播放动画
+                yield return BeginAnimManager.Instance.ShowAcceptTanceLetter();//录取通知书开场动画
+                yield return StartCoroutine(LoadSceneSetActive(startSceneName, true));
+                yield return BeginAnimManager.Instance.PlayNewBeginAnim();//公交车开场动画
+
+                // 清除标记（避免重复播放）
+                PlayerPrefs.DeleteKey("IsNewGame_" + slot);
+                PlayerPrefs.Save();
+            }
+            else
+            {
+                yield return StartCoroutine(LoadSceneSetActive(startSceneName, true));
+            }
+
             fadeCanvaGroup = FindObjectOfType<CanvasGroup>();
             fadeCanvaGroup.alpha = 0;
         }

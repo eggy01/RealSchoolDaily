@@ -1,215 +1,258 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.SceneManagement;
 
 public class DayNightSystem : MonoBehaviour
 {
-
     [Header("光照设置")]
-    public Light2D globalLight; // 全局2D光源
-    public Gradient lightColorGradient; // 根据时间变化的颜色渐变
-    public AnimationCurve lightIntensityCurve; // 根据时间变化的强度曲线
+    public Light2D globalLight;
+    public Gradient lightColorGradient;
+    [Range(0.1f, 5f)] public float transitionSpeed = 1f;
 
     [Header("季节参数")]
-    public float summerDayLength = 16f; // 夏季白天时长(小时)
-    public float winterDayLength = 8f;  // 冬季白天时长(小时)
-    [Range(0f, 1f)] public float currentTimeOfDay; // 当前一天中的时间比例(0-1)
-
-    [Header("光照强度")]
+    public float summerDayLength = 16f;  // 夏季白天时长(小时)
+    public float winterDayLength = 8f;   // 冬季白天时长(小时)
     public float summerMaxIntensity = 1f;
     public float winterMaxIntensity = 0.8f;
     public float baseMinIntensity = 0.1f;
 
     [Header("路灯设置")]
+    public float lightActivationThreshold = 0.2f;
+    public float streetLightTransitionTime = 2f;
 
-    public float lightActivationThreshold = 0.2f; // 光照强度阈值
-
-    private TimeManager timeManager;
-    private WeatherManager weatherManager;
+    // 私有变量
+    private float targetIntensity;
+    private Color targetColor;
+    private float seasonLerpFactor;
+    private Coroutine lightTransitionCoroutine;
     private SceneLightController lightController;
+    private bool streetLightsOn;
 
-    private float seasonLerpFactor; // 季节过渡因子(0=冬季,1=夏季)
+    private float currentTimeOfDay;
 
     private void Awake()
     {
-        timeManager = FindObjectOfType<TimeManager>();
-        weatherManager = FindObjectOfType<WeatherManager>();
+        // 确保单例
+        if (FindObjectsOfType<DayNightSystem>().Length > 1)
+        {
+            Destroy(gameObject);
+            return;
+        }
 
+        // 初始化路灯控制器
         lightController = FindObjectOfType<SceneLightController>();
         if (lightController == null)
         {
             GameObject controllerObj = new GameObject("SceneLightController");
             lightController = controllerObj.AddComponent<SceneLightController>();
+            lightController.lightActivationThreshold = lightActivationThreshold;
         }
     }
 
     private void OnEnable()
     {
-        //EventHandler.OnDayChangedEvent += OnHourChanged;
-        //TimeManager.Instance.OnHourChanged += OnHourChanged;
-        EventHandler.TenMinuteChanged += ChangedLight;
-        EventHandler.AfterScenLoadEvent += ChangedLight;
-        // UnityEngine.SceneManagement.SceneManager.activeSceneChanged += OnSceneChanged;
+        // 注册时间事件
+        TimeManager.Instance.OnHourChanged += OnHourChanged;
+        EventHandler.AfterScenLoadEvent += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
-        //EventHandler.OnDayChangedEvent -= OnHourChanged;
-        //TimeManager.OnHourChanged -= OnHourChanged;
-        //TimeManager.Instance.OnHourChanged -= OnHourChanged;
-        EventHandler.TenMinuteChanged -= ChangedLight;
-        //UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= OnSceneChanged;
-        EventHandler.AfterScenLoadEvent -= ChangedLight;
+        if (TimeManager.Instance != null)
+            TimeManager.Instance.OnHourChanged -= OnHourChanged;
+        EventHandler.AfterScenLoadEvent -= OnSceneLoaded;
     }
 
     private void Start()
     {
-        //CheckCurrentScene();
-        // 强制重置曲线（仅调试用）
-        lightIntensityCurve = new AnimationCurve(
-    new Keyframe(0f, 0.1f),    // 午夜
-    new Keyframe(0.23f, 0.1f),  // 黎明前
-    new Keyframe(0.25f, 0.8f),  // 日出
-    new Keyframe(0.3f, 1f),    // 完全日出
-    new Keyframe(0.7f, 1f),    // 日落前
-    new Keyframe(0.75f, 0.8f), // 日落
-    new Keyframe(0.77f, 0.1f)  // 完全夜晚
-);
-        UpdateTimeOfDay(); // 添加这行初始化时间
-        UpdateSeasonalParameters();
-        UpdateLighting();
-
+        InitializeLightSettings();
+        UpdateLightingImmediately(); // 立即更新一次光照
     }
+
+    private void InitializeLightSettings()
+    {
+        // 更平滑的光照渐变设置
+        lightColorGradient = new Gradient()
+        {
+            colorKeys = new GradientColorKey[]
+            {
+                new GradientColorKey(new Color(0.05f, 0.05f, 0.2f), 0f),    // 午夜
+                new GradientColorKey(new Color(0.2f, 0.2f, 0.4f), 0.23f),    // 黎明前
+                new GradientColorKey(new Color(1f, 0.7f, 0.5f), 0.25f),     // 日出
+                new GradientColorKey(new Color(1f, 0.95f, 0.9f), 0.3f),      // 白天
+                new GradientColorKey(new Color(1f, 0.7f, 0.5f), 0.7f),      // 日落前
+                new GradientColorKey(new Color(0.2f, 0.2f, 0.4f), 0.75f),   // 日落
+                new GradientColorKey(new Color(0.05f, 0.05f, 0.2f), 0.77f)  // 夜晚
+            },
+            alphaKeys = new GradientAlphaKey[]
+            {
+                new GradientAlphaKey(1f, 0f),
+                new GradientAlphaKey(1f, 1f)
+            }
+        };
+    }
+
     private void OnHourChanged(int hour)
     {
-        UpdateTimeOfDay();
-        UpdateLighting();
-    }
-    private void ChangedLight()
-    {
-        UpdateTimeOfDay();
-        UpdateLighting();
+        // 每小时更新光照
+        UpdateLightingSmoothly();
     }
 
-    private void UpdateTimeOfDay()
+    private void OnSceneLoaded()
     {
-        // 计算当前时间在一天中的比例(0-1)
-        float hour = timeManager.GetHour();
+        // 场景加载后立即更新光照
+        UpdateLightingImmediately();
+    }
 
-        float minute = timeManager.GetMinute();
-
+    public void UpdateTimeFromManager(int hour, int minute)
+    {
+        // 计算当前时间比例 (0-1)
         currentTimeOfDay = (hour + minute / 60f) / 24f;
-
-        // 添加调试输出
-        //Debug.Log($"当前游戏时间: {hour}:{minute} => currentTimeOfDay: {currentTimeOfDay}");
+        UpdateLightingImmediately();
     }
 
-    private void UpdateSeasonalParameters()
+    private void UpdateLightingImmediately()
     {
-        Season currentSeason = timeManager.GetSeason();
-        //Debug.Log("当前季节" + currentSeason);
-
-        // 计算季节过渡因子(0=冬季,1=夏季)
-        if (currentSeason == Season.夏天)
-        {
-            seasonLerpFactor = 1f;
-        }
-        else if (currentSeason == Season.冬天)
-        {
-            seasonLerpFactor = 0f;
-        }
-        else
-        {
-            // 春秋季节作为过渡
-            int month = timeManager.GetMonth();
-            if (currentSeason == Season.春天)
-            {
-                seasonLerpFactor = (month - 3) / 3f; // 3月=0, 6月=1
-            }
-            else // 秋天
-            {
-                seasonLerpFactor = 1 - (month - 9) / 3f; // 9月=1, 12月=0
-            }
-        }
-        Debug.Log("季节因子" + seasonLerpFactor);
+        CalculateTargetLightValues();
+        ApplyLightingImmediately();
+        UpdateStreetLights();
     }
 
-    private void UpdateLighting()
+    private void UpdateLightingSmoothly()
     {
-        if (globalLight == null) return;
+        CalculateTargetLightValues();
 
-        if (!WeatherManager.isOutdoorScene)
-        {
-            globalLight.intensity = 1f;
-            globalLight.color = Color.white;
-            return;
-        }
+        if (lightTransitionCoroutine != null)
+            StopCoroutine(lightTransitionCoroutine);
 
-        UpdateSeasonalParameters();
+        lightTransitionCoroutine = StartCoroutine(SmoothLightTransition());
+    }
 
-        // 1. 计算季节参数（严格限制范围）
-        float currentDayLength = Mathf.Clamp(
-            Mathf.Lerp(winterDayLength, summerDayLength, seasonLerpFactor),
-            0.1f, 24f
-        );
-        float currentMaxIntensity = Mathf.Clamp(
-            Mathf.Lerp(winterMaxIntensity, summerMaxIntensity, seasonLerpFactor),
-            baseMinIntensity, 1f
-        );
+    private void CalculateTargetLightValues()
+    {
+        // 从时间管理器获取季节信息
+        Season currentSeason = TimeManager.Instance.GetSeason();
+        seasonLerpFactor = CalculateSeasonLerpFactor(currentSeason, TimeManager.Instance.GetMonth());
 
-        // 2. 计算时间分段（防止除零和越界）
-        float dawnTime = Mathf.Clamp((12f - currentDayLength / 2f) / 24f, 0f, 0.5f);
-        float sunriseTime = Mathf.Clamp(dawnTime + 0.05f, dawnTime + 0.01f, 0.5f); // 确保 sunriseTime > dawnTime
-        float sunsetTime = Mathf.Clamp((12f + currentDayLength / 2f - 0.05f) / 24f, 0.5f, 1f);
-        float duskTime = Mathf.Clamp((12f + currentDayLength / 2f) / 24f, sunsetTime + 0.01f, 1f); // 确保 duskTime > sunsetTime
+        float currentDayLength = Mathf.Lerp(winterDayLength, summerDayLength, seasonLerpFactor);
+        float currentMaxIntensity = Mathf.Lerp(winterMaxIntensity, summerMaxIntensity, seasonLerpFactor);
 
-        // 3. 计算光照强度（严格限制插值参数）
-        float intensity;
+        // 计算当前时间比例 (0-1)
+        float currentHour = TimeManager.Instance.GetHour() + TimeManager.Instance.GetMinute() / 60f;
+        currentTimeOfDay = currentHour / 24f;
+
+        // 计算昼夜时间点
+        float dawnTime = (12f - currentDayLength / 2f) / 24f;
+        float sunriseTime = dawnTime + 0.05f;
+        float sunsetTime = (12f + currentDayLength / 2f - 0.05f) / 24f;
+        float duskTime = (12f + currentDayLength / 2f) / 24f;
+
+        // 计算目标光照强度
         if (currentTimeOfDay <= dawnTime || currentTimeOfDay >= duskTime)
         {
-            intensity = baseMinIntensity; // 夜晚
+            targetIntensity = baseMinIntensity;
         }
         else if (currentTimeOfDay <= sunriseTime)
         {
-            float t = Mathf.Clamp01((currentTimeOfDay - dawnTime) / Mathf.Max(0.01f, sunriseTime - dawnTime));
-            intensity = Mathf.Lerp(baseMinIntensity, currentMaxIntensity, t); // 黎明渐变
+            float t = (currentTimeOfDay - dawnTime) / (sunriseTime - dawnTime);
+            targetIntensity = Mathf.Lerp(baseMinIntensity, currentMaxIntensity, t);
         }
         else if (currentTimeOfDay >= sunsetTime)
         {
-            float t = Mathf.Clamp01((duskTime - currentTimeOfDay) / Mathf.Max(0.01f, duskTime - sunsetTime));
-            intensity = Mathf.Lerp(baseMinIntensity, currentMaxIntensity, t); // 黄昏渐变
+            float t = (duskTime - currentTimeOfDay) / (duskTime - sunsetTime);
+            targetIntensity = Mathf.Lerp(baseMinIntensity, currentMaxIntensity, t);
         }
         else
         {
-            intensity = currentMaxIntensity; // 白天
+            targetIntensity = currentMaxIntensity;
         }
 
-        // 4. 最终强度限制（双重保险）
-        float finalIntensity = Mathf.Clamp(intensity, baseMinIntensity, currentMaxIntensity);
-        globalLight.intensity = finalIntensity;
-        globalLight.color = lightColorGradient.Evaluate(currentTimeOfDay);
-
-        // 调试输出
-        //Debug.Log($"时间: {currentTimeOfDay:F3} | 分段: [{dawnTime:F3},{sunriseTime:F3}]→[{sunsetTime:F3},{duskTime:F3}]");
-        //Debug.Log($"强度: {intensity:F3} → 最终: {finalIntensity:F3} (最大允许: {currentMaxIntensity:F2})");
-
-        // 控制路灯
-        lightController.SetAllLights(finalIntensity <= lightActivationThreshold);
+        // 计算目标颜色
+        targetColor = lightColorGradient.Evaluate(currentTimeOfDay);
     }
 
-    private void AdjustWeatherLightIntensity(float seasonMaxIntensity)
+    private float CalculateSeasonLerpFactor(Season season, int month)
     {
-        // 根据季节调整天气系统的基准光照强度
-        if (weatherManager != null)
+        if (season == Season.夏天) return 1f;
+        if (season == Season.冬天) return 0f;
+
+        if (season == Season.春天)
+            return (month - 3) / 3f; // 3月=0, 6月=1
+        else // 秋天
+            return 1 - (month - 9) / 3f; // 9月=1, 12月=0
+    }
+
+    private IEnumerator SmoothLightTransition()
+    {
+        float startIntensity = globalLight.intensity;
+        Color startColor = globalLight.color;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < transitionSpeed)
         {
-            weatherManager.sunnyLightColor *= seasonMaxIntensity;
-            weatherManager.rainyLightColor *= seasonMaxIntensity;
-            weatherManager.snowyLightColor *= seasonMaxIntensity;
-            //weatherManager.windyLightColor *= seasonMaxIntensity;
-            weatherManager.cloudyLightColor *= seasonMaxIntensity;
+            elapsedTime += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsedTime / transitionSpeed);
+
+            globalLight.intensity = Mathf.Lerp(startIntensity, targetIntensity, t);
+            globalLight.color = Color.Lerp(startColor, targetColor, t);
+
+            // 检查路灯状态
+            UpdateStreetLights();
+
+            yield return null;
         }
     }
 
+    private void ApplyLightingImmediately()
+    {
+        if (globalLight == null) return;
+
+        globalLight.intensity = targetIntensity;
+        globalLight.color = targetColor;
+    }
+
+    private void UpdateStreetLights()
+    {
+        if (lightController == null) return;
+
+        bool shouldLightsBeOn = globalLight.intensity <= lightActivationThreshold;
+
+        if (shouldLightsBeOn != streetLightsOn)
+        {
+            streetLightsOn = shouldLightsBeOn;
+            lightController.SetAllLights(streetLightsOn);
+
+            // 路灯渐亮渐暗效果
+            if (streetLightTransitionTime > 0)
+            {
+                foreach (var group in lightController.lightGroups)
+                {
+                    StartCoroutine(FadeLightGroup(group, streetLightsOn, streetLightTransitionTime));
+                }
+            }
+        }
+    }
+
+    private IEnumerator FadeLightGroup(SceneLightController.LightGroup group, bool turnOn, float duration)
+    {
+        float startIntensity = turnOn ? 0f : 1f;
+        float targetIntensity = turnOn ? 1f : 0f;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsedTime / duration);
+
+            foreach (var light in group.lights)
+            {
+                if (light != null)
+                {
+                    light.intensity = Mathf.Lerp(startIntensity, targetIntensity, t);
+                }
+            }
+
+            yield return null;
+        }
+    }
 }

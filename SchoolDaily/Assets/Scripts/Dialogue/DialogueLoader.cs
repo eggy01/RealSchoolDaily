@@ -30,40 +30,38 @@ public class DialogueLoader : MonoBehaviour
     }
     public GameDate ParseDateString(string dateStr)
     {
-        Debug.Log("传入的日期字符");
+        //Debug.Log("传入的日期字符");
         Match match = Regex.Match(dateStr, @"(\d+)月(\d+)日");
         if (match.Success && match.Groups.Count == 3)
         {
             int month = int.Parse(match.Groups[1].Value);
             int day = int.Parse(match.Groups[2].Value);
-            Debug.Log("处理的日期字符" + month + day);
+            //Debug.Log("处理的日期字符" + month + day);
             return new GameDate(month, day);
         }
 
-        Debug.LogError($"日期格式错误: {dateStr}，使用默认日期(9月1日)");
+        // Debug.LogError($"日期格式错误: {dateStr}，使用默认日期(9月1日)");
         return new GameDate(9, 1);
     }
 
     public void UpdateActiveFolder(GameDate currentDate)
     {
-        Debug.LogWarning("更新文件见当前日期" + currentDate);
         foreach (var entry in _dialogueSchedule)
         {
             if (entry.Value.Contains(currentDate))
             {
                 ActiveFolder = entry.Key;
-                Debug.Log($"当前日期{currentDate}匹配到剧情文件夹: {ActiveFolder}");
+                //Debug.Log($"当前日期{currentDate}匹配到剧情文件夹: {ActiveFolder}");
                 return;
             }
         }
 
         ActiveFolder = null;
-        Debug.Log($"当前日期{currentDate}没有匹配的剧情文件夹");
+        //Debug.Log($"当前日期{currentDate}没有匹配的剧情文件夹");
     }
 
     public void RefreshAvailableDialogue()
     {
-        Debug.Log("时间管理器：" + TimeManager.Instance.GetMonth() + TimeManager.Instance.GetDay());
         var current = new GameDate(
             TimeManager.Instance.GetMonth(),
             TimeManager.Instance.GetDay()
@@ -79,7 +77,7 @@ public class DialogueLoader : MonoBehaviour
             return null;
         }
         // 调试输出当前可用文件夹
-        Debug.Log($"尝试加载文件: {fileName}，当前ActiveFolder: {ActiveFolder ?? "null"}");
+        // Debug.Log($"尝试加载文件: {fileName}，当前ActiveFolder: {ActiveFolder ?? "null"}");
 
         // 1. 先尝试从日期匹配的文件夹加载
         if (!string.IsNullOrEmpty(ActiveFolder))
@@ -89,12 +87,12 @@ public class DialogueLoader : MonoBehaviour
 
             if (csv != null)
             {
-                Debug.Log($"从日期文件夹[{ActiveFolder}]加载: {fileName}");
+                //Debug.Log($"从日期文件夹[{ActiveFolder}]加载: {fileName}");
                 return csv;
             }
             else
             {
-                Debug.Log($"在文件夹[{ActiveFolder}]中未找到: {fileName}");
+                //Debug.Log($"在文件夹[{ActiveFolder}]中未找到: {fileName}");
             }
         }
 
@@ -104,7 +102,7 @@ public class DialogueLoader : MonoBehaviour
 
         if (persistentCsv != null)
         {
-            Debug.Log($"从常驻文件夹[{PERSISTENT_FOLDER}]加载: {fileName}");
+            // Debug.Log($"从常驻文件夹[{PERSISTENT_FOLDER}]加载: {fileName}");
             return persistentCsv;
         }
 

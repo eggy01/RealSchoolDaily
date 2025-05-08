@@ -87,8 +87,6 @@ public class DialogueUI : MonoBehaviour
                 yield break;
             }
 
-
-            Debug.Log("地点" + piece.Loaction);
             // 检查是否是手机屏幕消息
             if (!string.IsNullOrEmpty(piece.Loaction) && piece.Loaction.Contains("手机屏幕"))
             {
@@ -133,7 +131,7 @@ public class DialogueUI : MonoBehaviour
                     dialogueBoxBottom.SetActive(true);
                     dialogueText.gameObject.SetActive(true);
                 }
-                else if (piece.index == 0)
+                else if (piece.index == 0)//单人旁白
                 {
                     dialogueBoxBottom.SetActive(true);
                     dialogueText.gameObject.SetActive(true);
@@ -146,7 +144,6 @@ public class DialogueUI : MonoBehaviour
                 {
                     dialogueBoxTop.SetActive(true);
                     dialogueText.gameObject.SetActive(true);
-                    //Debug.Log("说话者" + piece.name);
 
                     if (!piece.name.Equals(string.Empty))
                     {
@@ -181,6 +178,9 @@ public class DialogueUI : MonoBehaviour
                         }
                         else
                         {
+                            string npcID = NPCLoad.Instance.GetNPCIDByName(piece.name);
+                            if (!string.IsNullOrEmpty(npcID))
+                                NPCManager.Instance.MeetNPC(npcID);
                             nameLeft.text = piece.name;
                             faceLeft.sprite = piece.faceImage;
 
@@ -330,6 +330,14 @@ public class DialogueUI : MonoBehaviour
                 {
                     RewardManager.Instance.ApplyRewards(piece.reward);
                 }
+
+                //等待播放动画
+                if (!string.IsNullOrEmpty(piece.playTimeline))
+                {
+                    TimelineManager.Instance.PlayTimeline();
+                    yield return new WaitUntil(() => !TimelineManager.Instance.IsTimelinePlaying());
+                }
+
 
                 // 动态加载下一剧情文件
                 if (!string.IsNullOrEmpty(piece.nextDialogueCSVFileName))

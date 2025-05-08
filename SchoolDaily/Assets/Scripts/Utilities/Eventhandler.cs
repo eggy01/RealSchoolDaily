@@ -164,4 +164,11 @@ public class EventHandler
     public static event Action<string> OnDialogueStart; // 对话开始事件
     public static event Action<string, int> OnChoiceSelected; // 选项选择事件
 
+    //剧情和任务初始数据加载
+    public static event Action LoadCSVCompleted;
+    public static void callLoadCSVCompleted()
+    {
+        LoadCSVCompleted?.Invoke();
+    }
+
 }

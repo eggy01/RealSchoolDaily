@@ -11,6 +11,7 @@ public class SaveSlotButton : MonoBehaviour
 
     public void SetSlotInfo(int slotIndex, bool isEmpty, GameTimeData timeData = null)
     {
+        Debug.LogWarning("该槽是否为空：isEmpty" + isEmpty);
         if (isEmpty)
         {
             slotText.text = "NULL";

@@ -57,7 +57,7 @@ namespace SchoolD.Task
         private void Awake()
         {
             Instance = this;
-            Initialize();
+            //Initialize();
         }
         private void Update()
         {
@@ -68,11 +68,10 @@ namespace SchoolD.Task
             }
         }
 
-        private void Initialize()
-        {
-            LoadTasks();
-
-        }
+        // private void Initialize()
+        // {
+        //     LoadTasks();
+        // }
 
         private void RebuildDictionaries()
         {
@@ -94,9 +93,9 @@ namespace SchoolD.Task
             }
         }
 
-        public void LoadTasksFromCSV(TextAsset csvFile)
+        public void LoadTasksFromCSV()
         {
-            string[] lines = csvFile.text.Split('\n');
+            string[] lines = taskCsvFile.text.Split('\n');
 
             for (int i = 1; i < lines.Length; i++) // 跳过表头
             {
@@ -181,7 +180,7 @@ namespace SchoolD.Task
 
                     // 更新父任务状态为已挂起
                     UpdateParentTaskState(task.parentPID, true);
-                    SaveTasks(); // 新增
+                    //SaveTasks(); // 新增
                 }
                 else
                 {
@@ -207,7 +206,7 @@ namespace SchoolD.Task
 
                     TipController.Instance.ShowTaskTip(false);
                     //EventHandler.CallUpdateTaskUI(pid);
-                    SaveTasks(); // 新增
+                    //SaveTasks(); // 新增
                 }
                 else
                 {
@@ -445,9 +444,9 @@ namespace SchoolD.Task
         }
 
         //存档
-        private string savePath => Path.Combine(Application.persistentDataPath, "tasksave.dat");
+        //private string savePath => Path.Combine(Application.persistentDataPath, "tasksave.dat");
 
-        public void SaveTasks()
+        public void SaveTasks(string savePath)
         {
             TaskSaveData data = new TaskSaveData();
             data.savedTasks = new List<Task>(allTasks);
@@ -456,7 +455,7 @@ namespace SchoolD.Task
             File.WriteAllText(savePath, json);
         }
 
-        public void LoadTasks()
+        public void LoadTasks(string savePath)
         {
             if (File.Exists(savePath))
             {
@@ -467,13 +466,8 @@ namespace SchoolD.Task
             }
             else
             {
-                LoadTasksFromCSV(taskCsvFile); // 如果没有存档，从CSV初始化
+                LoadTasksFromCSV(); // 如果没有存档，从CSV初始化
             }
-        }
-
-        private void OnApplicationQuit()
-        {
-            SaveTasks();
         }
     }
 }

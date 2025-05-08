@@ -216,6 +216,10 @@ public class DialogueCSVReader : MonoBehaviour
             }
 
 
+            if (fields.Length > 15 && !fields[14].Equals(string.Empty))
+            {
+                piece.playTimeline = fields[14];
+            }
 
             dialoguePieces.Add(piece);
         }

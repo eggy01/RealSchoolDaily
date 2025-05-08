@@ -107,8 +107,8 @@ public static class ConditionSystem
     // 数据获取方法（需根据你的游戏系统实现）--------------------------
     public static int GetFavorability(string npcName)
     {
-        // 实际接入你的好感度系统
-        return FavorabilityManager.Instance?.Get(npcName) ?? 0;
+        string npcID = NPCLoad.Instance.GetNPCIDByName(npcName);
+        return NPCManager.Instance.GetNPCData(npcID).Favorability;
     }
     private static int GetTalent(string arg)
     {
