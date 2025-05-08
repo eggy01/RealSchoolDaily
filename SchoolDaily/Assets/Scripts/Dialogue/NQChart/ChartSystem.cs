@@ -145,12 +145,6 @@ public class ChatSystem : MonoBehaviour, IWindow
         }
     }
 
-    // private void OnApplicationQuit()
-    // {
-    //     Debug.LogWarning("游戏退出");
-    //     SaveChatData();
-    // }
-
     private void InitializeUI()
     {
         mainPanel.SetActive(false);
@@ -214,7 +208,7 @@ public class ChatSystem : MonoBehaviour, IWindow
         // Setup phone mode
         isInPhoneMode = true;
         WindowManager.Instance.OpenWindow(this, true);
-        //phoneChatPopup.SetActive(true);
+        phoneChatPopup.SetActive(true);
 
         // Parse message info
         ParseMessageInfo(piece, out string groupName, out string senderName);

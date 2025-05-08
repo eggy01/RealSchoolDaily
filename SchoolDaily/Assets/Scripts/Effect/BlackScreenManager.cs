@@ -164,7 +164,7 @@ public class BlackScreenManager : MonoBehaviour
     private IEnumerator WaitForZeroOrderThenSet(int targetOrder)
     {
         _isWaitingForZeroOrder = true;
-        Debug.Log($"等待黑屏层级归零... (目标层级: {targetOrder})");
+        //Debug.Log($"等待黑屏层级归零... (目标层级: {targetOrder})");
 
         // 每帧检查当前层级
         while (blackScreenCanvasGroup.GetComponentInParent<Canvas>().sortingOrder != 0)

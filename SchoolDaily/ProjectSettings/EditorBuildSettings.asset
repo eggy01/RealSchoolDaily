@@ -50,4 +50,31 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/WashRoom Scene.unity
     guid: 2641e4057229fd1469cea6a1625f6fd4
+  - enabled: 1
+    path: Assets/Scenes/LibraryReadingRoom Scene.unity
+    guid: 4e5a377a301dab64ebcc3ac1b0027e74
+  - enabled: 1
+    path: Assets/Scenes/LibraryStudyRoom Scene.unity
+    guid: a1f16964441c04041b6ef71679d2e131
+  - enabled: 1
+    path: Assets/Scenes/PaintingRoom Scene.unity
+    guid: fab0afc82f9398d4984a81158ef306b5
+  - enabled: 1
+    path: Assets/Scenes/Piano Scene.unity
+    guid: d7b4fa92fb0a3d1468857fede1226380
+  - enabled: 1
+    path: Assets/Scenes/Hospital Scene.unity
+    guid: c8f7eb306f00974449519ceeb0e81d3f
+  - enabled: 1
+    path: Assets/Scenes/HospitalHallWay Scene.unity
+    guid: fcf4003e9b89ee14884b9ad32d813554
+  - enabled: 1
+    path: Assets/Scenes/SickRoom Scene.unity
+    guid: c502531dacd29a44faf47a50bbcf3c8d
+  - enabled: 1
+    path: Assets/Scenes/ClassHallWay Scene ys.unity
+    guid: cc2e19c4958a2e54abde8ffcaa50e29a
+  - enabled: 1
+    path: Assets/Scenes/ClassHallWay Scene jsj.unity
+    guid: 4b9ee1688dd37354d88cdf9b61c3f5f9
   m_configObjects: {}

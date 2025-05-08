@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using SchoolD.Dialogue;
 using TMPro;
 using UnityEngine;
-using UnityEngine.iOS;
 using UnityEngine.UI;
 using SchoolD.Task;
 

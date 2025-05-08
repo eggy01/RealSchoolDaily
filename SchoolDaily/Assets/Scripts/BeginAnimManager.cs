@@ -21,8 +21,6 @@ public class BeginAnimManager : MonoBehaviour
     }
     public IEnumerator PlayNewBeginAnim()
     {
-        Debug.LogWarning("开启过场动画");
-        player.gameObject.SetActive(false);
         //yield return StartCoroutine(ShowAcceptTanceLetter());
         PlayableDirector.Play();
         // 等待动画播放完成
@@ -35,9 +33,9 @@ public class BeginAnimManager : MonoBehaviour
 
     public IEnumerator ShowAcceptTanceLetter()
     {
-        Debug.LogWarning("设置开场黑屏");
         BlackScreenManager.Instance.TransionBlackScreenSortOrder(1000);
         yield return BlackScreenManager.Instance.FadeIn(0.5f, false);
+        player.gameObject.SetActive(false);
 
         BlackScreenManager.Instance.ShowImage(true);//显示图片
                                                     // 等待一段时间才允许跳过
@@ -51,7 +49,6 @@ public class BeginAnimManager : MonoBehaviour
     }
     public void SetPlayerPosition()//设置玩家初始位置
     {
-        Debug.LogWarning("设置玩家初始位置");
         player.transform.position = new Vector3(13.5f, 34.7f, 0);
         player.gameObject.SetActive(true);
     }
