@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5464030147070050202}
   - component: {fileID: 2073308430828835210}
   - component: {fileID: 1967292644162836640}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u516C\u4EA4\u7AD9\u724C_1"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -140,7 +140,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6076813479975733629}
   - component: {fileID: 4678157152489441191}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: "\u516C\u4EA4\u7AD9\u724C"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
