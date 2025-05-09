@@ -266,10 +266,6 @@ public class WeatherManager : MonoBehaviour
                 sunLight2D.color = snowyLightColor;
                 //sunLight2D.intensity = 0.8f;
                 break;
-            // case WeatherType.Windy:
-            //     sunLight2D.color = windyLightColor;
-            //     //sunLight2D.intensity = 0.9f;
-            //     break;
             case WeatherType.Cloudy:
                 sunLight2D.color = cloudyLightColor;
                 //sunLight2D.intensity = 0.7f;
@@ -288,12 +284,6 @@ public class WeatherManager : MonoBehaviour
             case WeatherType.Snowy:
                 snowParticleSystem.Play();
                 break;
-                // case WeatherType.Windy:
-                //     windParticleSystem.Play();
-                //     break;
-                // case WeatherType.Cloudy:
-                //     cloudParticleSystem.Play();
-                //     break;
         }
     }
 
@@ -301,7 +291,5 @@ public class WeatherManager : MonoBehaviour
     {
         rainParticleSystem.Stop();
         snowParticleSystem.Stop();
-        //windParticleSystem.Stop();
-        // cloudParticleSystem.Stop();
     }
 }

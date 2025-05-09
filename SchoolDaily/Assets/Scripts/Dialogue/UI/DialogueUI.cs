@@ -532,11 +532,9 @@ public class DialogueUI : MonoBehaviour
         }
         else
         {
-            //Debug.Log("跳转序号:" + currentPiece.nextIndex);
             string[] nextIndices = currentPiece.nextIndex.Split('|');
             if (optionIndex < nextIndices.Length)
             {
-                //Debug.Log("111跳转序号:" + nextIndices[optionIndex]);
                 EventHandler.CallLoadDialogueByIndex(nextIndices[optionIndex], currentPiece.belongToCSVFileName);
                 selectedOptionIndex = -1;
             }

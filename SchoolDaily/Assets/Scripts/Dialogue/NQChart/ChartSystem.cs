@@ -255,7 +255,7 @@ public class ChatSystem : MonoBehaviour, IWindow
     {
         if (conversations == null || conversations.Count == 0)
         {
-            Debug.Log("没有会话数据。");
+            // Debug.Log("没有会话数据。");
             return;
         }
 
@@ -264,7 +264,7 @@ public class ChatSystem : MonoBehaviour, IWindow
             string groupKey = conversation.Key;
             List<ChatRecord> records = conversation.Value;
 
-            Debug.Log($"会话组: {groupKey}");
+            //Debug.Log($"会话组: {groupKey}");
             foreach (var record in records)
             {
                 string sender = record.senderName;
@@ -273,7 +273,7 @@ public class ChatSystem : MonoBehaviour, IWindow
                 bool isPlayerMessage = record.isPlayerMessage;
 
                 string messageInfo = isPlayerMessage ? "（玩家消息）" : "（非玩家消息）";
-                Debug.Log($"  发送者: {sender}, 消息: {message}, 时间: {timestamp}, {messageInfo}");
+                //Debug.Log($"  发送者: {sender}, 消息: {message}, 时间: {timestamp}, {messageInfo}");
             }
         }
     }
@@ -660,7 +660,7 @@ public class ChatSystem : MonoBehaviour, IWindow
 
         yield return new WaitUntil(() => selectedOptionIndex != -1);
 
-        Debug.Log("当前消息选择：" + selectedOptionIndex);
+        //Debug.Log("当前消息选择：" + selectedOptionIndex);
         optionsPanel.SetActive(false);
         CleanupOptions(optionButtons);
     }
@@ -693,10 +693,10 @@ public class ChatSystem : MonoBehaviour, IWindow
             }
         }
         // 打印删除后的延迟消息
-        Debug.Log("删除后的延迟消息列表:");
+        // Debug.Log("删除后的延迟消息列表:");
         foreach (var msg in deferredMessages)
         {
-            Debug.Log($"- 群组: {msg.groupName}, 索引: {msg.pieceIndex}, 是否完成: {msg.isCompleted}");
+            // Debug.Log($"- 群组: {msg.groupName}, 索引: {msg.pieceIndex}, 是否完成: {msg.isCompleted}");
         }
     }
     #endregion
@@ -960,7 +960,8 @@ public class ChatSystem : MonoBehaviour, IWindow
         bool waiting = true;
         while (waiting)
         {
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+            Debug.Log("NQChat等待玩家操作");
+            if (Input.GetMouseButtonDown(0))
             {
                 waiting = false;
             }

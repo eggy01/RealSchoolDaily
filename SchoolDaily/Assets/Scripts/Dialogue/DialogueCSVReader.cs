@@ -15,7 +15,7 @@ public class DialogueCSVReader : MonoBehaviour
 
     private Dictionary<string, string> nameToIconMap = new Dictionary<string, string>()
 {
-    {"安澜", "ai"},
+    {"安澜", "al"},
     {"林风", "lf"},
     {"椿", "c"},
     {"弗洛", "fl"},

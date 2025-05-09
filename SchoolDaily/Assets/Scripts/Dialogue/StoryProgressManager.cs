@@ -75,8 +75,8 @@ public class StoryProgressManager : MonoBehaviour
 
     public void CheckTimeLimitedStories(string date)
     {
-        Debug.Log("订阅日期变化事件");
-        Debug.LogWarning($"剧情截止自动检查，待检查剧情数量: {storyTimeLimits.Count}");
+        //Debug.LogWarning("订阅日期变化事件");
+        //Debug.LogWarning($"剧情截止自动检查，待检查剧情数量: {storyTimeLimits.Count}");
         // Debug.LogError("剧情截止自动检查");
         //bool anyChange = false;
         //string currentTime = TimeManager.Instance.GetCurrentDateTime();
@@ -95,7 +95,7 @@ public class StoryProgressManager : MonoBehaviour
             {
                 storyProgressDict[storyID] = true;
                 //anyChange = true;
-                Debug.Log($"剧情 [{storyID}] 因超过截止时间 {deadline} 被自动标记为已完成");
+                //Debug.Log($"剧情 [{storyID}] 因超过截止时间 {deadline} 被自动标记为已完成");
 
                 // 触发事件通知其他系统
                 //EventHandler.CallStoryAutoCompletedEvent(storyID);
@@ -312,20 +312,20 @@ public class StoryProgressManager : MonoBehaviour
     }
 
     // 打印剧情进度和解锁条件到控制台
-    public void PrintStoryProgress()
-    {
-        Debug.Log("剧情进度:");
-        foreach (var story in storyProgressDict)
-        {
-            Debug.Log(story.Key + " - " + (story.Value ? "已完成" : "未完成"));
-        }
+    // public void PrintStoryProgress()
+    // {
+    //     Debug.Log("剧情进度:");
+    //     foreach (var story in storyProgressDict)
+    //     {
+    //         Debug.Log(story.Key + " - " + (story.Value ? "已完成" : "未完成"));
+    //     }
 
-        Debug.Log("剧情解锁条件:");
-        foreach (var condition in storyUnlockConditions)
-        {
-            Debug.Log(condition.Key + " -> " + condition.Value);
-        }
-    }
+    //     Debug.Log("剧情解锁条件:");
+    //     foreach (var condition in storyUnlockConditions)
+    //     {
+    //         Debug.Log(condition.Key + " -> " + condition.Value);
+    //     }
+    // }
 
     // 存储对话行完成状态的字典
     private Dictionary<string, bool> dialogueLineProgress = new Dictionary<string, bool>();

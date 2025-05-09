@@ -256,8 +256,8 @@ Transform:
   m_GameObject: {fileID: 193913446}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.34, y: 3.23, z: 0}
-  m_LocalScale: {x: 7.1879644, y: 2.689704, z: 2.689704}
+  m_LocalPosition: {x: 6.6, y: 2.17, z: 0}
+  m_LocalScale: {x: 11.285105, y: 2.689704, z: 2.689704}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 515736993}
@@ -275,7 +275,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToGo: B Scene
-  positionToGo: {x: 8.5, y: 7.5, z: 0}
+  positionToGo: {x: 8.5, y: 4.3, z: 0}
 --- !u!1 &205627225
 GameObject:
   m_ObjectHideFlags: 0

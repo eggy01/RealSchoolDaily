@@ -24,6 +24,7 @@ namespace SchoolD.Dialogue
         { }
         private void OnNewDialogueStarted(string newDialogueFileName, System.Action action)
         {
+            Debug.Log("开启新对话");
             TextAsset nextCSV = DialogueLoader.Instance.LoadCSVFromResources(newDialogueFileName);
             if (nextCSV == null) return;
             dialogueList = DialogueCSVReader.Instance.LoadDialogueData(nextCSV);
@@ -70,7 +71,6 @@ namespace SchoolD.Dialogue
                     Debug.Log("333333333333 - 没有找到匹配的对话片段");
                     return;
                 }
-                Debug.Log("匹配对话：" + matchedPieces.Count);
 
                 dialogueStack.Clear();
                 for (int i = matchedPieces.Count - 1; i >= 0; i--)
@@ -128,13 +128,11 @@ namespace SchoolD.Dialogue
 
         private void CleanUpDialogue()
         {
-            Debug.Log("清理：");
             EventHandler.CallShowDialogueEvent(null);
             istalking = false;
             dialogueList.Clear();
             dialogueStack.Clear();
-            Debug.Log("Skip" + SkipIndex);
-            if (SkipIndex == -1)
+            if (SkipIndex > 0)
             {
                 StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);
             }
