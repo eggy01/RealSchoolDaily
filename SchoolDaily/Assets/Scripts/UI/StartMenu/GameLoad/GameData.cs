@@ -9,7 +9,7 @@ public class GameData
     public List<NPCLocalItem> npcLocalItems = new List<NPCLocalItem>();
     // 背包动态数据
     public List<PackageLocalItem> packageItems = new List<PackageLocalItem>();
-    public int packageCapacity;
+    public int packageCapacity = 6400;
     // 时间数据存储
     public GameTimeData gameTimeData = new GameTimeData();
 }
