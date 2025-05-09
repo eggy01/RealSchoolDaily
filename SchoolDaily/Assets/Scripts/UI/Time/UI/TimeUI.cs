@@ -30,7 +30,7 @@ public class TimeUI : MonoBehaviour
         dateText.text = $"{month:00}/{day:00}";
         weekDayText.text = weekDayNames[weekDay - 1];
         termText.text = $"第{term}学期";
-        if (day == 4)
+        if (day == 1)
         {
             PlayerInformation.Instance.AddGold(1500);
             lifeMoney.SetActive(true);

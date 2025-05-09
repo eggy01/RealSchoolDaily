@@ -13,6 +13,5 @@ public class PlayerData
     public int talent = 20;
     public int society = 20;
     public int warehouse = 100;
-    public double capacity = 6.4;
-    public int gold ;
+    public int gold = 1500;
 }

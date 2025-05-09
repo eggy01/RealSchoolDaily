@@ -39,17 +39,22 @@ public class PackageLocalData
     public void LoadData()
     {
         GameData tempData = SaveManager.Instance.GetTempData();
-        if (tempData != null && tempData.packageItems != null) // 假设GameData中存在packageItems字段
+
+        // 确保无论如何都初始化容量值
+        MaxCapacity = 6400; // 先设置默认值
+
+        if (tempData != null)
         {
-            items = new List<PackageLocalItem>(tempData.packageItems);
-            MaxCapacity = tempData.packageCapacity;
-            Debug.Log("背包数据已从存档加载");
+            // 优先使用存档中的容量值，如果没有则保持默认
+            MaxCapacity = tempData.packageCapacity > 0 ? tempData.packageCapacity : 6400;
+
+            if (tempData.packageItems != null)
+            {
+                items = new List<PackageLocalItem>(tempData.packageItems);
+            }
         }
-        else
-        {
-            items = new List<PackageLocalItem>();
-            MaxCapacity = 6400;
-        }
+
+        Debug.Log($"最终背包容量: {MaxCapacity}"); // 调试用
         onInventoryChanged.Invoke();
     }
     private void SaveData()
