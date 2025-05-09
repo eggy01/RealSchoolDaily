@@ -61,23 +61,23 @@ public class TimeManager : MonoBehaviour
 
     private void Update()
     {
-        // 按 D 键跳到下一天
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            SkipToNextDay();
-        }
+        // // 按 D 键跳到下一天
+        // if (Input.GetKeyDown(KeyCode.R))
+        // {
+        //     SkipToNextDay();
+        // }
 
-        // 按 H 键跳到下一小时
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            SkipToNextHour();
-        }
+        // // 按 H 键跳到下一小时
+        // if (Input.GetKeyDown(KeyCode.H))
+        // {
+        //     SkipToNextHour();
+        // }
 
-        // 按 M 跳到下个月
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            SkipToNextMonth();
-        }
+        // // 按 M 跳到下个月
+        // if (Input.GetKeyDown(KeyCode.M))
+        // {
+        //     SkipToNextMonth();
+        // }
 
         if (!gameClockPause)
         {
