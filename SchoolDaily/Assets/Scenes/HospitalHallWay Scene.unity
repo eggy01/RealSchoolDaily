@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90b9158a84650fa4c8604c4742a65cce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneToGo: SickRoom  Scene
+  sceneToGo: SickRoom Scene
   positionToGo: {x: -4, y: -9, z: 0}
 --- !u!61 &30714274
 BoxCollider2D:
@@ -712,7 +712,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90b9158a84650fa4c8604c4742a65cce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneToGo: SickRoom  Scene
+  sceneToGo: SickRoom Scene
   positionToGo: {x: -4, y: -9, z: 0}
 --- !u!61 &577101311
 BoxCollider2D:

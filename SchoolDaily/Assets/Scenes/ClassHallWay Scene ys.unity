@@ -2840,7 +2840,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneToGo: Teach Scene
-  positionToGo: {x: -43, y: -66, z: 0}
+  positionToGo: {x: -12.3, y: -66, z: 0}
 --- !u!61 &2144037588
 BoxCollider2D:
   m_ObjectHideFlags: 0

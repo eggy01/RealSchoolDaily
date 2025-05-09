@@ -55,7 +55,7 @@ namespace SchoolD.Dialogue
         // 通过索引跳转
         private void LoadNextDialogueByIndex(string indexStr, string dialogueID)
         {
-
+            CurrentcsvFileName = dialogueID;
             dialogueList = DialogueCSVReader.Instance.LoadDialogueData(DialogueLoader.Instance.LoadCSVFromResources(dialogueID));
             Debug.Log($"LoadNextDialogueByIndex被调用，indexStr:{indexStr} 当前对话列表长度:{dialogueList.Count}");
             if (int.TryParse(indexStr, out int targetIndex))
@@ -132,13 +132,15 @@ namespace SchoolD.Dialogue
             istalking = false;
             dialogueList.Clear();
             dialogueStack.Clear();
-            if (SkipIndex > 0)
+            if (SkipIndex < 1)
             {
                 StoryProgressManager.Instance.MarkStoryAsCompleted(CurrentcsvFileName);
             }
             else
             {
-                StoryProgressManager.Instance.MarkDialogueLineCompleted(CurrentcsvFileName, SkipIndex);
+                Debug.LogWarning("当前csvname" + CurrentcsvFileName);
+                if (!CurrentcsvFileName.Equals("Tip0"))
+                    StoryProgressManager.Instance.MarkDialogueLineCompleted(CurrentcsvFileName, SkipIndex);
             }
 
             hasActiveDialogue = false;

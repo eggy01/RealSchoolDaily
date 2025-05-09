@@ -228,7 +228,6 @@ public class StoryProgressManager : MonoBehaviour
         if (storyProgressDict.ContainsKey(storyFileName))
         {
             storyProgressDict[storyFileName] = true;
-            //SaveProgress(); // 自动保存
         }
         else
         {

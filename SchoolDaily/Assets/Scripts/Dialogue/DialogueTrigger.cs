@@ -57,10 +57,8 @@ namespace SchoolD.Dialogue
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            Debug.Log("进入触发器");
             if (other.CompareTag("Player") && !requireKeyPress)
             {
-                Debug.Log("触发");
                 TryTriggerDialogue();
             }
 
@@ -70,56 +68,44 @@ namespace SchoolD.Dialogue
         {
             foreach (var option in dialogueOptions)
             {
-                Debug.Log("尝试触发");
                 if (ShouldSkipDialogue(option))
                 {
-                    Debug.Log("应该跳过" + option.dialogueCSV.name);
                     continue;
                 }
 
                 if (CanTriggerDialogue(option))
                 {
-                    Debug.Log("触发成功：" + option.dialogueCSV.name);
                     TriggerDialogue(option);
                     return;
                 }
             }
-
-            Debug.Log("没有符合条件的对话可触发");
         }
 
         private bool ShouldSkipDialogue(DialogueOption option)
         {
             // 如果是可重复对话，永不跳过
             if (!option.isOnce) return false;
-            Debug.Log(option.dialogueCSV.name + "完成状态：" + StoryProgressManager.Instance.IsDialogueLineCompleted(option.dialogueCSV.name, option.SkipIndex));
-            Debug.Log(option.dialogueCSV.name + "序号完成状态：" + StoryProgressManager.Instance.IsStoryCompleted(option.dialogueCSV.name));
             // 一次性对话检查完成状态
             return !StoryProgressManager.Instance.IsDialogueLineCompleted(option.dialogueCSV.name, option.SkipIndex) && StoryProgressManager.Instance.IsStoryCompleted(option.dialogueCSV.name);
         }
 
         private bool CanTriggerDialogue(DialogueOption option)
         {
-            Debug.Log("进入CantriggerDialogue:" + option.dialogueCSV.name);
             if (!string.IsNullOrEmpty(option.prerequisiteCondition))
             {
                 bool conditionMet = ConditionSystem.CheckAll(option.prerequisiteCondition);
-                Debug.Log($"对话:{option.dialogueCSV.name} 条件:{option.prerequisiteCondition} 满足:{conditionMet}");
                 if (!conditionMet) return false;
             }
 
             bool canUnlock = StoryProgressManager.Instance.CanUnlockStory(option.dialogueCSV.name);
-            Debug.Log($"对话:{option.dialogueCSV.name} 可解锁:{canUnlock}");
             // 检查条件是否满足
             if (!string.IsNullOrEmpty(option.prerequisiteCondition) &&
                 !ConditionSystem.CheckAll(option.prerequisiteCondition))
             {
-                Debug.Log($"条件未满足或未解锁: {option.prerequisiteCondition}");
                 return false;
             }
             if (!StoryProgressManager.Instance.CanUnlockStory(option.dialogueCSV.name))
             {
-                Debug.Log($"未解锁: ");
                 return false;
             }
             return true;
@@ -130,12 +116,12 @@ namespace SchoolD.Dialogue
             {
                 EventHandler.CallLoadDialogueByIndex(option.SkipIndex.ToString(), option.dialogueCSV.name);
                 // 正确标记完成
-                StoryProgressManager.Instance.MarkDialogueLineCompleted(option.dialogueCSV.name, option.SkipIndex);
+                if (!option.dialogueCSV.name.Equals("Tip0"))
+                    StoryProgressManager.Instance.MarkDialogueLineCompleted(option.dialogueCSV.name, option.SkipIndex);
             }
             else
             {
                 DialogueManager.Instance.TriggerDialogue(option.dialogueCSV.name);
-                //StoryProgressManager.Instance.MarkStoryAsCompleted(option.dialogueCSV.name);
             }
 
             CheckAllDialoguesCompleted();
