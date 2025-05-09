@@ -243,8 +243,7 @@ public class ChatSystem : MonoBehaviour, IWindow
         // Clean up
         if (isInPhoneMode)
         {
-            StartCoroutine(WaitForPlayerContinue());
-            WindowManager.Instance.CloseWindow(this);
+            yield return StartCoroutine(WaitForPlayerContinue());
         }
         yield return new WaitUntil(() => !isProcessingDeferredMessages);
     }
@@ -453,7 +452,7 @@ public class ChatSystem : MonoBehaviour, IWindow
                         timestamp = DateTime.Now.ToString(),
                         isPlayerMessage = false
                     };
-                    Debug.LogWarning("是npc消息");
+                    //Debug.LogWarning("是npc消息");
                     conversations[groupName].Add(npcRecord);
                     continue;
                 }
@@ -694,10 +693,10 @@ public class ChatSystem : MonoBehaviour, IWindow
         }
         // 打印删除后的延迟消息
         // Debug.Log("删除后的延迟消息列表:");
-        foreach (var msg in deferredMessages)
-        {
-            // Debug.Log($"- 群组: {msg.groupName}, 索引: {msg.pieceIndex}, 是否完成: {msg.isCompleted}");
-        }
+        // foreach (var msg in deferredMessages)
+        // {
+        //     // Debug.Log($"- 群组: {msg.groupName}, 索引: {msg.pieceIndex}, 是否完成: {msg.isCompleted}");
+        // }
     }
     #endregion
     private IEnumerator OpenChatRoutine(string groupName)
@@ -748,8 +747,8 @@ public class ChatSystem : MonoBehaviour, IWindow
                 groupName = senderName;
 
             // 调试输出
-            Debug.Log($"原始字符串: {piece.name}");
-            Debug.Log($"匹配结果: 群组='{groupName}', 发送者='{senderName}'");
+            //Debug.Log($"原始字符串: {piece.name}");
+            //Debug.Log($"匹配结果: 群组='{groupName}', 发送者='{senderName}'");
         }
         else
         {
@@ -957,16 +956,12 @@ public class ChatSystem : MonoBehaviour, IWindow
 
     private IEnumerator WaitForPlayerContinue()
     {
-        bool waiting = true;
-        while (waiting)
-        {
-            Debug.Log("NQChat等待玩家操作");
-            if (Input.GetMouseButtonDown(0))
-            {
-                waiting = false;
-            }
-            yield return null;
-        }
+        // 等待玩家点击
+        //yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
+        yield return new WaitForSeconds(1f);
+        // 玩家点击后才关闭窗口
+        WindowManager.Instance.CloseWindow(this);
+        isInPhoneMode = false; // 记得重置状态
     }
 
     private void CreateMessageListItem(string groupName, string lastMessage, Transform parent)

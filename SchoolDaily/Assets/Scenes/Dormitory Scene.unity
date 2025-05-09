@@ -4508,8 +4508,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90b9158a84650fa4c8604c4742a65cce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneToGo: Life Scene
-  positionToGo: {x: 27.7, y: 38, z: 0}
+  sceneToGo: DormitoryHallWay Scene
+  positionToGo: {x: 28, y: -3, z: 0}
 --- !u!61 &868608473
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -10472,11 +10472,11 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: f67e858574655144c9c02680bc1a73ba, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E57:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E57:00;\u65F6\u95F4.<=.9\u67084\u65E523:59"
     isOnce: 1
     SkipIndex: 0
   - dialogueCSV: {fileID: 4900000, guid: 8d1d67398adcded499689ad900a3d20b, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E519:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E519:00;\u65F6\u95F4.<=.9\u67084\u65E523:59"
     isOnce: 1
     SkipIndex: 0
 --- !u!1 &1797119050

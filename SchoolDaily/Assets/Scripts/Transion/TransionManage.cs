@@ -55,6 +55,7 @@ namespace SchoolD.Transition
             }
             else
             {
+                BeginAnimManager.Instance.SetPlayerPosition();
                 yield return StartCoroutine(LoadSceneSetActive(startSceneName, true));
             }
 

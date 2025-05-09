@@ -89835,8 +89835,8 @@ MonoBehaviour:
   CanTalkUI: {fileID: 0}
   requireKeyPress: 0
   dialogueOptions:
-  - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: 
+  - dialogueCSV: {fileID: 4900000, guid: 8f4bfd894bd43b0478cda47aaa942501, type: 3}
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u670824\u65E510:00;\u65F6\u95F4.<=.9\u670825\u65E523:00"
     isOnce: 1
     SkipIndex: 2
 --- !u!61 &705406992
@@ -90222,7 +90222,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 1
 --- !u!61 &789015295
@@ -91632,7 +91632,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 2
 --- !u!61 &910610750
@@ -155716,7 +155716,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 2
 --- !u!61 &1567545736
@@ -155972,7 +155972,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 3
 --- !u!61 &1625250704
@@ -156295,7 +156295,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 2
 --- !u!61 &2104949015

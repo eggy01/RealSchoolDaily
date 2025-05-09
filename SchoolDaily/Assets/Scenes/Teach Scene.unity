@@ -156,7 +156,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: 7cc6786e23713b9418abfffdd13ea57e, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 6
 --- !u!61 &5418019
@@ -113146,7 +113146,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: 81276ce3df24d864e924f2dcb3732eba, type: 3}
-    prerequisiteCondition: 
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67085\u65E510:00;\u65F6\u95F4.<=.9\u67085\u65E523:00"
     isOnce: 1
     SkipIndex: 0
 --- !u!61 &253402781
@@ -140629,7 +140629,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 9
 --- !u!61 &745845280
@@ -141339,7 +141339,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 7
 --- !u!61 &1149416424
@@ -142307,7 +142307,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 8
 --- !u!61 &1522118343
@@ -142404,7 +142404,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 7
 --- !u!61 &1541986907

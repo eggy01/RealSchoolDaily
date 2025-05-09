@@ -1,6 +1,6 @@
 ﻿ID,TriggerType,Condition,DialogueFile,Type,TimeLimit
 NightTip,Multi,时间.==.22:00;场景.Dormitory Scene.==.0,NightTip,Repeatable,
-3333,Multi,时间.>=.9月4日22:30;场景.Dormitory Scene.==.1,3333,,9月4日
+3333,Multi,时间.>=.9月4日22:30;场景.Dormitory Scene.==.1;时间.<=.9月4日23:59,3333,,9月4日
 Semester_01,Multi,时间.==.9月5日7:02;场景.Dormitory Scene.==.1,Semester_01,,9月5日
 Semester_04_2,Multi,时间.>=.9月5日11:30;场景.Canteen Scene.==.1,Semester_04_2,,9月5日
 Semester_05,Multi,时间.>=.9月5日13:00;时间.<.9月5日14:00;场景.Dormitory Scene.==.1,Semester_05,,9月5日

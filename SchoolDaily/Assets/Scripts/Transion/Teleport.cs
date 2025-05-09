@@ -15,15 +15,13 @@ namespace SchoolD.Transition
         {
             if (other.CompareTag("Player"))
             {
-                Debug.Log("目标场景：" + sceneToGo);
-                Debug.Log("目标位置：" + positionToGo);
 
                 if (TimeManager.Instance.GetHour() >= 23)
                 {
                     conntent = WeatherManager.Instance.IsOuterScene(sceneToGo) ? "太晚了，还是不要出门了" : "已经锁门了";
                     ToolTipSystem.Show(conntent, header);
                 }
-                else if (TimeManager.Instance.GetHour() <= 5)
+                else if (TimeManager.Instance.GetHour() <= 5 && !WeatherManager.Instance.IsOuterScene(sceneToGo))
                 {
                     conntent = "太早了，还没有开门";
                     ToolTipSystem.Show(conntent, header);

@@ -173,7 +173,7 @@ MonoBehaviour:
   - dialogueCSV: {fileID: 4900000, guid: 032b0ce4f40b043449db4032e52cd7de, type: 3}
     prerequisiteCondition: 
     isOnce: 0
-    SkipIndex: 0
+    SkipIndex: 1
 --- !u!61 &35444732
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1429,7 +1429,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 5
 --- !u!61 &497529509
@@ -56052,7 +56052,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: 50f1fb5877778aa4f8c2ef5079e83180, type: 3}
-    prerequisiteCondition: 
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67085\u65E58:00;\u65F6\u95F4.<=.9\u67085\u65E523:00"
     isOnce: 1
     SkipIndex: 0
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
@@ -165275,7 +165275,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 16
 --- !u!61 &1221977014
@@ -165372,7 +165372,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 4
 --- !u!61 &1336493504
@@ -204568,7 +204568,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: 2d0252221f0830b4a93b2de1b251bfa7, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.10\u670815\u65E58:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.10\u670815\u65E58:00;\u65F6\u95F4.<=.10\u670815\u65E512:00"
     isOnce: 0
     SkipIndex: 0
 --- !u!4 &1810749431
@@ -211075,7 +211075,7 @@ MonoBehaviour:
   requireKeyPress: 0
   dialogueOptions:
   - dialogueCSV: {fileID: 4900000, guid: b198b51b780a31449a2821c0f5d3e906, type: 3}
-    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67083\u65E510:00"
+    prerequisiteCondition: "\u65F6\u95F4.>=.9\u67084\u65E510:00;\u65F6\u95F4.<=.9\u67084\u65E523:00"
     isOnce: 1
     SkipIndex: 17
 --- !u!61 &2053750970
