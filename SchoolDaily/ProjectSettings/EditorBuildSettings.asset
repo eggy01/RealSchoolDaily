@@ -54,7 +54,7 @@ EditorBuildSettings:
     path: Assets/Scenes/LibraryReadingRoom Scene.unity
     guid: 4e5a377a301dab64ebcc3ac1b0027e74
   - enabled: 1
-    path: Assets/Scenes/LibraryStudyRoom Scene.unity
+    path: Assets/Scenes/LibraryStudyRoom2 Scene.unity
     guid: a1f16964441c04041b6ef71679d2e131
   - enabled: 1
     path: Assets/Scenes/PaintingRoom Scene.unity

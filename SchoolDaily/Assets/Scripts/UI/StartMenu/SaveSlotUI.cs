@@ -100,7 +100,6 @@ public class SaveSlotUI : MonoBehaviour
         PlayerPrefs.SetInt("IsNewGame_" + slot, isNewGame ? 1 : 0);
         PlayerPrefs.Save();
 
-
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("PersistScene");
         while (!asyncLoad.isDone) yield return null;
         SaveManager.Instance.NewGame(slot);

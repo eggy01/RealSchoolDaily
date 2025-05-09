@@ -101,11 +101,6 @@ public class StoryProgressManager : MonoBehaviour
                 //EventHandler.CallStoryAutoCompletedEvent(storyID);
             }
         }
-
-        // if (anyChange)
-        // {
-        //     SaveProgress();
-        // }
     }
     public void setStoryCompleted(string storyID)
     {

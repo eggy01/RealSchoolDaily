@@ -80,12 +80,12 @@ public class SaveManager : MonoBehaviour
         if (StoryProgressManager.Instance != null)
         {
             string storyPath = Path.Combine(GetSaveFolderPath(slot), "story_save.dat");
-            if (newGame)
-            {
-                Debug.Log("新游戏加载");
-                StoryProgressManager.Instance.LoadStoryProgressFromCSV();//新游戏时，先从文件加载基础数据}
-                EventHandler.callLoadCSVCompleted();
-            }
+            // if (newGame)
+            // {
+            //     Debug.Log("新游戏加载");
+            //     StoryProgressManager.Instance.LoadStoryProgressFromCSV();//新游戏时，先从文件加载基础数据}
+            //     //EventHandler.callLoadCSVCompleted();
+            // }
             StoryProgressManager.Instance.SaveProgress(storyPath);
         }
         // 保存任务进度

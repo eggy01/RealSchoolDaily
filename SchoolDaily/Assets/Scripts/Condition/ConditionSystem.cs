@@ -63,10 +63,12 @@ public static class ConditionSystem
             op = parts[2];
             int requiredValue = int.Parse(parts[3]);
 
+
             if (!_valueGetters.TryGetValue(type, out var getter))
                 throw new ArgumentException($"未知条件类型: {type}");
 
             int currentValue = getter(target);
+            Debug.LogWarning("当前值：" + currentValue);
 
             return Compare(currentValue, op, requiredValue);
         }
@@ -108,6 +110,8 @@ public static class ConditionSystem
     public static int GetFavorability(string npcName)
     {
         string npcID = NPCLoad.Instance.GetNPCIDByName(npcName);
+        if (NPCManager.Instance.GetNPCData(npcID) == null)
+            return 0;
         return NPCManager.Instance.GetNPCData(npcID).Favorability;
     }
     private static int GetTalent(string arg)

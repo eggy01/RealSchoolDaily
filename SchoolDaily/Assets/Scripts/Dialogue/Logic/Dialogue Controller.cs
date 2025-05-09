@@ -43,7 +43,7 @@ namespace SchoolD.Dialogue
 
             EventHandler.OnLoadDialogueByIndex += HandleIndex;
             EventHandler.OnStartNewDialogueEvent += HandleStartNew;
-            EventHandler.LoadCSVCompleted += StartCheck;//基础数据加载完成后
+
 
             // 自动注册所有对话
             foreach (var csv in csvFiles)
@@ -52,6 +52,14 @@ namespace SchoolD.Dialogue
             }
             if (DefaultcsvFile != null)
                 DialogueManager.Instance.RegisterDialogue(DefaultcsvFile);
+        }
+        void OnEnable()
+        {
+            EventHandler.LoadCSVCompleted += StartCheck;//基础数据加载完成后
+        }
+        void OnDisable()
+        {
+            EventHandler.LoadCSVCompleted -= StartCheck;//基础数据加载完成后
         }
 
         private void HandleStartNew(string StartcsvFilename, System.Action action)
@@ -70,7 +78,6 @@ namespace SchoolD.Dialogue
         {
             EventHandler.OnLoadDialogueByIndex -= HandleIndex;
             EventHandler.OnStartNewDialogueEvent -= HandleStartNew;
-            EventHandler.LoadCSVCompleted -= StartCheck;//基础数据加载完成后
         }
 
         private void HandleIndex(string index, string belongToCSVFileName)
@@ -85,9 +92,14 @@ namespace SchoolD.Dialogue
                 hasActiveDialogue = false;
             }
         }
+        private void Start()
+        {
+            StartCheck();
+        }
 
         private void StartCheck()
         {
+            Debug.LogWarning("开始剧情检测");
             CheckAvailableDialogue();
 
             // 然后开始定期检测
@@ -108,7 +120,7 @@ namespace SchoolD.Dialogue
         }
         private void CheckAvailableDialogue()
         {
-            Debug.Log("开启可用剧情检测");
+            Debug.LogWarning("开启可用剧情检测" + hasActiveDialogue + csvFiles.Length + gameObject.name);
             // 如果已经加载过剧情文件，则不再加载
             if (hasActiveDialogue)
             {
@@ -117,6 +129,7 @@ namespace SchoolD.Dialogue
             // 加载CSV数据
             if (csvFiles.Length > 0)
             {
+                Debug.LogWarning("111111111111111111");
                 for (int i = 0; i < csvFiles.Length; i++)
                 {
                     Debug.Log("能被解锁：" + csvFiles[i].name + StoryProgressManager.Instance.CanUnlockStory(csvFiles[i].name));

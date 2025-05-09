@@ -44,6 +44,7 @@ namespace SchoolD.Transition
 
             if (isNewGame)
             {
+                StoryProgressManager.Instance.LoadStoryProgressFromCSV();//先从文件中加载基础数据
                 // 播放动画
                 yield return BeginAnimManager.Instance.ShowAcceptTanceLetter();//录取通知书开场动画
                 yield return StartCoroutine(LoadSceneSetActive(startSceneName, true));
@@ -82,7 +83,7 @@ namespace SchoolD.Transition
             // yield return Fade(1);
 
             yield return SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene());
-            Debug.Log("加载：" + sceneName);
+            //Debug.Log("加载：" + sceneName);
 
             yield return LoadSceneSetActive(sceneName);
 
