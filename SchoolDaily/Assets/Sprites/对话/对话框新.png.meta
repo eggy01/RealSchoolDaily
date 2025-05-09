@@ -121,10 +121,10 @@ TextureImporter:
       name: "\u5BF9\u8BDD\u6846\u65B0\u53F3"
       rect:
         serializedVersion: 2
-        x: 14
-        y: 139
-        width: 306
-        height: 95
+        x: 12
+        y: 137
+        width: 310
+        height: 97
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -139,76 +139,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: "\u5BF9\u8BDD\u6846\u65B0_2"
-      rect:
-        serializedVersion: 2
-        x: 318
-        y: 230
-        width: 4
-        height: 4
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: c62433155c604594d85f812a660bacd8
-      internalID: 1603177774
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "\u5BF9\u8BDD\u6846\u65B0_3"
-      rect:
-        serializedVersion: 2
-        x: 12
-        y: 137
-        width: 4
-        height: 4
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 5606937a31e72834a885d3bf58c3ee9c
-      internalID: -1190463483
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "\u5BF9\u8BDD\u6846\u65B0_4"
-      rect:
-        serializedVersion: 2
-        x: 318
-        y: 137
-        width: 4
-        height: 4
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 46eeb1f5c2671234294f60dd4b57179d
-      internalID: -438155658
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
       name: "\u5BF9\u8BDD\u6846\u65B0\u5DE6"
       rect:
         serializedVersion: 2
         x: 15
         y: 11
         width: 310
-        height: 109
+        height: 98
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -218,27 +155,6 @@ TextureImporter:
       bones: []
       spriteID: 600e54b22e25d9540af54e993b8e3885
       internalID: -1741233697
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: "\u5BF9\u8BDD\u6846\u65B0_6"
-      rect:
-        serializedVersion: 2
-        x: 15
-        y: 105
-        width: 4
-        height: 4
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: e77ffa7b775d3a1448e3b0048e49b127
-      internalID: -174751891
       vertices: []
       indices: 
       edges: []
