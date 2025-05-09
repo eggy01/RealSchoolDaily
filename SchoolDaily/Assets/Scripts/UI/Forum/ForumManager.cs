@@ -94,6 +94,7 @@ public class ForumUIManager : MonoBehaviour, IWindow
     {
         UIPanel.SetActive(false);
         forumPanel.SetActive(true);
+        ResetAllSectionButtons();
         ShowDefaultSection();
         postListPanel.SetActive(true);
         postDetailPanel.SetActive(false);
@@ -180,6 +181,13 @@ public class ForumUIManager : MonoBehaviour, IWindow
     }
 
     // 显示默认版块
+    private void ResetAllSectionButtons()
+    {
+        foreach (Transform child in sectionListParent)
+        {
+            child.GetComponent<Image>().sprite = normalSectionSprite;
+        }
+    }
     void ShowDefaultSection()
     {
         if (forumData.sections.Count > 0)
